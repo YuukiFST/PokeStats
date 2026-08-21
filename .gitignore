@@ -1,0 +1,6 @@
+# Raw artifacts fetched by research agents while resolving wayfinder tickets.
+# The curated findings are committed as .scratch/<effort>/research/*.md; the
+# scraped HTML/JSON they were derived from is working scratch, not source.
+.scratch/*/research/*
+!.scratch/*/research/*.md
+!.scratch/*/research/geist-tokens.css
