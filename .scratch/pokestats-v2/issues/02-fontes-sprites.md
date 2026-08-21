@@ -108,3 +108,13 @@ Licenciado para redistribuição num `.exe`: **nenhuma fonte afirma isso**. O ú
 por fonte é escrever para `staff@pokemonshowdown.com`, como o `smogon/sprites` pede.
 
 Isto não é parecer jurídico — é o que as fontes dizem. A decisão fica em *Pipeline de assets*.
+
+### Correção posterior, vinda de *Fonte de stats e sprites das megas de Legends: Z-A*
+
+A afirmação acima de que os espelhos Showdown e Smogon são **byte a byte idênticos não vale
+universalmente**. Vale para o dex clássico; não vale para as 45 megas de Legends: Z-A, onde o
+espelho `xy/` do Smogon está atrasado (24 de 49 contra 35 do Showdown) e `Feraligatr-Mega` difere de
+fato entre os dois. **Puxar do Showdown, não do espelho do Smogon.**
+
+Também: `smogon.com/dex/*` devolve **400 para requisição sem User-Agent de navegador**, em toda
+geração — o V1 não mandava nenhum.

@@ -18,3 +18,13 @@ o Dataset é versionado; e o que acontece com dados do usuário quando o Dataset
 
 Definir também o comportamento quando a coleta falha parcialmente: build quebra, ou artefato sai
 incompleto com aviso.
+
+**Fatos já fechados que este ticket herda:** *Estrutura, volume e termos dos dados de Set do Smogon*
+mostrou que raspagem é dispensável — `@pkmn/dex` (MIT) dá stats por geração e tiers,
+`data.pkmn.cc/sets/gen{1..9}.json` dá 19.582 Sets em 9 requisições, e a altura sai do `heightm` do
+`pokedex.ts` do Showdown. *Fonte de stats e sprites das megas de Legends: Z-A* acrescentou: as 45
+megas Z-A já estão no `pokedex.ts` marcadas `isNonstandard: "Future"`, mas **as abilities delas
+precisam vir do jar do addon**, que diverge do Showdown em 16 de 49 formas, e o parser tem de tratar
+`primaryType`/`secondaryType` como herdados quando ausentes. Se alguma raspagem sobrar como
+fallback, ela **precisa mandar User-Agent de navegador** — `smogon.com/dex/*` devolve 400 sem ele,
+que é uma das razões pelas quais o coletor do V1 era frágil.

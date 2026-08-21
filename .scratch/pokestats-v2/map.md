@@ -57,6 +57,26 @@ em qualquer decisão de arquitetura; `prototype` no ticket de UI; `prove` no tic
   Fonte Geist é OFL 1.1 e permite embutir. Elevação é borda de 1px, não sombra. Não existe biblioteca
   de componentes Geist pública. Fora da webview, WPF e Win32 estão descartados e WinUI 3 falha em
   hairline e em grid.
+- [04 — Estrutura, volume e termos dos dados de Set do Smogon](issues/04-dados-sets-smogon.md) —
+  raspar é desnecessário: `@pkmn/dex` (MIT) dá base stats por geração e tiers, `data.pkmn.cc` dá
+  19.582 Sets em 9 requisições, total ~5 MB embutidos. **`Champions` É uma Dex Generation do Smogon**
+  (10 no total) e **Base Stats mudam entre gerações**. Texto dos Sets é copyright declarado do Smogon.
+- [05 — Candidatos de stack para desktop Windows offline e rápido](issues/05-candidatos-de-stack.md)
+  — extrair 154 MB para `%TEMP%` nesta máquina custa **2.801 ms**, o que mata Flet e qualquer onefile
+  que materialize o payload; recurso embutido em PE é paginado por demanda e custa ~0 ms. Shortlist:
+  Tauri v2, Electron, .NET 9 WPF. Só webview reproduz Geist 1:1. Flutter, WinUI 3 e Avalonia
+  eliminados por fato específico cada.
+- [19 — Fonte de stats e sprites das megas de Legends: Z-A](issues/19-megas-legends-za.md) — premissa
+  errada a favor do projeto: o `pokedex.ts` do Showdown **já traz as 45**, marcadas
+  `isNonstandard: "Future"`, stats idênticos ao jar do addon (0 divergências). Abilities divergem em
+  16 formas — tirar do jar. **Sprite animado existe para só 9 de 49**; PokéAPI HOME cobre 48/48.
+- [20 — Avaliar Vercel Labs `native` como stack](issues/20-vercel-labs-native.md) — não constrói este
+  app: sem codec de GIF (a palavra não existe no repo), 16 slots de imagem, e `package --target
+  windows` emite diretório, não `.exe`. Achado que compensa: o site `native-sdk.dev` é Next.js +
+  Tailwind + `geist`, com 212 tokens `--ds-*` — o visual desejado é stack web comum.
+- [06 — Escolher a stack](issues/06-escolher-stack.md) — **Tauri v2** + React + TypeScript + Vite,
+  Tailwind + shadcn re-tematizado com os tokens Geist, TanStack Table + Virtual. WPF caiu por não ter
+  letter-spacing; Electron perdeu por ~400 MB e extração em `%TEMP%`. Exige instalar Rust + MSVC.
 
 ## Ainda não especificado
 

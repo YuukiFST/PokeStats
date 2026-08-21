@@ -48,8 +48,11 @@ Smogon, Bulbapedia or Cobblemon uses it, the divergence is stated explicitly.
 Two independent axes. Conflating them is the most likely modelling error in this project.
 
 - **Dex Generation** — which mainline generation's data a page describes, and the Smogon dex path
-  segment for it: `xy` (Gen 6), `sm` (Gen 7), `ss` (Gen 8), `sv` (Gen 9). A Form's Base Stats can
-  differ between Dex Generations. V1 read only `sv`.
+  segment for it. Ten exist: `rb`, `gs`, `rs`, `dp`, `bw`, `xy`, `sm`, `ss`, `sv`, and `champions`.
+  A Form's Base Stats **do** differ between Dex Generations — Gengar has SpD 130 in `rb` and 75 in
+  `gs`, Alakazam 135 then 85 then 95 — because Gen 1 had a single Special stat and Gen 6 rebalanced
+  several species. So Base Stats are keyed by (Form, Dex Generation), never by Form alone. V1 read
+  only `sv`.
 - **Format** — a competitive ruleset within one Dex Generation: OU, UU, RU, NU, PU, Ubers, LC,
   Monotype, Doubles OU, VGC. A Form has a different Set in each Format it is played in.
 - **Tier** — the Format a Form is *assigned to* by Smogon's usage-based classification, shown as a
