@@ -18,9 +18,11 @@ Não há o que decidir aqui — há trabalho manual a fazer, e ele destrava deci
 
 ## Checklist
 
-1. **Aprovação do usuário para mudar a máquina.** Instalar `rustup` com toolchain MSVC e as Build
-   Tools do Visual Studio com workload C++. Node 22.18.0 já está presente. Não instalar nada antes
-   de o usuário aprovar.
+1. **Rodar na máquina de desenvolvimento, não nesta.** O usuário decidiu que **nada será instalado
+   na máquina atual** (i3-9100F, Windows 11) — o desenvolvimento acontece em outra. A máquina de
+   desenvolvimento precisa de `rustup` com toolchain MSVC, das Build Tools do Visual Studio com
+   workload C++, e de Node 22+. Registrar o hardware dela junto das medições, senão os números não
+   comparam com os 2.801 ms medidos aqui.
 2. Baixar um recorte representativo do conjunto `ani/` do Pokémon Showdown — o suficiente para
    chegar perto de 155 MB, incluindo os arquivos extremos medidos em *Fontes de sprite animado,
    licença e volume* (`charizard-gmax.gif` com 593.355 B, `koraidon.gif` com 325.605 B).

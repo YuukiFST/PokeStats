@@ -1,6 +1,13 @@
 # Mapa: PokeStats v2
 
-Label: `wayfinder:map`
+> **O tracker canônico é o GitHub Issues deste repo, não este arquivo.**
+> O mapa é a issue [#1](https://github.com/YuukiFST/PokeStats/issues/1); cada ticket é uma
+> sub-issue dela, com label `wayfinder:<tipo>` e as dependências nativas do GitHub como arestas de
+> bloqueio. Ticket NN corresponde à issue **#NN+1** (ticket 01 = #2, ticket 21 = #22).
+>
+> Esta pasta permanece como **arquivo de pesquisa**: `research/` guarda os relatórios completos e o
+> `geist-tokens.css`, que as issues referenciam por link. Os `.md` em `issues/` são o snapshot de
+> onde o mapa estava na migração — ao trabalhar o mapa, ler e escrever nas issues do GitHub.
 
 ## Destino
 
