@@ -19,6 +19,12 @@ Smogon, Bulbapedia or Cobblemon uses it, the divergence is stated explicitly.
 - **Form Kind** — the classifier that makes a Form filterable: `base`, `mega`, `gmax`, `primal`,
   `regional`, `battle-only`, `cosmetic`. A Form carries exactly one Form Kind. Filters like
   "megas off" operate on this field, never on string matching the name.
+- **Redundant Form** — a Form that repeats its parent Form's BaseStatSpread, Types **and**
+  Abilities and owns no Set in any (Dex Generation, Format). Redundant Forms are cut from the
+  Dataset and survive only as sprite variants of the parent, so `cosmetic` never reaches a dex row.
+  The rule is mechanical, applies transitively — cutting a Form cuts the Forms derived from it —
+  and has exactly one exception: `gmax`, which is stat-identical to its parent by design yet owns
+  10 Sets of its own. It cuts 31 Forms, leaving 1,325.
 - **CAP** — Create-A-Pokémon, fan-designed Pokémon published on Smogon's dex (`Syclar`,
   `Necturna`, `Volkraken`, ~27 others). They are **not Pokémon** and exist in no game or mod.
   PokeStats excludes them from the dataset entirely. V1 shipped them and its rankings were wrong.
@@ -51,8 +57,14 @@ Two independent axes. Conflating them is the most likely modelling error in this
   segment for it. Ten exist: `rb`, `gs`, `rs`, `dp`, `bw`, `xy`, `sm`, `ss`, `sv`, and `champions`.
   A Form's Base Stats **do** differ between Dex Generations — Gengar has SpD 130 in `rb` and 75 in
   `gs`, Alakazam 135 then 85 then 95 — because Gen 1 had a single Special stat and Gen 6 rebalanced
-  several species. So Base Stats are keyed by (Form, Dex Generation), never by Form alone. V1 read
-  only `sv`.
+  several species. V1 read only `sv`.
+  The Dataset resolves this as **one Canonical Table plus Overrides**, not as a table keyed by
+  (Form, Dex Generation): the Canonical Table is keyed by Form alone and holds the `sv` values plus
+  the Legends: Z-A Megas, because Cobbleverse runs a Gen 9 engine and every ranking, comparison and
+  Defensive Profile in PokeStats has to agree with the player's game. The historical values live in
+  a separate Override table keyed by (Form, Dex Generation) — 173 rows for Base Stats and 29 for
+  Types across `rb`..`sv` — and surface only inside a Set belonging to that Dex Generation.
+  **Abilities are not versioned**: a Set already names its own Ability when one applies.
 - **Format** — a competitive ruleset within one Dex Generation: OU, UU, RU, NU, PU, Ubers, LC,
   Monotype, Doubles OU, VGC. A Form has a different Set in each Format it is played in.
 - **Tier** — the Format a Form is *assigned to* by Smogon's usage-based classification, shown as a
