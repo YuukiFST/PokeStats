@@ -134,6 +134,29 @@ seguia com dado pela metade.
 outra e não inventa valor — ou existe degrau explícito e medido, como no Tier, ou a asserção quebra o
 build.
 
+#### O alias de nome que a A10 precisa para ser verdade
+
+O `FormId` é o slug canônico, e o slug basta para casar `pokedex.ts`, `formats-data.ts` e os dumps
+`dump-basics` — o ticket 08 mediu 1517 de 1517 sem colisão (A1).
+**O `data.pkmn.cc` é a única fonte que não obedece**, e por uma entrada só.
+
+Ele nomeia as duas formas de gênero do Meowstic como `Meowstic` e `Meowstic-F`, enquanto o
+`basics_sv` e o `pokedex.ts` nomeiam `Meowstic-M` e `Meowstic-F`.
+O slug de `Meowstic` é `meowstic`, que **não existe na tabela final**: ela tem `meowsticm` e
+`meowsticf`.
+São **7 Sets** — 4 em `gen6`, 1 em `gen7`, 1 em `gen8`, 1 em `gen9` — que casariam com Form nenhuma.
+
+Correção: **uma tabela de alias explícita no `read/`**, hoje com uma linha, `Meowstic` → `meowsticm`.
+Ela é constante do coletor, não heurística: nada de "se não achar, tenta acrescentar `-M`", que é
+exatamente o tipo de adivinhação que fez o coletor do V1 falhar em silêncio.
+
+Isso **não muda o número da A10** — aliasado, `meowstic` vira `meowsticm` e continuam 1.118 Forms com
+Set e zero órfãs.
+Muda o que a A10 exige para passar: sem o alias ela falha com 1 órfã, e essa órfã é a única do corpus
+inteiro.
+Alias novo aparecendo depois é sinal de que a fonte mudou de convenção, e a asserção é o que obriga a
+olhar.
+
 ### 7. A regra de Tier, em quatro degraus mais `null`
 
 A regra da primeira rodada tinha dois degraus, ganhou um terceiro na medição seguinte, e **ganhou um
@@ -377,7 +400,7 @@ Todas rodam dentro do coletor, no caminho de emissão (seção 9).
 | A7 | Forms por número de traits | 0 tem 1116, 1 tem 201, 2 tem 8 |
 | A8 | combinações de slot de ability, soma igual a A4 | 0:363, 0H:355, 01H:603, 0S:2, 0HS:1, 01HS:1 |
 | A9 | Sets após cortar `cap` e `letsgoou` | 19.164 em 162 pares |
-| A10 | **todo Set referencia uma Form existente** | 1118 Forms com Set, 0 órfãs |
+| A10 | **todo Set referencia uma Form existente**, depois do alias da seção 6 | 1118 Forms com Set, 0 órfãs |
 | A11 | divergência de abilities entre o jar `zamega` e o `pokedex.ts` | exatamente 16 formas |
 | A12 | **todo Format tem classe** | 61 de 61 |
 | A13 | **Tier por degrau da escada da seção 7** | 816 / 378 / 37 / 42 / 52 |
