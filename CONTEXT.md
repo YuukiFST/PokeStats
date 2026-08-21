@@ -71,6 +71,11 @@ Two independent axes. Conflating them is the most likely modelling error in this
   label on the dex page (`OU`, `PUBL`, `UUBL`). Tier is a property of a Form within a Dex
   Generation; Format is the ruleset a Set belongs to. They share vocabulary and are not the same
   field.
+  PokeStats stores **one Tier per Form**, the one that agrees with the player's Gen 9 game, resolved
+  by a fixed ladder: the SV tier, then the National Dex tier, then the SV dex's own tier for the
+  Forms Showdown has no entry for, then the `Champions` tier, then nothing. A Tier may be **absent**
+  — 52 of the 1,325 Forms have none, and that is `null`, never a placeholder string. `Illegal` is
+  not a Tier and never reaches the Dataset.
 - **Set** — a published competitive build for one Form, in one Format, in one Dex Generation:
   a name (`Dragon Dance`), up to 4 Moves (with alternatives), an Item, an Ability, a Nature, an
   EV spread and optionally IVs and a Tera Type. The user calls these "builds"; the canonical

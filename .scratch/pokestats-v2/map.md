@@ -3,7 +3,9 @@
 > **O tracker canônico é o GitHub Issues deste repo, não este arquivo.**
 > O mapa é a issue [#1](https://github.com/YuukiFST/PokeStats/issues/1); cada ticket é uma
 > sub-issue dela, com label `wayfinder:<tipo>` e as dependências nativas do GitHub como arestas de
-> bloqueio. Ticket NN corresponde à issue **#NN+1** (ticket 01 = #2, ticket 21 = #22).
+> bloqueio. Ticket NN corresponde à issue **#NN+1** só até o ticket 21 (ticket 01 = #2,
+> ticket 21 = #22); a partir daí as PRs consumiram números e a correspondência quebra —
+> **ticket 22 = issue #25, ticket 23 = issue #27**. Conferir o título da issue, nunca calcular.
 >
 > Esta pasta permanece como **arquivo de pesquisa**: `research/` guarda os relatórios completos e o
 > `geist-tokens.css`, que as issues referenciam por link. Os `.md` em `issues/` são o snapshot de
