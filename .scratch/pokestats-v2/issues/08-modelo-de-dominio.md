@@ -362,15 +362,31 @@ O build quebra se qualquer uma falhar.
 
 A A11 vem do ticket 19 e **nunca foi medida de novo** — é a única da tabela nessa condição.
 
-**Predicado mecânico para as Megas de Legends: Z-A.**
-Uma Form é Z-A se o nome casa `-Mega` no `ps_pokedex.ts` **e** ela está ausente do `basics_sv`
-filtrado por `Standard` e `NatDex`.
-Isso rende exatamente 49, sem falso positivo e sem falso negativo.
-Importa porque **o seletor que o ticket 19 documentou não existe**: `isNonstandard` não aparece
-nenhuma vez no `ps_pokedex.ts` desta pasta, e o `gen: 9` que sobrava como alternativa pega só 43 das
-49 e ainda captura `Ursaluna-Bloodmoon`, que não é mega.
-O mesmo vale para a exclusão de CAP, que passa a sair por `num <= 0`.
-Registrado em detalhe para o ticket 09, que é quem escreve o coletor.
+**Identificação das Megas de Legends: Z-A — dois seletores independentes que concordam.**
+
+1. **`isNonstandard: "Future"` no `ps_formatsdata.ts`** — 49 entradas.
+2. **Predicado derivado:** o nome casa `-Mega` no `ps_pokedex.ts` **e** a Form está ausente do
+   `basics_sv` filtrado por `Standard` e `NatDex` — 49 entradas.
+
+Os dois conjuntos são **idênticos**: zero divergência nos dois sentidos.
+O coletor usa o primeiro como fonte e o segundo como asserção cruzada, o que é mais forte do que
+qualquer um sozinho.
+
+*Correção registrada:* a primeira redação deste ticket afirmava que o seletor `isNonstandard`
+documentado pelo ticket 19 **não existia**. Ele existe — no `ps_formatsdata.ts`, arquivo irmão do
+`ps_pokedex.ts` e igualmente presente em `research/`. O erro foi procurá-lo no `pokedex.ts`, onde de
+fato não aparece nenhuma vez, porque no modelo de dados do Showdown `isNonstandard` é um campo de
+`FormatsData`, não de `Pokedex`. A distribuição completa lá é `Past` 452, `CAP` 82, `Future` 49,
+`Custom` 19, `LGPE` 2.
+
+A exclusão de CAP tem, pelo mesmo motivo, dois caminhos que concordam: `num <= 0` no `pokedex.ts`
+(100 entradas, incluindo `MissingNo.`) e `isNonstandard: "CAP"` no `ps_formatsdata.ts` (82), o mesmo
+82 que o `basics_sv` reporta.
+
+O `ps_formatsdata.ts` também traz `tier`, `natDexTier` e `doublesTier` por Form, e é uma fonte de
+Tier mais fina que o `basics_sv` para as Megas — `charizardmegax` sai como `natDexTier: "UUBL"` ali,
+enquanto no `basics_sv` ele cai no balde genérico `National Dex`, que cobre 397 Forms. Qual fonte
+alimenta qual campo é decisão do ticket 09 — Pipeline de dados (issue #10).
 
 ### 9. O que não foi decidido aqui
 
@@ -388,8 +404,9 @@ Registrado em detalhe para o ticket 09, que é quem escreve o coletor.
   Forms inexistentes. O total de Sets vai de 19.524 para **19.164**, em 162 pares.
 - **`CONTEXT.md`**: `Form Kind` de valor único vira `Form Trait` de conjunto, `cosmetic` sai do
   vocabulário, `Form Id` entra como termo, e `Base Form` ganha a invariante mecânica 1025 = 1025.
-- **Ticket 19 e ticket 09**: o seletor `isNonstandard: "Future"` não existe no `ps_pokedex.ts`
-  local. Substituído pelo predicado da seção 8.
+- **Ticket 19**: nada a corrigir. O seletor `isNonstandard: "Future"` existe e rende as 49 Megas de
+  Z-A exatamente — ele mora em `ps_formatsdata.ts`, não em `ps_pokedex.ts`. Uma redação anterior
+  deste ticket afirmava o contrário; ver a correção na seção 8.
 - **R5 revisado pelo usuário** durante este ticket: a abertura do programa pode demorar desde que
   haja tela de carregamento com feedback visual; o que tem de ser extremamente responsivo é toda
   ação do usuário. Reforça a rejeição do SQLite e muda a justificativa do split `core` e `sets`.
