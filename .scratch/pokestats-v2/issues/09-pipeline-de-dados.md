@@ -134,28 +134,34 @@ seguia com dado pela metade.
 outra e não inventa valor — ou existe degrau explícito e medido, como no Tier, ou a asserção quebra o
 build.
 
-#### O alias de nome que a A10 precisa para ser verdade
+#### O alias de nome de que a tabela candidata depende
 
-O `FormId` é o slug canônico, e o slug basta para casar `pokedex.ts`, `formats-data.ts` e os dumps
-`dump-basics` — o ticket 08 mediu 1517 de 1517 sem colisão (A1).
-**O `data.pkmn.cc` é a única fonte que não obedece**, e por uma entrada só.
+O `FormId` é o slug canônico e vem da **chave do `pokedex.ts`** — o ticket 08 mediu 1517 de 1517 sem
+colisão (A1).
+Toda fonte tem de casar com essa chave, e o slug puro basta em todas, menos uma entrada.
 
-Ele nomeia as duas formas de gênero do Meowstic como `Meowstic` e `Meowstic-F`, enquanto o
-`basics_sv` e o `pokedex.ts` nomeiam `Meowstic-M` e `Meowstic-F`.
-O slug de `Meowstic` é `meowstic`, que **não existe na tabela final**: ela tem `meowsticm` e
-`meowsticf`.
-São **7 Sets** — 4 em `gen6`, 1 em `gen7`, 1 em `gen8`, 1 em `gen9` — que casariam com Form nenhuma.
+**O `dump-basics` do Smogon é a fonte que diverge**, e por uma Form só.
+Ele nomeia as duas formas de gênero do Meowstic como `Meowstic-M` e `Meowstic-F`, enquanto o
+`pokedex.ts` tem `meowstic` (nome `Meowstic`, Psychic) e `meowsticf`, e **`meowsticm` não existe**.
+O `formats-data.ts` tem só `meowstic` — nem `meowsticf`, nem `meowsticm`.
+`Meowstic-M` é a única entrada do `basics_sv` (1.273) e a única do `basics_champions` (323) sem linha
+no `pokedex.ts`.
 
-Correção: **uma tabela de alias explícita no `read/`**, hoje com uma linha, `Meowstic` → `meowsticm`.
-Ela é constante do coletor, não heurística: nada de "se não achar, tenta acrescentar `-M`", que é
-exatamente o tipo de adivinhação que fez o coletor do V1 falhar em silêncio.
+Sem alias, a tabela candidata cunha uma Form `meowsticm` **sem stats e sem tipos**, porque o
+`pokedex.ts` não tem o que dar a ela.
+Isso é pior que Set órfão: é linha de dex vazia.
 
-Isso **não muda o número da A10** — aliasado, `meowstic` vira `meowsticm` e continuam 1.118 Forms com
-Set e zero órfãs.
-Muda o que a A10 exige para passar: sem o alias ela falha com 1 órfã, e essa órfã é a única do corpus
-inteiro.
+Correção: **tabela de alias explícita no `read/` do `dump-basics`**, hoje com uma linha,
+`Meowstic-M` → `meowstic`.
+Constante do coletor, não heurística: nada de "se não achar, tenta tirar o sufixo de gênero", que é o
+tipo de adivinhação que fez o coletor do V1 falhar em silêncio.
 Alias novo aparecendo depois é sinal de que a fonte mudou de convenção, e a asserção é o que obriga a
 olhar.
+
+**O `data.pkmn.cc` não precisa de alias.**
+Ele nomeia os Sets do Meowstic macho como `Meowstic`, que é exatamente a chave do `pokedex.ts`.
+Medido: as 1.118 Forms que possuem Set casam todas com a tabela final, **zero órfãs** — a A10 vale
+por slug puro, desde que o alias acima já tenha sido aplicado do outro lado.
 
 ### 7. A regra de Tier, em quatro degraus mais `null`
 
@@ -174,18 +180,18 @@ Aplicada às 1.325 Forms finais:
 
 | degrau | fonte | Forms |
 |---|---|---|
-| 1 | `formats-data.tier` | 816 |
+| 1 | `formats-data.tier` | 817 |
 | 2 | `formats-data.natDexTier` | 378 |
-| 3 | `basics_sv.formats` | 37 |
+| 3 | `basics_sv.formats` | 36 |
 | 4 | `basics_champions.formats` | 42 |
 | 5 | `null` | 52 |
 | | **total** | **1325** |
 
 #### Por que o degrau 3 existe
 
-**52 Forms do `basics_sv` não têm entrada nenhuma no `formats-data.ts`** — não é `tier: "Illegal"`, é
+**51 Forms do `basics_sv` não têm entrada nenhuma no `formats-data.ts`** — não é `tier: "Illegal"`, é
 ausência do objeto.
-São 27 Species, com os 17 tipos do `Arceus` e as 4 `Ogerpon-Tera` respondendo por 21 delas, mais
+São 26 Species, com os 17 tipos do `Arceus` e as 4 `Ogerpon-Tera` respondendo por 21 delas, mais
 `Terapagos-Terastal`, `Basculin` listrado, `Squawkabilly`, `Meowstic-F`, `Meowstic-M`,
 `Greninja-Bond`, `Toxtricity-Low-Key`, `Zarude-Dada` e outras.
 
@@ -193,7 +199,7 @@ A escada de três degraus lia `tier` e `natDexTier` de um objeto inexistente e c
 O resultado visível seria `Arceus` marcado `Uber` e `Arceus-Fire` sem Tier nenhum, na mesma tabela.
 
 O `basics_sv` carrega o Tier dessas Forms, e **concorda com o `formats-data` onde os dois existem:
-824 Forms comparáveis, 824 iguais, zero divergência**.
+825 Forms comparáveis, 825 iguais, zero divergência**.
 O degrau só dispara onde o `formats-data` não tem entrada — não é fonte concorrente, é a mesma
 informação preenchendo o buraco que a outra deixou.
 
@@ -392,7 +398,7 @@ Todas rodam dentro do coletor, no caminho de emissão (seção 9).
 | # | Asserção | Valor esperado |
 |---|---|---|
 | A1 | chave do `ps_pokedex.ts` igual ao slug do nome, em toda entrada | 1517 de 1517 |
-| A2 | tabela candidata = `basics_sv` (`Standard` + `NatDex`) + Gmax + Megas Z-A | 1273 + 34 + 49 = 1356 |
+| A2 | tabela candidata = `basics_sv` (`Standard` + `NatDex`) + Gmax + Megas Z-A, com o alias da seção 6 | 1273 + 34 + 49 = 1356 |
 | A3 | Redundant Forms cortadas pela regra mecânica, transitivamente | 31 |
 | A4 | Forms no Dataset final | 1325 |
 | A5 | Forms com `isBaseForm` igual a Species distintas | 1025 = 1025 |
@@ -400,17 +406,17 @@ Todas rodam dentro do coletor, no caminho de emissão (seção 9).
 | A7 | Forms por número de traits | 0 tem 1116, 1 tem 201, 2 tem 8 |
 | A8 | combinações de slot de ability, soma igual a A4 | 0:363, 0H:355, 01H:603, 0S:2, 0HS:1, 01HS:1 |
 | A9 | Sets após cortar `cap` e `letsgoou` | 19.164 em 162 pares |
-| A10 | **todo Set referencia uma Form existente**, depois do alias da seção 6 | 1118 Forms com Set, 0 órfãs |
+| A10 | **todo Set referencia uma Form existente** | 1118 Forms com Set, 0 órfãs |
 | A11 | divergência de abilities entre o jar `zamega` e o `pokedex.ts` | exatamente 16 formas |
 | A12 | **todo Format tem classe** | 61 de 61 |
-| A13 | **Tier por degrau da escada da seção 7** | 816 / 378 / 37 / 42 / 52 |
+| A13 | **Tier por degrau da escada da seção 7** | 817 / 378 / 36 / 42 / 52 |
 | A14 | **presença de campo por Set** | moves 19164, item 18494, evs 18030, nature 18027, ability 7729, ivs 3017, teratypes 2429, level 46 |
 
 Duas asserções extras que caem de graça e valem o custo zero:
 
 - **nenhuma Form sai com Tier `"Illegal"`** — consequência da escada, e a sentinela de que o degrau 2
   não foi removido por engano.
-- **`formats-data.tier` e `basics_sv.formats` concordam onde os dois existem** — 824 de 824. É
+- **`formats-data.tier` e `basics_sv.formats` concordam onde os dois existem** — 825 de 825. É
   asserção cruzada: se um dia divergirem, uma das duas fontes mudou de significado, e o degrau 3
   passa a ser uma escolha em vez de um preenchimento.
 
