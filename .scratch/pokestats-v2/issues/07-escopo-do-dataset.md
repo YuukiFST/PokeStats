@@ -25,9 +25,20 @@ Sair com números: quantas Forms, quantos Sets, quantos MB.
 
 ## Answer
 
-O Dataset embutido tem **1.325 Forms**, **19.524 Sets** em **168 pares (Dex Generation, Format)**,
-e projeta **4,68 MB** de JSON minificado — 0,66 MB em gzip, 0,43 MB em brotli.
-Os Sets são 4,34 MB desses 4,68 MB; todo o resto somado não passa de 450 KB.
+O Dataset embutido tem **1.325 Forms**, **19.164 Sets** em **162 pares (Dex Generation, Format)**.
+
+> **Corrigido pelo ticket 08 — Modelo de domínio e schema do Dataset (issue #9).**
+> Os números originais eram 19.524 Sets em 168 pares, e mantinham o Format `cap`.
+> O `cap` só contém Forms CAP, que o R8 corta, então 238 dos seus 360 Sets ficavam apontando para
+> Forms inexistentes. Cortá-lo inteiro leva junto 122 Sets de Pokémon reais jogados no metagame
+> CAP — pelo mesmo argumento que o `letsgoou` já tinha recebido neste ticket.
+> Depois do corte, as **1.118 Forms que possuem Set têm todas linha na tabela final**: nenhum Set
+> órfão. O payload bruto de Sets pós-corte mede 3.815.968 B minificados e 364.304 B em brotli.
+> A projeção de 4,68 MB abaixo era do schema esboçado aqui e foi superada pelo schema fixado no
+> ticket 08; o tamanho definitivo sai do coletor, no ticket 09 — Pipeline de dados (issue #10).
+
+Projeção original, mantida como registro: **4,68 MB** de JSON minificado — 0,66 MB em gzip,
+0,43 MB em brotli. Os Sets seriam 4,34 MB desses 4,68 MB; todo o resto somado não passava de 450 KB.
 Contra o payload de sprite de 155–310 MB medido em *Fontes de sprite animado*, dado é ruído,
 e foi esse fato que decidiu quase todos os eixos abaixo.
 
@@ -86,7 +97,8 @@ Isso resolve por apresentação o problema real dos Other Metagames — `godlygi
 `mixandmega` (53), `purehackmons`, `balancedhackmons`, `camomons` — cujos Sets pressupõem regras
 que não existem no Cobbleverse.
 
-**Uma exceção: `letsgoou` sai inteiro**, 58 Sets.
+**Duas exceções saem inteiras: `letsgoou`, 58 Sets, e `cap`, 360 Sets** (o `cap` foi acrescentado
+pelo ticket 08 — ver a nota de correção no topo).
 Ele descreve Let's Go Pikachu/Eevee, que não é mainline nem Cobbleverse, e as duas Forms mascote
 dele (`Eevee-Starter`, `Pikachu-Starter`, 1 Set cada) são as únicas do corpus inteiro sem linha na
 Canonical Table.

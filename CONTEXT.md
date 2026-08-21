@@ -14,14 +14,27 @@ Smogon, Bulbapedia or Cobblemon uses it, the divergence is stated explicitly.
   This is the distinction PokeStats V1 collapsed: it had 1,399 rows keyed only by name, with no
   Species concept, so `Charizard-Mega-X` ranked as if it were a separate creature with no way to
   group it back under `Charizard`.
+- **Form Id** — the canonical identifier of a Form: its name lowercased, stripped of accents and
+  of every non-alphanumeric character. `Charizard-Mega-X` is `charizardmegax`, `Farfetch'd` is
+  `farfetchd`, `Flabébé` is `flabebe`. Names for the same Form differ across sources in apostrophe
+  style, accent, separator and alias; the Form Id is what makes them one Form. It is never
+  displayed — the UI shows the name. A Species is identified by its National Dex number, and every
+  Form of a Species carries that same number, which is what groups Forms back under their Species.
 - **Base Form** — the Form a Species has with no item, no mega stone, no regional variation and no
-  battle-only transformation. Exactly one per Species.
-- **Form Kind** — the classifier that makes a Form filterable: `base`, `mega`, `gmax`, `primal`,
-  `regional`, `battle-only`, `cosmetic`. A Form carries exactly one Form Kind. Filters like
-  "megas off" operate on this field, never on string matching the name.
+  battle-only transformation. Exactly one per Species, and the two counts agree mechanically:
+  1,025 Species, 1,025 Forms that carry no forme suffix.
+- **Form Trait** — a property that makes a Form filterable: `mega`, `gmax`, `primal`, `regional`,
+  `battle-only`. A Form carries a **set** of Form Traits, and that set may be empty — an ordinary
+  alternate Form like `Rotom-Wash` or `Deoxys-Attack` has no Trait at all, and that is its correct
+  description, not a gap. The set exists because Traits genuinely overlap: `Darmanitan-Galar-Zen`
+  is both `regional` and `battle-only`, and a single-valued classifier would have to pick one and
+  silently hide the Form from the other filter. Filters like "megas off" test membership in this
+  set, never string matching on the name. `base` is not a Trait — it is the absence of a forme
+  suffix, and it is spelled `isBaseForm`.
 - **Redundant Form** — a Form that repeats its parent Form's BaseStatSpread, Types **and**
   Abilities and owns no Set in any (Dex Generation, Format). Redundant Forms are cut from the
-  Dataset and survive only as sprite variants of the parent, so `cosmetic` never reaches a dex row.
+  Dataset and survive only as sprite variants of the parent, which is why a purely cosmetic
+  variant never reaches a dex row.
   The rule is mechanical, applies transitively — cutting a Form cuts the Forms derived from it —
   and has exactly one exception: `gmax`, which is stat-identical to its parent by design yet owns
   10 Sets of its own. It cuts 31 Forms, leaving 1,325.
