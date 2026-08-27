@@ -4,3 +4,42 @@
 .scratch/*/research/*
 !.scratch/*/research/*.md
 !.scratch/*/research/geist-tokens.css
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Sprites cache — 154 MB, opt-in offline bundle (see public/sprites/README.md + issues 02/10). Keep dir, ignore blobs.
+public/sprites/ani/*.gif
+public/sprites/ani/*.png
+!public/sprites/ani/.gitkeep
+
+# Human-inspection dataset dump — never bundled (tools/prune-dist.mjs strips it from dist).
+public/dataset/core.pretty.json
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local domain scratch — wayfinder research archive, not source
+.scratch/pokestats-v2
+
+# Canonical domain doc is local-only (see README model section)
+CONTEXT.md

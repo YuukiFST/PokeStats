@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@import "./geist-tokens.css";
+
+/* Tailwind v4 theme mapping to Geist tokens */
+@theme {
+  --color-background-100: var(--ds-background-100);
+  --color-background-200: var(--ds-background-200);
+  --color-gray-100: var(--ds-gray-100);
+  --color-gray-200: var(--ds-gray-200);
+  --color-gray-300: var(--ds-gray-300);
+  --color-gray-400: var(--ds-gray-400);
+  --color-gray-500: var(--ds-gray-500);
+  --color-gray-600: var(--ds-gray-600);
+  --color-gray-900: var(--ds-gray-900);
+  --color-gray-1000: var(--ds-gray-1000);
+  --color-blue-700: var(--ds-blue-700);
+  --color-blue-900: var(--ds-blue-900);
+  --color-red-700: var(--ds-red-700);
+  --color-amber-700: var(--ds-amber-700);
+  --color-green-700: var(--ds-green-700);
+  --color-teal-700: var(--ds-teal-700);
+  --color-purple-700: var(--ds-purple-700);
+  --color-pink-700: var(--ds-pink-700);
+}
+
+/* Base — Geist: dark is default per R7, light optional. Font synthesis off. */
+@layer base {
+  html {
+    font-feature-settings: "rlig" 1, "calt" 0, "ss11" 1;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--ds-background-100);
+    color: var(--ds-gray-1000);
+    font-family: var(--ds-font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Geist: tracking negative only for headings, non-linear. Keep copy at 0. */
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    letter-spacing: var(--ds-letter-spacing-heading);
+  }
+
+  /* Tabular numbers for stats */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Hairline is 1px border in #2e2e2e, not shadow. Only floating surfaces get shadow with 1px ring. */
+  .hairline {
+    border: 1px solid var(--ds-gray-400);
+  }
+
+  /* Focus ring: 2px with 2px offset per Geist theme */
+  :focus-visible {
+    outline: 2px solid var(--ds-blue-700);
+    outline-offset: 2px;
+  }
+
+  /* Scrollbar Geist */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--ds-gray-500);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--ds-background-200);
+  }
+}

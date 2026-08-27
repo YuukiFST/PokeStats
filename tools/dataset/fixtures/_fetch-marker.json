@@ -1,0 +1,17 @@
+{
+  "fetchedAt": "2026-08-23T19:30:16.496Z",
+  "ua": "PokeStats/0.2.0 (+https://github.com/YuukiFST/PokeStats; dataset collector)",
+  "sources": {
+    "pokedexUrl": "https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/pokedex.ts",
+    "formatsUrl": "https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/formats-data.ts",
+    "movesUrl": "https://play.pokemonshowdown.com/data/moves.js",
+    "itemsUrl": "https://play.pokemonshowdown.com/data/items.js",
+    "abilitiesUrl": "https://play.pokemonshowdown.com/data/abilities.js",
+    "setsUrl": "https://data.pkmn.cc/sets/gen9.json",
+    "itemSheetUrl": "https://play.pokemonshowdown.com/sprites/itemicons-sheet.png"
+  },
+  "sizes": {
+    "pokedex": 537919,
+    "formats": 93264
+  }
+}
