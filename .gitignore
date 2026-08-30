@@ -19,10 +19,12 @@ dist
 dist-ssr
 *.local
 
-# Sprites cache — 154 MB, opt-in offline bundle (see public/sprites/README.md + issues 02/10). Keep dir, ignore blobs.
+# Sprites cache — opt-in offline bundle (see public/sprites/README.md). Keep dirs, ignore blobs.
 public/sprites/ani/*.gif
 public/sprites/ani/*.png
 !public/sprites/ani/.gitkeep
+public/sprites/still/*.png
+!public/sprites/still/.gitkeep
 
 # Human-inspection dataset dump — never bundled (tools/prune-dist.mjs strips it from dist).
 public/dataset/core.pretty.json

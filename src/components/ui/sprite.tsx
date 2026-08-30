@@ -1,6 +1,12 @@
 import * as React from "react"
 import { createPortal } from "react-dom"
-import { getSpriteCandidates, getHighResCandidates, type SpriteBase } from "@/lib/sprites"
+import {
+  getSpriteManifestSync,
+  loadSpriteManifest,
+  spriteUrls,
+  type SpriteBase,
+  type SpriteManifest,
+} from "@/lib/sprites"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n } from "@/lib/i18n"
 import type { Form } from "@/lib/domain/types"
@@ -35,6 +41,21 @@ function useBaseFallback(form: FormLike): SpriteBase | undefined {
   }, [data, form.speciesId, form.isBaseForm])
 }
 
+function useSpriteManifest(): SpriteManifest | null {
+  const [manifest, setManifest] = React.useState<SpriteManifest | null>(getSpriteManifestSync)
+  React.useEffect(() => {
+    if (manifest) return
+    let cancelled = false
+    void loadSpriteManifest().then((m) => {
+      if (!cancelled) setManifest(m)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [manifest])
+  return manifest
+}
+
 type Props = {
   form: FormLike
   alt?: string
@@ -58,53 +79,29 @@ function SpriteLightbox({
 }) {
   const { t } = useI18n()
   const base = useBaseFallback(form)
+  const manifest = useSpriteManifest()
   const [animate, setAnimate] = React.useState(false)
   const [pos, setPos] = React.useState({ x: 0, y: 0 })
   const dragging = React.useRef(false)
   const start = React.useRef({ x: 0, y: 0, ox: 0, oy: 0 })
-  const highRes = React.useMemo(() => getHighResCandidates(form, base), [form.id, form.name, form.speciesId, form.isBaseForm, base])
-  const [hi, setHi] = React.useState(0)
-  const [highLoaded, setHighLoaded] = React.useState(false)
-  const [pokeHD, setPokeHD] = React.useState<string | null>(null)
+  const resolved = React.useMemo(
+    () => (manifest ? spriteUrls(form, "full", base, manifest) : { list: [] as string[], baseFallbackUrls: new Set<string>() }),
+    [form.id, form.name, form.isBaseForm, base, manifest],
+  )
+  const [index, setIndex] = React.useState(0)
+  const [loaded, setLoaded] = React.useState(false)
 
   React.useEffect(() => {
     if (open) {
       setPos({ x: 0, y: 0 })
-      setHi(0)
-      setHighLoaded(false)
-      setPokeHD(null)
+      setIndex(0)
+      setLoaded(false)
       const id = requestAnimationFrame(() => requestAnimationFrame(() => setAnimate(true)))
       return () => cancelAnimationFrame(id)
     } else {
       setAnimate(false)
     }
   }, [open])
-
-  // Fetch HD via PokeAPI official-artwork (handles mega/alternate correctly, e.g. aerodactyl-mega -> 10042.png)
-  React.useEffect(() => {
-    if (!open) return
-    let cancelled = false
-    const alias = form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
-    const tryFetch = async (a: string) => {
-      try {
-        const r = await fetch(`https://pokeapi.co/api/v2/pokemon/${a}`)
-        if (!r.ok) return null
-        const j = await r.json()
-        const url = j?.sprites?.other?.["official-artwork"]?.front_default || j?.sprites?.other?.home?.front_default
-        return url as string | null
-      } catch { return null }
-    }
-    ;(async () => {
-      let url = await tryFetch(alias)
-      // Tauros Paldea special: PokeAPI uses -breed suffix
-      if (!url && alias.startsWith("tauros-paldea")) {
-        url = await tryFetch(alias + "-breed")
-      }
-
-      if (!cancelled && url) setPokeHD(url)
-    })()
-    return () => { cancelled = true }
-  }, [open, form.name])
 
   React.useEffect(() => {
     if (!open) return
@@ -149,6 +146,8 @@ function SpriteLightbox({
 
   if (!open) return null
 
+  const hiSrc = resolved.list[index] ?? src
+
   const overlay = (
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center"
@@ -177,40 +176,30 @@ function SpriteLightbox({
           style={{ width: 360, height: 360 }}
           title="Arraste para mover — clique fora ou ESC para fechar"
         >
-          {!highLoaded && (
+          {!loaded && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-10 h-10 rounded-full border-2 border-white/15 border-t-white animate-spin" />
             </div>
           )}
-          {(() => {
-            const pokeSrc = pokeHD
-            const hiList = highRes.list
-            const hiSrc = pokeSrc ?? (hiList[hi] ?? src)
-            const isHighRes = !!pokeSrc || hiSrc.includes("official-artwork") || hiSrc.includes("/home/") || hiSrc.includes("artwork")
-            return (
-              <img
-                key={hiSrc}
-                src={hiSrc}
-                alt={form.name}
-                width={320}
-                height={320}
-                decoding="async"
-                title={highRes.baseFallbackUrls.has(hiSrc) ? t("sprite.baseFallback") : undefined}
-                className="w-[320px] h-[320px] object-contain pointer-events-none"
-                style={{ imageRendering: (isHighRes ? "auto" : "pixelated") as never, opacity: highLoaded ? 1 : 0, transition: "opacity 320ms ease" }}
-                draggable={false}
-                onLoad={() => setHighLoaded(true)}
-                onError={() => {
-                  if (pokeSrc) {
-                    setPokeHD(null)
-                    return
-                  }
-                  if (hi < hiList.length - 1) setHi((v) => v + 1)
-                  else setHighLoaded(true)
-                }}
-              />
-            )
-          })()}
+          {hiSrc && (
+            <img
+              key={hiSrc}
+              src={hiSrc}
+              alt={form.name}
+              width={320}
+              height={320}
+              decoding="async"
+              title={resolved.baseFallbackUrls.has(hiSrc) ? t("sprite.baseFallback") : undefined}
+              className="w-[320px] h-[320px] object-contain pointer-events-none"
+              style={{ imageRendering: "pixelated" as never, opacity: loaded ? 1 : 0, transition: "opacity 320ms ease" }}
+              draggable={false}
+              onLoad={() => setLoaded(true)}
+              onError={() => {
+                if (index + 1 < resolved.list.length) setIndex((v) => v + 1)
+                else setLoaded(true)
+              }}
+            />
+          )}
         </div>
         <button
           onClick={onClose}
@@ -229,9 +218,10 @@ function SpriteLightbox({
 export function Sprite({ form, alt, size = "md", className, fallback, expandable = true }: Props) {
   const { t } = useI18n()
   const base = useBaseFallback(form)
+  const manifest = useSpriteManifest()
   const { list: candidates, baseFallbackUrls } = React.useMemo(
-    () => getSpriteCandidates(form, base),
-    [form.id, form.name, form.speciesId, form.isBaseForm, base],
+    () => (manifest ? spriteUrls(form, "full", base, manifest) : { list: [] as string[], baseFallbackUrls: new Set<string>() }),
+    [form.id, form.name, form.isBaseForm, base, manifest],
   )
   const [index, setIndex] = React.useState(0)
   const [failed, setFailed] = React.useState(false)
@@ -296,24 +286,25 @@ export function Sprite({ form, alt, size = "md", className, fallback, expandable
 export function SpriteThumb({ form, size = 28, expandable = true }: { form: FormLike; size?: number; expandable?: boolean }) {
   const { t } = useI18n()
   const base = useBaseFallback(form)
+  const manifest = useSpriteManifest()
   const { list: candidates, baseFallbackUrls } = React.useMemo(
-    () => getSpriteCandidates(form, base),
-    [form.id, form.name, form.speciesId, form.isBaseForm, base],
+    () => (manifest ? spriteUrls(form, "thumb", base, manifest) : { list: [] as string[], baseFallbackUrls: new Set<string>() }),
+    [form.id, form.name, form.isBaseForm, base, manifest],
   )
   const [idx, setIdx] = React.useState(0)
   const [fail, setFail] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [thumbLoaded, setThumbLoaded] = React.useState(false)
   React.useEffect(() => { setIdx(0); setFail(false); setThumbLoaded(false) }, [form.id])
-  if (fail) return <span className="w-7 h-7 rounded bg-[var(--ds-gray-100)] border border-[var(--ds-gray-400)] inline-flex items-center justify-center text-[9px] text-[var(--ds-gray-700)] shrink-0">—</span>
-  const src = candidates[idx]!
+  const src = candidates[idx]
+  if (fail || !src) return <span className="w-7 h-7 rounded bg-[var(--ds-gray-100)] border border-[var(--ds-gray-400)] inline-flex items-center justify-center text-[9px] text-[var(--ds-gray-700)] shrink-0">—</span>
   const img = (
     <img
       src={src}
       alt=""
       width={size}
       height={size}
-      loading="eager"
+      loading="lazy"
       title={baseFallbackUrls.has(src) ? t("sprite.baseFallback") : undefined}
       className={`object-contain shrink-0 ${expandable ? "cursor-zoom-in hover:scale-110 transition-transform duration-200" : ""} ${thumbLoaded ? "opacity-100" : "opacity-0"}`}
       style={{ imageRendering: "auto" as never, width: size, height: size, transition: "opacity 180ms ease" }}

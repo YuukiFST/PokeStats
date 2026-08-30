@@ -342,7 +342,7 @@ export function ComparePage() {
       </div>
 
       <div className="text-xs text-[var(--ds-gray-700)]">
-        {t("compare.addMore")} — <Link to="/" className="underline text-[var(--ds-blue-700)]">Dex</Link> · Sprites: play.pokemonshowdown.com/ani (GIF). Local cache em <code>public/sprites/ani/&lt;id&gt;.gif</code> quando <code>pnpm sprites:fetch</code> roda (ver 02 + 10).
+        {t("compare.addMore")} — <Link to="/" className="underline text-[var(--ds-blue-700)]">Dex</Link>. {t("compare.spriteNote")}
       </div>
     </div>
   )

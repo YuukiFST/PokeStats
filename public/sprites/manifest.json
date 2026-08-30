@@ -1,0 +1,5440 @@
+{
+  "version": 1,
+  "forms": {
+    "abomasnow": {
+      "still": true,
+      "ani": true
+    },
+    "abomasnowmega": {
+      "still": true,
+      "ani": true
+    },
+    "abra": {
+      "still": true,
+      "ani": true
+    },
+    "absol": {
+      "still": true,
+      "ani": true
+    },
+    "absolmega": {
+      "still": true,
+      "ani": true
+    },
+    "accelgor": {
+      "still": true,
+      "ani": true
+    },
+    "aegislash": {
+      "still": true,
+      "ani": true
+    },
+    "aegislashblade": {
+      "still": true,
+      "ani": true
+    },
+    "aerodactyl": {
+      "still": true,
+      "ani": true
+    },
+    "aerodactylmega": {
+      "still": true,
+      "ani": true
+    },
+    "aggron": {
+      "still": true,
+      "ani": true
+    },
+    "aggronmega": {
+      "still": true,
+      "ani": true
+    },
+    "aipom": {
+      "still": true,
+      "ani": true
+    },
+    "alakazam": {
+      "still": true,
+      "ani": true
+    },
+    "alakazammega": {
+      "still": true,
+      "ani": true
+    },
+    "alcremie": {
+      "still": true,
+      "ani": true
+    },
+    "alcremiegmax": {
+      "still": true,
+      "ani": true
+    },
+    "alomomola": {
+      "still": true,
+      "ani": true
+    },
+    "altaria": {
+      "still": true,
+      "ani": true
+    },
+    "altariamega": {
+      "still": true,
+      "ani": true
+    },
+    "amaura": {
+      "still": true,
+      "ani": true
+    },
+    "ambipom": {
+      "still": true,
+      "ani": true
+    },
+    "amoonguss": {
+      "still": true,
+      "ani": true
+    },
+    "ampharos": {
+      "still": true,
+      "ani": true
+    },
+    "ampharosmega": {
+      "still": true,
+      "ani": true
+    },
+    "annihilape": {
+      "still": true,
+      "ani": true
+    },
+    "anorith": {
+      "still": true,
+      "ani": true
+    },
+    "appletun": {
+      "still": true,
+      "ani": true
+    },
+    "appletungmax": {
+      "still": true,
+      "ani": true
+    },
+    "applin": {
+      "still": true,
+      "ani": true
+    },
+    "araquanid": {
+      "still": true,
+      "ani": true
+    },
+    "araquanidtotem": {
+      "still": true,
+      "ani": true
+    },
+    "arbok": {
+      "still": true,
+      "ani": true
+    },
+    "arboliva": {
+      "still": true,
+      "ani": true
+    },
+    "arcanine": {
+      "still": true,
+      "ani": true
+    },
+    "arcaninehisui": {
+      "still": true,
+      "ani": true
+    },
+    "arceus": {
+      "still": true,
+      "ani": true
+    },
+    "arceusbug": {
+      "still": true,
+      "ani": true
+    },
+    "arceusdark": {
+      "still": true,
+      "ani": true
+    },
+    "arceusdragon": {
+      "still": true,
+      "ani": true
+    },
+    "arceuselectric": {
+      "still": true,
+      "ani": true
+    },
+    "arceusfairy": {
+      "still": true,
+      "ani": true
+    },
+    "arceusfighting": {
+      "still": true,
+      "ani": true
+    },
+    "arceusfire": {
+      "still": true,
+      "ani": true
+    },
+    "arceusflying": {
+      "still": true,
+      "ani": true
+    },
+    "arceusghost": {
+      "still": true,
+      "ani": true
+    },
+    "arceusgrass": {
+      "still": true,
+      "ani": true
+    },
+    "arceusground": {
+      "still": true,
+      "ani": true
+    },
+    "arceusice": {
+      "still": true,
+      "ani": true
+    },
+    "arceuspoison": {
+      "still": true,
+      "ani": true
+    },
+    "arceuspsychic": {
+      "still": true,
+      "ani": true
+    },
+    "arceusrock": {
+      "still": true,
+      "ani": true
+    },
+    "arceussteel": {
+      "still": true,
+      "ani": true
+    },
+    "arceuswater": {
+      "still": true,
+      "ani": true
+    },
+    "archaludon": {
+      "still": true,
+      "ani": true
+    },
+    "archen": {
+      "still": true,
+      "ani": true
+    },
+    "archeops": {
+      "still": true,
+      "ani": true
+    },
+    "arctibax": {
+      "still": true,
+      "ani": true
+    },
+    "arctovish": {
+      "still": true,
+      "ani": true
+    },
+    "arctozolt": {
+      "still": true,
+      "ani": true
+    },
+    "ariados": {
+      "still": true,
+      "ani": true
+    },
+    "armaldo": {
+      "still": true,
+      "ani": true
+    },
+    "armarouge": {
+      "still": true,
+      "ani": true
+    },
+    "aromatisse": {
+      "still": true,
+      "ani": true
+    },
+    "aron": {
+      "still": true,
+      "ani": true
+    },
+    "arrokuda": {
+      "still": true,
+      "ani": true
+    },
+    "articuno": {
+      "still": true,
+      "ani": true
+    },
+    "articunogalar": {
+      "still": true,
+      "ani": true
+    },
+    "audino": {
+      "still": true,
+      "ani": true
+    },
+    "audinomega": {
+      "still": true,
+      "ani": true
+    },
+    "aurorus": {
+      "still": true,
+      "ani": true
+    },
+    "avalugg": {
+      "still": true,
+      "ani": true
+    },
+    "avalugghisui": {
+      "still": true,
+      "ani": true
+    },
+    "axew": {
+      "still": true,
+      "ani": true
+    },
+    "azelf": {
+      "still": true,
+      "ani": true
+    },
+    "azumarill": {
+      "still": true,
+      "ani": true
+    },
+    "azurill": {
+      "still": true,
+      "ani": true
+    },
+    "bagon": {
+      "still": true,
+      "ani": true
+    },
+    "baltoy": {
+      "still": true,
+      "ani": true
+    },
+    "banette": {
+      "still": true,
+      "ani": true
+    },
+    "banettemega": {
+      "still": true,
+      "ani": true
+    },
+    "barbaracle": {
+      "still": true,
+      "ani": true
+    },
+    "barbaraclemega": {
+      "still": true,
+      "ani": true
+    },
+    "barboach": {
+      "still": true,
+      "ani": true
+    },
+    "barraskewda": {
+      "still": true,
+      "ani": true
+    },
+    "basculegion": {
+      "still": true,
+      "ani": true
+    },
+    "basculegionf": {
+      "still": true,
+      "ani": true
+    },
+    "basculin": {
+      "still": true,
+      "ani": true
+    },
+    "basculinbluestriped": {
+      "still": true,
+      "ani": true
+    },
+    "basculinwhitestriped": {
+      "still": true,
+      "ani": true
+    },
+    "bastiodon": {
+      "still": true,
+      "ani": true
+    },
+    "baxcalibur": {
+      "still": true,
+      "ani": true
+    },
+    "bayleef": {
+      "still": true,
+      "ani": true
+    },
+    "beartic": {
+      "still": true,
+      "ani": true
+    },
+    "beautifly": {
+      "still": true,
+      "ani": true
+    },
+    "beedrill": {
+      "still": true,
+      "ani": true
+    },
+    "beedrillmega": {
+      "still": true,
+      "ani": true
+    },
+    "beheeyem": {
+      "still": true,
+      "ani": true
+    },
+    "beldum": {
+      "still": true,
+      "ani": true
+    },
+    "bellibolt": {
+      "still": true,
+      "ani": true
+    },
+    "bellossom": {
+      "still": true,
+      "ani": true
+    },
+    "bellsprout": {
+      "still": true,
+      "ani": true
+    },
+    "bergmite": {
+      "still": true,
+      "ani": true
+    },
+    "bewear": {
+      "still": true,
+      "ani": true
+    },
+    "bibarel": {
+      "still": true,
+      "ani": true
+    },
+    "bidoof": {
+      "still": true,
+      "ani": true
+    },
+    "binacle": {
+      "still": true,
+      "ani": true
+    },
+    "bisharp": {
+      "still": true,
+      "ani": true
+    },
+    "blacephalon": {
+      "still": true,
+      "ani": true
+    },
+    "blastoise": {
+      "still": true,
+      "ani": true
+    },
+    "blastoisegmax": {
+      "still": true,
+      "ani": true
+    },
+    "blastoisemega": {
+      "still": true,
+      "ani": true
+    },
+    "blaziken": {
+      "still": true,
+      "ani": true
+    },
+    "blazikenmega": {
+      "still": true,
+      "ani": true
+    },
+    "blipbug": {
+      "still": true,
+      "ani": true
+    },
+    "blissey": {
+      "still": true,
+      "ani": true
+    },
+    "blitzle": {
+      "still": true,
+      "ani": true
+    },
+    "boldore": {
+      "still": true,
+      "ani": true
+    },
+    "boltund": {
+      "still": true,
+      "ani": true
+    },
+    "bombirdier": {
+      "still": true,
+      "ani": true
+    },
+    "bonsly": {
+      "still": true,
+      "ani": true
+    },
+    "bouffalant": {
+      "still": true,
+      "ani": true
+    },
+    "bounsweet": {
+      "still": true,
+      "ani": true
+    },
+    "braixen": {
+      "still": true,
+      "ani": true
+    },
+    "brambleghast": {
+      "still": true,
+      "ani": true
+    },
+    "bramblin": {
+      "still": true,
+      "ani": true
+    },
+    "braviary": {
+      "still": true,
+      "ani": true
+    },
+    "braviaryhisui": {
+      "still": true,
+      "ani": true
+    },
+    "breloom": {
+      "still": true,
+      "ani": true
+    },
+    "brionne": {
+      "still": true,
+      "ani": true
+    },
+    "bronzong": {
+      "still": true,
+      "ani": true
+    },
+    "bronzor": {
+      "still": true,
+      "ani": true
+    },
+    "brutebonnet": {
+      "still": true,
+      "ani": true
+    },
+    "bruxish": {
+      "still": true,
+      "ani": true
+    },
+    "budew": {
+      "still": true,
+      "ani": true
+    },
+    "buizel": {
+      "still": true,
+      "ani": true
+    },
+    "bulbasaur": {
+      "still": true,
+      "ani": true
+    },
+    "buneary": {
+      "still": true,
+      "ani": true
+    },
+    "bunnelby": {
+      "still": true,
+      "ani": true
+    },
+    "burmy": {
+      "still": true,
+      "ani": true
+    },
+    "butterfree": {
+      "still": true,
+      "ani": true
+    },
+    "butterfreegmax": {
+      "still": true,
+      "ani": true
+    },
+    "buzzwole": {
+      "still": true,
+      "ani": true
+    },
+    "cacnea": {
+      "still": true,
+      "ani": true
+    },
+    "cacturne": {
+      "still": true,
+      "ani": true
+    },
+    "calyrex": {
+      "still": true,
+      "ani": true
+    },
+    "calyrexice": {
+      "still": true,
+      "ani": true
+    },
+    "calyrexshadow": {
+      "still": true,
+      "ani": true
+    },
+    "camerupt": {
+      "still": true,
+      "ani": true
+    },
+    "cameruptmega": {
+      "still": true,
+      "ani": true
+    },
+    "capsakid": {
+      "still": true,
+      "ani": true
+    },
+    "carbink": {
+      "still": true,
+      "ani": true
+    },
+    "carkol": {
+      "still": true,
+      "ani": true
+    },
+    "carnivine": {
+      "still": true,
+      "ani": true
+    },
+    "carracosta": {
+      "still": true,
+      "ani": true
+    },
+    "carvanha": {
+      "still": true,
+      "ani": true
+    },
+    "cascoon": {
+      "still": true,
+      "ani": true
+    },
+    "castform": {
+      "still": true,
+      "ani": true
+    },
+    "castformrainy": {
+      "still": true,
+      "ani": true
+    },
+    "castformsnowy": {
+      "still": true,
+      "ani": true
+    },
+    "castformsunny": {
+      "still": true,
+      "ani": true
+    },
+    "caterpie": {
+      "still": true,
+      "ani": true
+    },
+    "celebi": {
+      "still": true,
+      "ani": true
+    },
+    "celesteela": {
+      "still": true,
+      "ani": true
+    },
+    "centiskorch": {
+      "still": true,
+      "ani": true
+    },
+    "centiskorchgmax": {
+      "still": true,
+      "ani": true
+    },
+    "ceruledge": {
+      "still": true,
+      "ani": true
+    },
+    "cetitan": {
+      "still": true,
+      "ani": true
+    },
+    "cetoddle": {
+      "still": true,
+      "ani": true
+    },
+    "chandelure": {
+      "still": true,
+      "ani": true
+    },
+    "chandeluremega": {
+      "still": true,
+      "ani": true
+    },
+    "chansey": {
+      "still": true,
+      "ani": true
+    },
+    "charcadet": {
+      "still": true,
+      "ani": true
+    },
+    "charizard": {
+      "still": true,
+      "ani": true
+    },
+    "charizardgmax": {
+      "still": true,
+      "ani": true
+    },
+    "charizardmegax": {
+      "still": true,
+      "ani": true
+    },
+    "charizardmegay": {
+      "still": true,
+      "ani": true
+    },
+    "charjabug": {
+      "still": true,
+      "ani": true
+    },
+    "charmander": {
+      "still": true,
+      "ani": true
+    },
+    "charmeleon": {
+      "still": true,
+      "ani": true
+    },
+    "chatot": {
+      "still": true,
+      "ani": true
+    },
+    "cherrim": {
+      "still": true,
+      "ani": true
+    },
+    "cherrimsunshine": {
+      "still": true,
+      "ani": true
+    },
+    "cherubi": {
+      "still": true,
+      "ani": true
+    },
+    "chesnaught": {
+      "still": true,
+      "ani": true
+    },
+    "chesnaughtmega": {
+      "still": true,
+      "ani": true
+    },
+    "chespin": {
+      "still": true,
+      "ani": true
+    },
+    "chewtle": {
+      "still": true,
+      "ani": true
+    },
+    "chienpao": {
+      "still": true,
+      "ani": true
+    },
+    "chikorita": {
+      "still": true,
+      "ani": true
+    },
+    "chimchar": {
+      "still": true,
+      "ani": true
+    },
+    "chimecho": {
+      "still": true,
+      "ani": true
+    },
+    "chimechomega": {
+      "still": true,
+      "ani": true
+    },
+    "chinchou": {
+      "still": true,
+      "ani": true
+    },
+    "chingling": {
+      "still": true,
+      "ani": true
+    },
+    "chiyu": {
+      "still": true,
+      "ani": true
+    },
+    "cinccino": {
+      "still": true,
+      "ani": true
+    },
+    "cinderace": {
+      "still": true,
+      "ani": true
+    },
+    "cinderacegmax": {
+      "still": true,
+      "ani": true
+    },
+    "clamperl": {
+      "still": true,
+      "ani": true
+    },
+    "clauncher": {
+      "still": true,
+      "ani": true
+    },
+    "clawitzer": {
+      "still": true,
+      "ani": true
+    },
+    "claydol": {
+      "still": true,
+      "ani": true
+    },
+    "clefable": {
+      "still": true,
+      "ani": true
+    },
+    "clefablemega": {
+      "still": true,
+      "ani": true
+    },
+    "clefairy": {
+      "still": true,
+      "ani": true
+    },
+    "cleffa": {
+      "still": true,
+      "ani": true
+    },
+    "clobbopus": {
+      "still": true,
+      "ani": true
+    },
+    "clodsire": {
+      "still": true,
+      "ani": true
+    },
+    "cloyster": {
+      "still": true,
+      "ani": true
+    },
+    "coalossal": {
+      "still": true,
+      "ani": true
+    },
+    "coalossalgmax": {
+      "still": true,
+      "ani": true
+    },
+    "cobalion": {
+      "still": true,
+      "ani": true
+    },
+    "cofagrigus": {
+      "still": true,
+      "ani": true
+    },
+    "combee": {
+      "still": true,
+      "ani": true
+    },
+    "combusken": {
+      "still": true,
+      "ani": true
+    },
+    "comfey": {
+      "still": true,
+      "ani": true
+    },
+    "conkeldurr": {
+      "still": true,
+      "ani": true
+    },
+    "copperajah": {
+      "still": true,
+      "ani": true
+    },
+    "copperajahgmax": {
+      "still": true,
+      "ani": true
+    },
+    "corphish": {
+      "still": true,
+      "ani": true
+    },
+    "corsola": {
+      "still": true,
+      "ani": true
+    },
+    "corsolagalar": {
+      "still": true,
+      "ani": true
+    },
+    "corviknight": {
+      "still": true,
+      "ani": true
+    },
+    "corviknightgmax": {
+      "still": true,
+      "ani": true
+    },
+    "corvisquire": {
+      "still": true,
+      "ani": true
+    },
+    "cosmoem": {
+      "still": true,
+      "ani": true
+    },
+    "cosmog": {
+      "still": true,
+      "ani": true
+    },
+    "cottonee": {
+      "still": true,
+      "ani": true
+    },
+    "crabominable": {
+      "still": true,
+      "ani": true
+    },
+    "crabominablemega": {
+      "still": true,
+      "ani": true
+    },
+    "crabrawler": {
+      "still": true,
+      "ani": true
+    },
+    "cradily": {
+      "still": true,
+      "ani": true
+    },
+    "cramorant": {
+      "still": true,
+      "ani": true
+    },
+    "cramorantgorging": {
+      "still": true,
+      "ani": true
+    },
+    "cramorantgulping": {
+      "still": true,
+      "ani": true
+    },
+    "cranidos": {
+      "still": true,
+      "ani": true
+    },
+    "crawdaunt": {
+      "still": true,
+      "ani": true
+    },
+    "cresselia": {
+      "still": true,
+      "ani": true
+    },
+    "croagunk": {
+      "still": true,
+      "ani": true
+    },
+    "crobat": {
+      "still": true,
+      "ani": true
+    },
+    "crocalor": {
+      "still": true,
+      "ani": true
+    },
+    "croconaw": {
+      "still": true,
+      "ani": true
+    },
+    "crustle": {
+      "still": true,
+      "ani": true
+    },
+    "cryogonal": {
+      "still": true,
+      "ani": true
+    },
+    "cubchoo": {
+      "still": true,
+      "ani": true
+    },
+    "cubone": {
+      "still": true,
+      "ani": true
+    },
+    "cufant": {
+      "still": true,
+      "ani": true
+    },
+    "cursola": {
+      "still": true,
+      "ani": true
+    },
+    "cutiefly": {
+      "still": true,
+      "ani": true
+    },
+    "cyclizar": {
+      "still": true,
+      "ani": true
+    },
+    "cyndaquil": {
+      "still": true,
+      "ani": true
+    },
+    "dachsbun": {
+      "still": true,
+      "ani": true
+    },
+    "darkrai": {
+      "still": true,
+      "ani": true
+    },
+    "darmanitan": {
+      "still": true,
+      "ani": true
+    },
+    "darmanitangalar": {
+      "still": true,
+      "ani": true
+    },
+    "darmanitangalarzen": {
+      "still": true,
+      "ani": true
+    },
+    "darmanitanzen": {
+      "still": true,
+      "ani": true
+    },
+    "dartrix": {
+      "still": true,
+      "ani": true
+    },
+    "darumaka": {
+      "still": true,
+      "ani": true
+    },
+    "darumakagalar": {
+      "still": true,
+      "ani": true
+    },
+    "decidueye": {
+      "still": true,
+      "ani": true
+    },
+    "decidueyehisui": {
+      "still": true,
+      "ani": true
+    },
+    "dedenne": {
+      "still": true,
+      "ani": true
+    },
+    "deerling": {
+      "still": true,
+      "ani": true
+    },
+    "deino": {
+      "still": true,
+      "ani": true
+    },
+    "delcatty": {
+      "still": true,
+      "ani": true
+    },
+    "delibird": {
+      "still": true,
+      "ani": true
+    },
+    "delphox": {
+      "still": true,
+      "ani": true
+    },
+    "delphoxmega": {
+      "still": true,
+      "ani": true
+    },
+    "deoxys": {
+      "still": true,
+      "ani": true
+    },
+    "deoxysattack": {
+      "still": true,
+      "ani": true
+    },
+    "deoxysdefense": {
+      "still": true,
+      "ani": true
+    },
+    "deoxysspeed": {
+      "still": true,
+      "ani": true
+    },
+    "dewgong": {
+      "still": true,
+      "ani": true
+    },
+    "dewott": {
+      "still": true,
+      "ani": true
+    },
+    "dewpider": {
+      "still": true,
+      "ani": true
+    },
+    "dhelmise": {
+      "still": true,
+      "ani": true
+    },
+    "dialga": {
+      "still": true,
+      "ani": true
+    },
+    "dialgaorigin": {
+      "still": true,
+      "ani": true
+    },
+    "diancie": {
+      "still": true,
+      "ani": true
+    },
+    "dianciemega": {
+      "still": true,
+      "ani": true
+    },
+    "diggersby": {
+      "still": true,
+      "ani": true
+    },
+    "diglett": {
+      "still": true,
+      "ani": true
+    },
+    "diglettalola": {
+      "still": true,
+      "ani": true
+    },
+    "dipplin": {
+      "still": true,
+      "ani": true
+    },
+    "ditto": {
+      "still": true,
+      "ani": true
+    },
+    "dodrio": {
+      "still": true,
+      "ani": true
+    },
+    "doduo": {
+      "still": true,
+      "ani": true
+    },
+    "dolliv": {
+      "still": true,
+      "ani": true
+    },
+    "dondozo": {
+      "still": true,
+      "ani": true
+    },
+    "donphan": {
+      "still": true,
+      "ani": true
+    },
+    "dottler": {
+      "still": true,
+      "ani": true
+    },
+    "doublade": {
+      "still": true,
+      "ani": true
+    },
+    "dracovish": {
+      "still": true,
+      "ani": true
+    },
+    "dracozolt": {
+      "still": true,
+      "ani": true
+    },
+    "dragalge": {
+      "still": true,
+      "ani": true
+    },
+    "dragalgemega": {
+      "still": true,
+      "ani": true
+    },
+    "dragapult": {
+      "still": true,
+      "ani": true
+    },
+    "dragonair": {
+      "still": true,
+      "ani": true
+    },
+    "dragonite": {
+      "still": true,
+      "ani": true
+    },
+    "dragonitemega": {
+      "still": true,
+      "ani": true
+    },
+    "drakloak": {
+      "still": true,
+      "ani": true
+    },
+    "drampa": {
+      "still": true,
+      "ani": true
+    },
+    "drampamega": {
+      "still": true,
+      "ani": true
+    },
+    "drapion": {
+      "still": true,
+      "ani": true
+    },
+    "dratini": {
+      "still": true,
+      "ani": true
+    },
+    "drednaw": {
+      "still": true,
+      "ani": true
+    },
+    "drednawgmax": {
+      "still": true,
+      "ani": true
+    },
+    "dreepy": {
+      "still": true,
+      "ani": true
+    },
+    "drifblim": {
+      "still": true,
+      "ani": true
+    },
+    "drifloon": {
+      "still": true,
+      "ani": true
+    },
+    "drilbur": {
+      "still": true,
+      "ani": true
+    },
+    "drizzile": {
+      "still": true,
+      "ani": true
+    },
+    "drowzee": {
+      "still": true,
+      "ani": true
+    },
+    "druddigon": {
+      "still": true,
+      "ani": true
+    },
+    "dubwool": {
+      "still": true,
+      "ani": true
+    },
+    "ducklett": {
+      "still": true,
+      "ani": true
+    },
+    "dudunsparce": {
+      "still": true,
+      "ani": true
+    },
+    "dudunsparcethreesegment": {
+      "still": true,
+      "ani": true
+    },
+    "dugtrio": {
+      "still": true,
+      "ani": true
+    },
+    "dugtrioalola": {
+      "still": true,
+      "ani": true
+    },
+    "dunsparce": {
+      "still": true,
+      "ani": true
+    },
+    "duosion": {
+      "still": true,
+      "ani": true
+    },
+    "duraludon": {
+      "still": true,
+      "ani": true
+    },
+    "duraludongmax": {
+      "still": true,
+      "ani": true
+    },
+    "durant": {
+      "still": true,
+      "ani": true
+    },
+    "dusclops": {
+      "still": true,
+      "ani": true
+    },
+    "dusknoir": {
+      "still": true,
+      "ani": true
+    },
+    "duskull": {
+      "still": true,
+      "ani": true
+    },
+    "dustox": {
+      "still": true,
+      "ani": true
+    },
+    "dwebble": {
+      "still": true,
+      "ani": true
+    },
+    "eelektrik": {
+      "still": true,
+      "ani": true
+    },
+    "eelektross": {
+      "still": true,
+      "ani": true
+    },
+    "eelektrossmega": {
+      "still": true,
+      "ani": true
+    },
+    "eevee": {
+      "still": true,
+      "ani": true
+    },
+    "eeveegmax": {
+      "still": true,
+      "ani": true
+    },
+    "eeveestarter": {
+      "still": true,
+      "ani": true
+    },
+    "eiscue": {
+      "still": true,
+      "ani": true
+    },
+    "eiscuenoice": {
+      "still": true,
+      "ani": true
+    },
+    "ekans": {
+      "still": true,
+      "ani": true
+    },
+    "eldegoss": {
+      "still": true,
+      "ani": true
+    },
+    "electabuzz": {
+      "still": true,
+      "ani": true
+    },
+    "electivire": {
+      "still": true,
+      "ani": true
+    },
+    "electrike": {
+      "still": true,
+      "ani": true
+    },
+    "electrode": {
+      "still": true,
+      "ani": true
+    },
+    "electrodehisui": {
+      "still": true,
+      "ani": true
+    },
+    "elekid": {
+      "still": true,
+      "ani": true
+    },
+    "elgyem": {
+      "still": true,
+      "ani": true
+    },
+    "emboar": {
+      "still": true,
+      "ani": true
+    },
+    "emboarmega": {
+      "still": true,
+      "ani": true
+    },
+    "emolga": {
+      "still": true,
+      "ani": true
+    },
+    "empoleon": {
+      "still": true,
+      "ani": true
+    },
+    "enamorus": {
+      "still": true,
+      "ani": true
+    },
+    "enamorustherian": {
+      "still": true,
+      "ani": true
+    },
+    "entei": {
+      "still": true,
+      "ani": true
+    },
+    "escavalier": {
+      "still": true,
+      "ani": true
+    },
+    "espathra": {
+      "still": true,
+      "ani": true
+    },
+    "espeon": {
+      "still": true,
+      "ani": true
+    },
+    "espurr": {
+      "still": true,
+      "ani": true
+    },
+    "eternatus": {
+      "still": true,
+      "ani": true
+    },
+    "eternatuseternamax": {
+      "still": true,
+      "ani": true
+    },
+    "excadrill": {
+      "still": true,
+      "ani": true
+    },
+    "excadrillmega": {
+      "still": true,
+      "ani": true
+    },
+    "exeggcute": {
+      "still": true,
+      "ani": true
+    },
+    "exeggutor": {
+      "still": true,
+      "ani": true
+    },
+    "exeggutoralola": {
+      "still": true,
+      "ani": true
+    },
+    "exploud": {
+      "still": true,
+      "ani": true
+    },
+    "falinks": {
+      "still": true,
+      "ani": true
+    },
+    "falinksmega": {
+      "still": true,
+      "ani": true
+    },
+    "farfetchd": {
+      "still": true,
+      "ani": true
+    },
+    "farigiraf": {
+      "still": true,
+      "ani": true
+    },
+    "fearow": {
+      "still": true,
+      "ani": true
+    },
+    "feebas": {
+      "still": true,
+      "ani": true
+    },
+    "fennekin": {
+      "still": true,
+      "ani": true
+    },
+    "feraligatr": {
+      "still": true,
+      "ani": true
+    },
+    "feraligatrmega": {
+      "still": true,
+      "ani": true
+    },
+    "ferroseed": {
+      "still": true,
+      "ani": true
+    },
+    "ferrothorn": {
+      "still": true,
+      "ani": true
+    },
+    "fezandipiti": {
+      "still": true,
+      "ani": true
+    },
+    "fidough": {
+      "still": true,
+      "ani": true
+    },
+    "finizen": {
+      "still": true,
+      "ani": true
+    },
+    "finneon": {
+      "still": true,
+      "ani": true
+    },
+    "flaaffy": {
+      "still": true,
+      "ani": true
+    },
+    "flabebe": {
+      "still": true,
+      "ani": true
+    },
+    "flamigo": {
+      "still": true,
+      "ani": true
+    },
+    "flapple": {
+      "still": true,
+      "ani": true
+    },
+    "flapplegmax": {
+      "still": true,
+      "ani": true
+    },
+    "flareon": {
+      "still": true,
+      "ani": true
+    },
+    "fletchinder": {
+      "still": true,
+      "ani": true
+    },
+    "fletchling": {
+      "still": true,
+      "ani": true
+    },
+    "flittle": {
+      "still": true,
+      "ani": true
+    },
+    "floatzel": {
+      "still": true,
+      "ani": true
+    },
+    "floette": {
+      "still": true,
+      "ani": true
+    },
+    "floetteeternal": {
+      "still": true,
+      "ani": true
+    },
+    "floettemega": {
+      "still": true,
+      "ani": true
+    },
+    "floragato": {
+      "still": true,
+      "ani": true
+    },
+    "florges": {
+      "still": true,
+      "ani": true
+    },
+    "fluttermane": {
+      "still": true,
+      "ani": true
+    },
+    "flygon": {
+      "still": true,
+      "ani": true
+    },
+    "fomantis": {
+      "still": true,
+      "ani": true
+    },
+    "foongus": {
+      "still": true,
+      "ani": true
+    },
+    "forretress": {
+      "still": true,
+      "ani": true
+    },
+    "fraxure": {
+      "still": true,
+      "ani": true
+    },
+    "frigibax": {
+      "still": true,
+      "ani": true
+    },
+    "frillish": {
+      "still": true,
+      "ani": true
+    },
+    "froakie": {
+      "still": true,
+      "ani": true
+    },
+    "frogadier": {
+      "still": true,
+      "ani": true
+    },
+    "froslass": {
+      "still": true,
+      "ani": true
+    },
+    "froslassmega": {
+      "still": true,
+      "ani": true
+    },
+    "frosmoth": {
+      "still": true,
+      "ani": true
+    },
+    "fuecoco": {
+      "still": true,
+      "ani": true
+    },
+    "furfrou": {
+      "still": true,
+      "ani": true
+    },
+    "furret": {
+      "still": true,
+      "ani": true
+    },
+    "gabite": {
+      "still": true,
+      "ani": true
+    },
+    "gallade": {
+      "still": true,
+      "ani": true
+    },
+    "gallademega": {
+      "still": true,
+      "ani": true
+    },
+    "galvantula": {
+      "still": true,
+      "ani": true
+    },
+    "garbodor": {
+      "still": true,
+      "ani": true
+    },
+    "garbodorgmax": {
+      "still": true,
+      "ani": true
+    },
+    "garchomp": {
+      "still": true,
+      "ani": true
+    },
+    "garchompmega": {
+      "still": true,
+      "ani": true
+    },
+    "gardevoir": {
+      "still": true,
+      "ani": true
+    },
+    "gardevoirmega": {
+      "still": true,
+      "ani": true
+    },
+    "garganacl": {
+      "still": true,
+      "ani": true
+    },
+    "gastly": {
+      "still": true,
+      "ani": true
+    },
+    "gastrodon": {
+      "still": true,
+      "ani": true
+    },
+    "genesect": {
+      "still": true,
+      "ani": true
+    },
+    "genesectburn": {
+      "still": true,
+      "ani": true
+    },
+    "genesectchill": {
+      "still": true,
+      "ani": true
+    },
+    "genesectdouse": {
+      "still": true,
+      "ani": true
+    },
+    "genesectshock": {
+      "still": true,
+      "ani": true
+    },
+    "gengar": {
+      "still": true,
+      "ani": true
+    },
+    "gengargmax": {
+      "still": true,
+      "ani": true
+    },
+    "gengarmega": {
+      "still": true,
+      "ani": true
+    },
+    "geodude": {
+      "still": true,
+      "ani": true
+    },
+    "geodudealola": {
+      "still": true,
+      "ani": true
+    },
+    "gholdengo": {
+      "still": true,
+      "ani": true
+    },
+    "gible": {
+      "still": true,
+      "ani": true
+    },
+    "gigalith": {
+      "still": true,
+      "ani": true
+    },
+    "gimmighoul": {
+      "still": true,
+      "ani": true
+    },
+    "gimmighoulroaming": {
+      "ani": true
+    },
+    "girafarig": {
+      "still": true,
+      "ani": true
+    },
+    "giratina": {
+      "still": true,
+      "ani": true
+    },
+    "giratinaorigin": {
+      "still": true,
+      "ani": true
+    },
+    "glaceon": {
+      "still": true,
+      "ani": true
+    },
+    "glalie": {
+      "still": true,
+      "ani": true
+    },
+    "glaliemega": {
+      "still": true,
+      "ani": true
+    },
+    "glameow": {
+      "still": true,
+      "ani": true
+    },
+    "glastrier": {
+      "still": true,
+      "ani": true
+    },
+    "gligar": {
+      "still": true,
+      "ani": true
+    },
+    "glimmet": {
+      "still": true,
+      "ani": true
+    },
+    "glimmora": {
+      "still": true,
+      "ani": true
+    },
+    "glimmoramega": {
+      "still": true,
+      "ani": true
+    },
+    "gliscor": {
+      "still": true,
+      "ani": true
+    },
+    "gloom": {
+      "still": true,
+      "ani": true
+    },
+    "gogoat": {
+      "still": true,
+      "ani": true
+    },
+    "golbat": {
+      "still": true,
+      "ani": true
+    },
+    "goldeen": {
+      "still": true,
+      "ani": true
+    },
+    "golduck": {
+      "still": true,
+      "ani": true
+    },
+    "golem": {
+      "still": true,
+      "ani": true
+    },
+    "golemalola": {
+      "still": true,
+      "ani": true
+    },
+    "golett": {
+      "still": true,
+      "ani": true
+    },
+    "golisopod": {
+      "still": true,
+      "ani": true
+    },
+    "golurk": {
+      "still": true,
+      "ani": true
+    },
+    "golurkmega": {
+      "still": true,
+      "ani": true
+    },
+    "goodra": {
+      "still": true,
+      "ani": true
+    },
+    "goodrahisui": {
+      "still": true,
+      "ani": true
+    },
+    "goomy": {
+      "still": true,
+      "ani": true
+    },
+    "gorebyss": {
+      "still": true,
+      "ani": true
+    },
+    "gossifleur": {
+      "still": true,
+      "ani": true
+    },
+    "gothita": {
+      "still": true,
+      "ani": true
+    },
+    "gothitelle": {
+      "still": true,
+      "ani": true
+    },
+    "gothorita": {
+      "still": true,
+      "ani": true
+    },
+    "gougingfire": {
+      "still": true,
+      "ani": true
+    },
+    "gourgeist": {
+      "still": true,
+      "ani": true
+    },
+    "gourgeistlarge": {
+      "still": true,
+      "ani": true
+    },
+    "gourgeistsmall": {
+      "still": true,
+      "ani": true
+    },
+    "gourgeistsuper": {
+      "still": true,
+      "ani": true
+    },
+    "grafaiai": {
+      "still": true,
+      "ani": true
+    },
+    "granbull": {
+      "still": true,
+      "ani": true
+    },
+    "grapploct": {
+      "still": true,
+      "ani": true
+    },
+    "graveler": {
+      "still": true,
+      "ani": true
+    },
+    "graveleralola": {
+      "still": true,
+      "ani": true
+    },
+    "greattusk": {
+      "still": true,
+      "ani": true
+    },
+    "greavard": {
+      "still": true,
+      "ani": true
+    },
+    "greedent": {
+      "still": true,
+      "ani": true
+    },
+    "greninja": {
+      "still": true,
+      "ani": true
+    },
+    "greninjaash": {
+      "still": true,
+      "ani": true
+    },
+    "greninjamega": {
+      "still": true,
+      "ani": true
+    },
+    "grimer": {
+      "still": true,
+      "ani": true
+    },
+    "grimeralola": {
+      "still": true,
+      "ani": true
+    },
+    "grimmsnarl": {
+      "still": true,
+      "ani": true
+    },
+    "grimmsnarlgmax": {
+      "still": true,
+      "ani": true
+    },
+    "grookey": {
+      "still": true,
+      "ani": true
+    },
+    "grotle": {
+      "still": true,
+      "ani": true
+    },
+    "groudon": {
+      "still": true,
+      "ani": true
+    },
+    "groudonprimal": {
+      "still": true,
+      "ani": true
+    },
+    "grovyle": {
+      "still": true,
+      "ani": true
+    },
+    "growlithe": {
+      "still": true,
+      "ani": true
+    },
+    "growlithehisui": {
+      "still": true,
+      "ani": true
+    },
+    "grubbin": {
+      "still": true,
+      "ani": true
+    },
+    "grumpig": {
+      "still": true,
+      "ani": true
+    },
+    "gulpin": {
+      "still": true,
+      "ani": true
+    },
+    "gumshoos": {
+      "still": true,
+      "ani": true
+    },
+    "gumshoostotem": {
+      "still": true,
+      "ani": true
+    },
+    "gurdurr": {
+      "still": true,
+      "ani": true
+    },
+    "guzzlord": {
+      "still": true,
+      "ani": true
+    },
+    "gyarados": {
+      "still": true,
+      "ani": true
+    },
+    "gyaradosmega": {
+      "still": true,
+      "ani": true
+    },
+    "hakamoo": {
+      "still": true,
+      "ani": true
+    },
+    "happiny": {
+      "still": true,
+      "ani": true
+    },
+    "hariyama": {
+      "still": true,
+      "ani": true
+    },
+    "hatenna": {
+      "still": true,
+      "ani": true
+    },
+    "hatterene": {
+      "still": true,
+      "ani": true
+    },
+    "hatterenegmax": {
+      "still": true,
+      "ani": true
+    },
+    "hattrem": {
+      "still": true,
+      "ani": true
+    },
+    "haunter": {
+      "still": true,
+      "ani": true
+    },
+    "hawlucha": {
+      "still": true,
+      "ani": true
+    },
+    "hawluchamega": {
+      "still": true,
+      "ani": true
+    },
+    "haxorus": {
+      "still": true,
+      "ani": true
+    },
+    "heatmor": {
+      "still": true,
+      "ani": true
+    },
+    "heatran": {
+      "still": true,
+      "ani": true
+    },
+    "heliolisk": {
+      "still": true,
+      "ani": true
+    },
+    "helioptile": {
+      "still": true,
+      "ani": true
+    },
+    "heracross": {
+      "still": true,
+      "ani": true
+    },
+    "heracrossmega": {
+      "still": true,
+      "ani": true
+    },
+    "herdier": {
+      "still": true,
+      "ani": true
+    },
+    "hippopotas": {
+      "still": true,
+      "ani": true
+    },
+    "hippowdon": {
+      "still": true,
+      "ani": true
+    },
+    "hitmonchan": {
+      "still": true,
+      "ani": true
+    },
+    "hitmonlee": {
+      "still": true,
+      "ani": true
+    },
+    "hitmontop": {
+      "still": true,
+      "ani": true
+    },
+    "honchkrow": {
+      "still": true,
+      "ani": true
+    },
+    "honedge": {
+      "still": true,
+      "ani": true
+    },
+    "hooh": {
+      "still": true,
+      "ani": true
+    },
+    "hoopa": {
+      "still": true,
+      "ani": true
+    },
+    "hoopaunbound": {
+      "still": true,
+      "ani": true
+    },
+    "hoothoot": {
+      "still": true,
+      "ani": true
+    },
+    "hoppip": {
+      "still": true,
+      "ani": true
+    },
+    "horsea": {
+      "still": true,
+      "ani": true
+    },
+    "houndoom": {
+      "still": true,
+      "ani": true
+    },
+    "houndoommega": {
+      "still": true,
+      "ani": true
+    },
+    "houndour": {
+      "still": true,
+      "ani": true
+    },
+    "houndstone": {
+      "still": true,
+      "ani": true
+    },
+    "huntail": {
+      "still": true,
+      "ani": true
+    },
+    "hydrapple": {
+      "still": true,
+      "ani": true
+    },
+    "hydreigon": {
+      "still": true,
+      "ani": true
+    },
+    "hypno": {
+      "still": true,
+      "ani": true
+    },
+    "igglybuff": {
+      "still": true,
+      "ani": true
+    },
+    "illumise": {
+      "still": true,
+      "ani": true
+    },
+    "impidimp": {
+      "still": true,
+      "ani": true
+    },
+    "incineroar": {
+      "still": true,
+      "ani": true
+    },
+    "indeedee": {
+      "still": true,
+      "ani": true
+    },
+    "indeedeef": {
+      "still": true,
+      "ani": true
+    },
+    "infernape": {
+      "still": true,
+      "ani": true
+    },
+    "inkay": {
+      "still": true,
+      "ani": true
+    },
+    "inteleon": {
+      "still": true,
+      "ani": true
+    },
+    "inteleongmax": {
+      "still": true,
+      "ani": true
+    },
+    "ironboulder": {
+      "still": true,
+      "ani": true
+    },
+    "ironbundle": {
+      "still": true,
+      "ani": true
+    },
+    "ironcrown": {
+      "still": true,
+      "ani": true
+    },
+    "ironhands": {
+      "still": true,
+      "ani": true
+    },
+    "ironjugulis": {
+      "still": true,
+      "ani": true
+    },
+    "ironleaves": {
+      "still": true,
+      "ani": true
+    },
+    "ironmoth": {
+      "still": true,
+      "ani": true
+    },
+    "ironthorns": {
+      "still": true,
+      "ani": true
+    },
+    "irontreads": {
+      "still": true,
+      "ani": true
+    },
+    "ironvaliant": {
+      "still": true,
+      "ani": true
+    },
+    "ivysaur": {
+      "still": true,
+      "ani": true
+    },
+    "jangmoo": {
+      "still": true,
+      "ani": true
+    },
+    "jellicent": {
+      "still": true,
+      "ani": true
+    },
+    "jigglypuff": {
+      "still": true,
+      "ani": true
+    },
+    "jirachi": {
+      "still": true,
+      "ani": true
+    },
+    "jolteon": {
+      "still": true,
+      "ani": true
+    },
+    "joltik": {
+      "still": true,
+      "ani": true
+    },
+    "jumpluff": {
+      "still": true,
+      "ani": true
+    },
+    "jynx": {
+      "still": true,
+      "ani": true
+    },
+    "kabuto": {
+      "still": true,
+      "ani": true
+    },
+    "kabutops": {
+      "still": true,
+      "ani": true
+    },
+    "kadabra": {
+      "still": true,
+      "ani": true
+    },
+    "kakuna": {
+      "still": true,
+      "ani": true
+    },
+    "kangaskhan": {
+      "still": true,
+      "ani": true
+    },
+    "kangaskhanmega": {
+      "still": true,
+      "ani": true
+    },
+    "karrablast": {
+      "still": true,
+      "ani": true
+    },
+    "kartana": {
+      "still": true,
+      "ani": true
+    },
+    "kecleon": {
+      "still": true,
+      "ani": true
+    },
+    "keldeo": {
+      "still": true,
+      "ani": true
+    },
+    "keldeoresolute": {
+      "still": true,
+      "ani": true
+    },
+    "kilowattrel": {
+      "still": true,
+      "ani": true
+    },
+    "kingambit": {
+      "still": true,
+      "ani": true
+    },
+    "kingdra": {
+      "still": true,
+      "ani": true
+    },
+    "kingler": {
+      "still": true,
+      "ani": true
+    },
+    "kinglergmax": {
+      "still": true,
+      "ani": true
+    },
+    "kirlia": {
+      "still": true,
+      "ani": true
+    },
+    "klang": {
+      "still": true,
+      "ani": true
+    },
+    "klawf": {
+      "still": true,
+      "ani": true
+    },
+    "kleavor": {
+      "still": true,
+      "ani": true
+    },
+    "klefki": {
+      "still": true,
+      "ani": true
+    },
+    "klink": {
+      "still": true,
+      "ani": true
+    },
+    "klinklang": {
+      "still": true,
+      "ani": true
+    },
+    "koffing": {
+      "still": true,
+      "ani": true
+    },
+    "komala": {
+      "still": true,
+      "ani": true
+    },
+    "kommoo": {
+      "still": true,
+      "ani": true
+    },
+    "kommoototem": {
+      "still": true,
+      "ani": true
+    },
+    "koraidon": {
+      "still": true,
+      "ani": true
+    },
+    "krabby": {
+      "still": true,
+      "ani": true
+    },
+    "kricketot": {
+      "still": true,
+      "ani": true
+    },
+    "kricketune": {
+      "still": true,
+      "ani": true
+    },
+    "krokorok": {
+      "still": true,
+      "ani": true
+    },
+    "krookodile": {
+      "still": true,
+      "ani": true
+    },
+    "kubfu": {
+      "still": true,
+      "ani": true
+    },
+    "kyogre": {
+      "still": true,
+      "ani": true
+    },
+    "kyogreprimal": {
+      "still": true,
+      "ani": true
+    },
+    "kyurem": {
+      "still": true,
+      "ani": true
+    },
+    "kyuremblack": {
+      "still": true,
+      "ani": true
+    },
+    "kyuremwhite": {
+      "still": true,
+      "ani": true
+    },
+    "lairon": {
+      "still": true,
+      "ani": true
+    },
+    "lampent": {
+      "still": true,
+      "ani": true
+    },
+    "landorus": {
+      "still": true,
+      "ani": true
+    },
+    "landorustherian": {
+      "still": true,
+      "ani": true
+    },
+    "lanturn": {
+      "still": true,
+      "ani": true
+    },
+    "lapras": {
+      "still": true,
+      "ani": true
+    },
+    "laprasgmax": {
+      "still": true,
+      "ani": true
+    },
+    "larvesta": {
+      "still": true,
+      "ani": true
+    },
+    "larvitar": {
+      "still": true,
+      "ani": true
+    },
+    "latias": {
+      "still": true,
+      "ani": true
+    },
+    "latiasmega": {
+      "still": true,
+      "ani": true
+    },
+    "latios": {
+      "still": true,
+      "ani": true
+    },
+    "latiosmega": {
+      "still": true,
+      "ani": true
+    },
+    "leafeon": {
+      "still": true,
+      "ani": true
+    },
+    "leavanny": {
+      "still": true,
+      "ani": true
+    },
+    "lechonk": {
+      "still": true,
+      "ani": true
+    },
+    "ledian": {
+      "still": true,
+      "ani": true
+    },
+    "ledyba": {
+      "still": true,
+      "ani": true
+    },
+    "lickilicky": {
+      "still": true,
+      "ani": true
+    },
+    "lickitung": {
+      "still": true,
+      "ani": true
+    },
+    "liepard": {
+      "still": true,
+      "ani": true
+    },
+    "lileep": {
+      "still": true,
+      "ani": true
+    },
+    "lilligant": {
+      "still": true,
+      "ani": true
+    },
+    "lilliganthisui": {
+      "still": true,
+      "ani": true
+    },
+    "lillipup": {
+      "still": true,
+      "ani": true
+    },
+    "linoone": {
+      "still": true,
+      "ani": true
+    },
+    "linoonegalar": {
+      "still": true,
+      "ani": true
+    },
+    "litleo": {
+      "still": true,
+      "ani": true
+    },
+    "litten": {
+      "still": true,
+      "ani": true
+    },
+    "litwick": {
+      "still": true,
+      "ani": true
+    },
+    "lokix": {
+      "still": true,
+      "ani": true
+    },
+    "lombre": {
+      "still": true,
+      "ani": true
+    },
+    "lopunny": {
+      "still": true,
+      "ani": true
+    },
+    "lopunnymega": {
+      "still": true,
+      "ani": true
+    },
+    "lotad": {
+      "still": true,
+      "ani": true
+    },
+    "loudred": {
+      "still": true,
+      "ani": true
+    },
+    "lucario": {
+      "still": true,
+      "ani": true
+    },
+    "lucariomega": {
+      "still": true,
+      "ani": true
+    },
+    "ludicolo": {
+      "still": true,
+      "ani": true
+    },
+    "lugia": {
+      "still": true,
+      "ani": true
+    },
+    "lumineon": {
+      "still": true,
+      "ani": true
+    },
+    "lunala": {
+      "still": true,
+      "ani": true
+    },
+    "lunatone": {
+      "still": true,
+      "ani": true
+    },
+    "lurantis": {
+      "still": true,
+      "ani": true
+    },
+    "lurantistotem": {
+      "still": true,
+      "ani": true
+    },
+    "luvdisc": {
+      "still": true,
+      "ani": true
+    },
+    "luxio": {
+      "still": true,
+      "ani": true
+    },
+    "luxray": {
+      "still": true,
+      "ani": true
+    },
+    "lycanroc": {
+      "still": true,
+      "ani": true
+    },
+    "lycanrocdusk": {
+      "still": true,
+      "ani": true
+    },
+    "lycanrocmidnight": {
+      "still": true,
+      "ani": true
+    },
+    "mabosstiff": {
+      "still": true,
+      "ani": true
+    },
+    "machamp": {
+      "still": true,
+      "ani": true
+    },
+    "machampgmax": {
+      "still": true,
+      "ani": true
+    },
+    "machoke": {
+      "still": true,
+      "ani": true
+    },
+    "machop": {
+      "still": true,
+      "ani": true
+    },
+    "magby": {
+      "still": true,
+      "ani": true
+    },
+    "magcargo": {
+      "still": true,
+      "ani": true
+    },
+    "magearna": {
+      "still": true,
+      "ani": true
+    },
+    "magearnaoriginal": {
+      "still": true,
+      "ani": true
+    },
+    "magikarp": {
+      "still": true,
+      "ani": true
+    },
+    "magmar": {
+      "still": true,
+      "ani": true
+    },
+    "magmortar": {
+      "still": true,
+      "ani": true
+    },
+    "magnemite": {
+      "still": true,
+      "ani": true
+    },
+    "magneton": {
+      "still": true,
+      "ani": true
+    },
+    "magnezone": {
+      "still": true,
+      "ani": true
+    },
+    "makuhita": {
+      "still": true,
+      "ani": true
+    },
+    "malamar": {
+      "still": true,
+      "ani": true
+    },
+    "malamarmega": {
+      "still": true,
+      "ani": true
+    },
+    "mamoswine": {
+      "still": true,
+      "ani": true
+    },
+    "manaphy": {
+      "still": true,
+      "ani": true
+    },
+    "mandibuzz": {
+      "still": true,
+      "ani": true
+    },
+    "manectric": {
+      "still": true,
+      "ani": true
+    },
+    "manectricmega": {
+      "still": true,
+      "ani": true
+    },
+    "mankey": {
+      "still": true,
+      "ani": true
+    },
+    "mantine": {
+      "still": true,
+      "ani": true
+    },
+    "mantyke": {
+      "still": true,
+      "ani": true
+    },
+    "maractus": {
+      "still": true,
+      "ani": true
+    },
+    "mareanie": {
+      "still": true,
+      "ani": true
+    },
+    "mareep": {
+      "still": true,
+      "ani": true
+    },
+    "marill": {
+      "still": true,
+      "ani": true
+    },
+    "marowak": {
+      "still": true,
+      "ani": true
+    },
+    "marowakalola": {
+      "still": true,
+      "ani": true
+    },
+    "marowakalolatotem": {
+      "still": true,
+      "ani": true
+    },
+    "marshadow": {
+      "still": true,
+      "ani": true
+    },
+    "marshtomp": {
+      "still": true,
+      "ani": true
+    },
+    "maschiff": {
+      "still": true,
+      "ani": true
+    },
+    "masquerain": {
+      "still": true,
+      "ani": true
+    },
+    "maushold": {
+      "still": true,
+      "ani": true
+    },
+    "mausholdfour": {
+      "still": true,
+      "ani": true
+    },
+    "mawile": {
+      "still": true,
+      "ani": true
+    },
+    "mawilemega": {
+      "still": true,
+      "ani": true
+    },
+    "medicham": {
+      "still": true,
+      "ani": true
+    },
+    "medichammega": {
+      "still": true,
+      "ani": true
+    },
+    "meditite": {
+      "still": true,
+      "ani": true
+    },
+    "meganium": {
+      "still": true,
+      "ani": true
+    },
+    "meganiummega": {
+      "still": true,
+      "ani": true
+    },
+    "melmetal": {
+      "still": true,
+      "ani": true
+    },
+    "melmetalgmax": {
+      "still": true,
+      "ani": true
+    },
+    "meloetta": {
+      "still": true,
+      "ani": true
+    },
+    "meloettapirouette": {
+      "still": true,
+      "ani": true
+    },
+    "meltan": {
+      "still": true,
+      "ani": true
+    },
+    "meowscarada": {
+      "still": true,
+      "ani": true
+    },
+    "meowstic": {
+      "still": true,
+      "ani": true
+    },
+    "meowsticf": {
+      "still": true,
+      "ani": true
+    },
+    "meowsticfmega": {
+      "still": true,
+      "ani": true
+    },
+    "meowsticmmega": {
+      "still": true,
+      "ani": true
+    },
+    "meowth": {
+      "still": true,
+      "ani": true
+    },
+    "meowthalola": {
+      "still": true,
+      "ani": true
+    },
+    "meowthgalar": {
+      "still": true,
+      "ani": true
+    },
+    "meowthgmax": {
+      "still": true,
+      "ani": true
+    },
+    "mesprit": {
+      "still": true,
+      "ani": true
+    },
+    "metagross": {
+      "still": true,
+      "ani": true
+    },
+    "metagrossmega": {
+      "still": true,
+      "ani": true
+    },
+    "metang": {
+      "still": true,
+      "ani": true
+    },
+    "metapod": {
+      "still": true,
+      "ani": true
+    },
+    "mew": {
+      "still": true,
+      "ani": true
+    },
+    "mewtwo": {
+      "still": true,
+      "ani": true
+    },
+    "mewtwomegax": {
+      "still": true,
+      "ani": true
+    },
+    "mewtwomegay": {
+      "still": true,
+      "ani": true
+    },
+    "mienfoo": {
+      "still": true,
+      "ani": true
+    },
+    "mienshao": {
+      "still": true,
+      "ani": true
+    },
+    "mightyena": {
+      "still": true,
+      "ani": true
+    },
+    "milcery": {
+      "still": true,
+      "ani": true
+    },
+    "milotic": {
+      "still": true,
+      "ani": true
+    },
+    "miltank": {
+      "still": true,
+      "ani": true
+    },
+    "mimejr": {
+      "still": true,
+      "ani": true
+    },
+    "mimikyu": {
+      "still": true,
+      "ani": true
+    },
+    "mimikyubusted": {
+      "still": true,
+      "ani": true
+    },
+    "mimikyubustedtotem": {
+      "still": true,
+      "ani": true
+    },
+    "mimikyutotem": {
+      "still": true,
+      "ani": true
+    },
+    "minccino": {
+      "still": true,
+      "ani": true
+    },
+    "minior": {
+      "still": true,
+      "ani": true
+    },
+    "miniormeteor": {
+      "still": true,
+      "ani": true
+    },
+    "minun": {
+      "still": true,
+      "ani": true
+    },
+    "miraidon": {
+      "still": true,
+      "ani": true
+    },
+    "misdreavus": {
+      "still": true,
+      "ani": true
+    },
+    "mismagius": {
+      "still": true,
+      "ani": true
+    },
+    "moltres": {
+      "still": true,
+      "ani": true
+    },
+    "moltresgalar": {
+      "still": true,
+      "ani": true
+    },
+    "monferno": {
+      "still": true,
+      "ani": true
+    },
+    "morelull": {
+      "still": true,
+      "ani": true
+    },
+    "morgrem": {
+      "still": true,
+      "ani": true
+    },
+    "morpeko": {
+      "still": true,
+      "ani": true
+    },
+    "morpekohangry": {
+      "still": true,
+      "ani": true
+    },
+    "mothim": {
+      "still": true,
+      "ani": true
+    },
+    "mrmime": {
+      "still": true,
+      "ani": true
+    },
+    "mrmimegalar": {
+      "still": true,
+      "ani": true
+    },
+    "mrrime": {
+      "still": true,
+      "ani": true
+    },
+    "mudbray": {
+      "still": true,
+      "ani": true
+    },
+    "mudkip": {
+      "still": true,
+      "ani": true
+    },
+    "mudsdale": {
+      "still": true,
+      "ani": true
+    },
+    "muk": {
+      "still": true,
+      "ani": true
+    },
+    "mukalola": {
+      "still": true,
+      "ani": true
+    },
+    "munchlax": {
+      "still": true,
+      "ani": true
+    },
+    "munkidori": {
+      "still": true,
+      "ani": true
+    },
+    "munna": {
+      "still": true,
+      "ani": true
+    },
+    "murkrow": {
+      "still": true,
+      "ani": true
+    },
+    "musharna": {
+      "still": true,
+      "ani": true
+    },
+    "nacli": {
+      "still": true,
+      "ani": true
+    },
+    "naclstack": {
+      "still": true,
+      "ani": true
+    },
+    "naganadel": {
+      "still": true,
+      "ani": true
+    },
+    "natu": {
+      "still": true,
+      "ani": true
+    },
+    "necrozma": {
+      "still": true,
+      "ani": true
+    },
+    "necrozmadawnwings": {
+      "still": true,
+      "ani": true
+    },
+    "necrozmaduskmane": {
+      "still": true,
+      "ani": true
+    },
+    "necrozmaultra": {
+      "still": true,
+      "ani": true
+    },
+    "nickit": {
+      "still": true,
+      "ani": true
+    },
+    "nidoking": {
+      "still": true,
+      "ani": true
+    },
+    "nidoqueen": {
+      "still": true,
+      "ani": true
+    },
+    "nidoranf": {
+      "still": true,
+      "ani": true
+    },
+    "nidoranm": {
+      "still": true,
+      "ani": true
+    },
+    "nidorina": {
+      "still": true,
+      "ani": true
+    },
+    "nidorino": {
+      "still": true,
+      "ani": true
+    },
+    "nihilego": {
+      "still": true,
+      "ani": true
+    },
+    "nincada": {
+      "still": true,
+      "ani": true
+    },
+    "ninetales": {
+      "still": true,
+      "ani": true
+    },
+    "ninetalesalola": {
+      "still": true,
+      "ani": true
+    },
+    "ninjask": {
+      "still": true,
+      "ani": true
+    },
+    "noctowl": {
+      "still": true,
+      "ani": true
+    },
+    "noibat": {
+      "still": true,
+      "ani": true
+    },
+    "noivern": {
+      "still": true,
+      "ani": true
+    },
+    "nosepass": {
+      "still": true,
+      "ani": true
+    },
+    "numel": {
+      "still": true,
+      "ani": true
+    },
+    "nuzleaf": {
+      "still": true,
+      "ani": true
+    },
+    "nymble": {
+      "still": true,
+      "ani": true
+    },
+    "obstagoon": {
+      "still": true,
+      "ani": true
+    },
+    "octillery": {
+      "still": true,
+      "ani": true
+    },
+    "oddish": {
+      "still": true,
+      "ani": true
+    },
+    "ogerpon": {
+      "still": true,
+      "ani": true
+    },
+    "ogerponcornerstone": {
+      "still": true,
+      "ani": true
+    },
+    "ogerponcornerstonetera": {
+      "still": true,
+      "ani": true
+    },
+    "ogerponhearthflame": {
+      "still": true,
+      "ani": true
+    },
+    "ogerponhearthflametera": {
+      "still": true,
+      "ani": true
+    },
+    "ogerpontealtera": {
+      "still": true,
+      "ani": true
+    },
+    "ogerponwellspring": {
+      "still": true,
+      "ani": true
+    },
+    "ogerponwellspringtera": {
+      "still": true,
+      "ani": true
+    },
+    "oinkologne": {
+      "still": true,
+      "ani": true
+    },
+    "oinkolognef": {
+      "still": true,
+      "ani": true
+    },
+    "okidogi": {
+      "still": true,
+      "ani": true
+    },
+    "omanyte": {
+      "still": true,
+      "ani": true
+    },
+    "omastar": {
+      "still": true,
+      "ani": true
+    },
+    "onix": {
+      "still": true,
+      "ani": true
+    },
+    "oranguru": {
+      "still": true,
+      "ani": true
+    },
+    "orbeetle": {
+      "still": true,
+      "ani": true
+    },
+    "orbeetlegmax": {
+      "still": true,
+      "ani": true
+    },
+    "oricorio": {
+      "still": true,
+      "ani": true
+    },
+    "oricoriopompom": {
+      "still": true,
+      "ani": true
+    },
+    "oricoriosensu": {
+      "still": true,
+      "ani": true
+    },
+    "orthworm": {
+      "still": true,
+      "ani": true
+    },
+    "oshawott": {
+      "still": true,
+      "ani": true
+    },
+    "overqwil": {
+      "still": true,
+      "ani": true
+    },
+    "pachirisu": {
+      "still": true,
+      "ani": true
+    },
+    "palafin": {
+      "still": true,
+      "ani": true
+    },
+    "palafinhero": {
+      "still": true,
+      "ani": true
+    },
+    "palkia": {
+      "still": true,
+      "ani": true
+    },
+    "palkiaorigin": {
+      "still": true,
+      "ani": true
+    },
+    "palossand": {
+      "still": true,
+      "ani": true
+    },
+    "palpitoad": {
+      "still": true,
+      "ani": true
+    },
+    "pancham": {
+      "still": true,
+      "ani": true
+    },
+    "pangoro": {
+      "still": true,
+      "ani": true
+    },
+    "panpour": {
+      "still": true,
+      "ani": true
+    },
+    "pansage": {
+      "still": true,
+      "ani": true
+    },
+    "pansear": {
+      "still": true,
+      "ani": true
+    },
+    "paras": {
+      "still": true,
+      "ani": true
+    },
+    "parasect": {
+      "still": true,
+      "ani": true
+    },
+    "passimian": {
+      "still": true,
+      "ani": true
+    },
+    "patrat": {
+      "still": true,
+      "ani": true
+    },
+    "pawmi": {
+      "still": true,
+      "ani": true
+    },
+    "pawmo": {
+      "still": true,
+      "ani": true
+    },
+    "pawmot": {
+      "still": true,
+      "ani": true
+    },
+    "pawniard": {
+      "still": true,
+      "ani": true
+    },
+    "pecharunt": {
+      "still": true,
+      "ani": true
+    },
+    "pelipper": {
+      "still": true,
+      "ani": true
+    },
+    "perrserker": {
+      "still": true,
+      "ani": true
+    },
+    "persian": {
+      "still": true,
+      "ani": true
+    },
+    "persianalola": {
+      "still": true,
+      "ani": true
+    },
+    "petilil": {
+      "still": true,
+      "ani": true
+    },
+    "phanpy": {
+      "still": true,
+      "ani": true
+    },
+    "phantump": {
+      "still": true,
+      "ani": true
+    },
+    "pheromosa": {
+      "still": true,
+      "ani": true
+    },
+    "phione": {
+      "still": true,
+      "ani": true
+    },
+    "pichu": {
+      "still": true,
+      "ani": true
+    },
+    "pidgeot": {
+      "still": true,
+      "ani": true
+    },
+    "pidgeotmega": {
+      "still": true,
+      "ani": true
+    },
+    "pidgeotto": {
+      "still": true,
+      "ani": true
+    },
+    "pidgey": {
+      "still": true,
+      "ani": true
+    },
+    "pidove": {
+      "still": true,
+      "ani": true
+    },
+    "pignite": {
+      "still": true,
+      "ani": true
+    },
+    "pikachu": {
+      "still": true,
+      "ani": true
+    },
+    "pikachualola": {
+      "still": true,
+      "ani": true
+    },
+    "pikachubelle": {
+      "still": true,
+      "ani": true
+    },
+    "pikachucosplay": {
+      "still": true,
+      "ani": true
+    },
+    "pikachugmax": {
+      "still": true,
+      "ani": true
+    },
+    "pikachuhoenn": {
+      "still": true,
+      "ani": true
+    },
+    "pikachukalos": {
+      "still": true,
+      "ani": true
+    },
+    "pikachulibre": {
+      "still": true,
+      "ani": true
+    },
+    "pikachuoriginal": {
+      "still": true,
+      "ani": true
+    },
+    "pikachupartner": {
+      "still": true,
+      "ani": true
+    },
+    "pikachuphd": {
+      "still": true,
+      "ani": true
+    },
+    "pikachupopstar": {
+      "still": true,
+      "ani": true
+    },
+    "pikachurockstar": {
+      "still": true,
+      "ani": true
+    },
+    "pikachusinnoh": {
+      "still": true,
+      "ani": true
+    },
+    "pikachustarter": {
+      "still": true,
+      "ani": true
+    },
+    "pikachuunova": {
+      "still": true,
+      "ani": true
+    },
+    "pikachuworld": {
+      "still": true,
+      "ani": true
+    },
+    "pikipek": {
+      "still": true,
+      "ani": true
+    },
+    "piloswine": {
+      "still": true,
+      "ani": true
+    },
+    "pincurchin": {
+      "still": true,
+      "ani": true
+    },
+    "pineco": {
+      "still": true,
+      "ani": true
+    },
+    "pinsir": {
+      "still": true,
+      "ani": true
+    },
+    "pinsirmega": {
+      "still": true,
+      "ani": true
+    },
+    "piplup": {
+      "still": true,
+      "ani": true
+    },
+    "plusle": {
+      "still": true,
+      "ani": true
+    },
+    "poipole": {
+      "still": true,
+      "ani": true
+    },
+    "politoed": {
+      "still": true,
+      "ani": true
+    },
+    "poliwag": {
+      "still": true,
+      "ani": true
+    },
+    "poliwhirl": {
+      "still": true,
+      "ani": true
+    },
+    "poliwrath": {
+      "still": true,
+      "ani": true
+    },
+    "poltchageist": {
+      "still": true,
+      "ani": true
+    },
+    "poltchageistartisan": {
+      "still": true,
+      "ani": true
+    },
+    "polteageist": {
+      "still": true,
+      "ani": true
+    },
+    "polteageistantique": {
+      "still": true,
+      "ani": true
+    },
+    "ponyta": {
+      "still": true,
+      "ani": true
+    },
+    "ponytagalar": {
+      "still": true,
+      "ani": true
+    },
+    "poochyena": {
+      "still": true,
+      "ani": true
+    },
+    "popplio": {
+      "still": true,
+      "ani": true
+    },
+    "porygon": {
+      "still": true,
+      "ani": true
+    },
+    "porygon2": {
+      "still": true,
+      "ani": true
+    },
+    "porygonz": {
+      "still": true,
+      "ani": true
+    },
+    "primarina": {
+      "still": true,
+      "ani": true
+    },
+    "primeape": {
+      "still": true,
+      "ani": true
+    },
+    "prinplup": {
+      "still": true,
+      "ani": true
+    },
+    "probopass": {
+      "still": true,
+      "ani": true
+    },
+    "psyduck": {
+      "still": true,
+      "ani": true
+    },
+    "pumpkaboo": {
+      "still": true,
+      "ani": true
+    },
+    "pumpkaboolarge": {
+      "still": true,
+      "ani": true
+    },
+    "pumpkaboosmall": {
+      "still": true,
+      "ani": true
+    },
+    "pumpkaboosuper": {
+      "still": true,
+      "ani": true
+    },
+    "pupitar": {
+      "still": true,
+      "ani": true
+    },
+    "purrloin": {
+      "still": true,
+      "ani": true
+    },
+    "purugly": {
+      "still": true,
+      "ani": true
+    },
+    "pyroar": {
+      "still": true,
+      "ani": true
+    },
+    "pyroarmega": {
+      "still": true,
+      "ani": true
+    },
+    "pyukumuku": {
+      "still": true,
+      "ani": true
+    },
+    "quagsire": {
+      "still": true,
+      "ani": true
+    },
+    "quaquaval": {
+      "still": true,
+      "ani": true
+    },
+    "quaxly": {
+      "still": true,
+      "ani": true
+    },
+    "quaxwell": {
+      "still": true,
+      "ani": true
+    },
+    "quilava": {
+      "still": true,
+      "ani": true
+    },
+    "quilladin": {
+      "still": true,
+      "ani": true
+    },
+    "qwilfish": {
+      "still": true,
+      "ani": true
+    },
+    "qwilfishhisui": {
+      "still": true,
+      "ani": true
+    },
+    "raboot": {
+      "still": true,
+      "ani": true
+    },
+    "rabsca": {
+      "still": true,
+      "ani": true
+    },
+    "ragingbolt": {
+      "still": true,
+      "ani": true
+    },
+    "raichu": {
+      "still": true,
+      "ani": true
+    },
+    "raichualola": {
+      "still": true,
+      "ani": true
+    },
+    "raichumegax": {
+      "still": true,
+      "ani": true
+    },
+    "raichumegay": {
+      "still": true,
+      "ani": true
+    },
+    "raikou": {
+      "still": true,
+      "ani": true
+    },
+    "ralts": {
+      "still": true,
+      "ani": true
+    },
+    "rampardos": {
+      "still": true,
+      "ani": true
+    },
+    "rapidash": {
+      "still": true,
+      "ani": true
+    },
+    "rapidashgalar": {
+      "still": true,
+      "ani": true
+    },
+    "raticate": {
+      "still": true,
+      "ani": true
+    },
+    "raticatealola": {
+      "still": true,
+      "ani": true
+    },
+    "raticatealolatotem": {
+      "still": true,
+      "ani": true
+    },
+    "rattata": {
+      "still": true,
+      "ani": true
+    },
+    "rattataalola": {
+      "still": true,
+      "ani": true
+    },
+    "rayquaza": {
+      "still": true,
+      "ani": true
+    },
+    "rayquazamega": {
+      "still": true,
+      "ani": true
+    },
+    "regice": {
+      "still": true,
+      "ani": true
+    },
+    "regidrago": {
+      "still": true,
+      "ani": true
+    },
+    "regieleki": {
+      "still": true,
+      "ani": true
+    },
+    "regigigas": {
+      "still": true,
+      "ani": true
+    },
+    "regirock": {
+      "still": true,
+      "ani": true
+    },
+    "registeel": {
+      "still": true,
+      "ani": true
+    },
+    "relicanth": {
+      "still": true,
+      "ani": true
+    },
+    "rellor": {
+      "still": true,
+      "ani": true
+    },
+    "remoraid": {
+      "still": true,
+      "ani": true
+    },
+    "reshiram": {
+      "still": true,
+      "ani": true
+    },
+    "reuniclus": {
+      "still": true,
+      "ani": true
+    },
+    "revavroom": {
+      "still": true,
+      "ani": true
+    },
+    "rhydon": {
+      "still": true,
+      "ani": true
+    },
+    "rhyhorn": {
+      "still": true,
+      "ani": true
+    },
+    "rhyperior": {
+      "still": true,
+      "ani": true
+    },
+    "ribombee": {
+      "still": true,
+      "ani": true
+    },
+    "rillaboom": {
+      "still": true,
+      "ani": true
+    },
+    "rillaboomgmax": {
+      "still": true,
+      "ani": true
+    },
+    "riolu": {
+      "still": true,
+      "ani": true
+    },
+    "roaringmoon": {
+      "still": true,
+      "ani": true
+    },
+    "rockruff": {
+      "still": true,
+      "ani": true
+    },
+    "roggenrola": {
+      "still": true,
+      "ani": true
+    },
+    "rolycoly": {
+      "still": true,
+      "ani": true
+    },
+    "rookidee": {
+      "still": true,
+      "ani": true
+    },
+    "roselia": {
+      "still": true,
+      "ani": true
+    },
+    "roserade": {
+      "still": true,
+      "ani": true
+    },
+    "rotom": {
+      "still": true,
+      "ani": true
+    },
+    "rotomfan": {
+      "still": true,
+      "ani": true
+    },
+    "rotomfrost": {
+      "still": true,
+      "ani": true
+    },
+    "rotomheat": {
+      "still": true,
+      "ani": true
+    },
+    "rotommow": {
+      "still": true,
+      "ani": true
+    },
+    "rotomwash": {
+      "still": true,
+      "ani": true
+    },
+    "rowlet": {
+      "still": true,
+      "ani": true
+    },
+    "rufflet": {
+      "still": true,
+      "ani": true
+    },
+    "runerigus": {
+      "still": true,
+      "ani": true
+    },
+    "sableye": {
+      "still": true,
+      "ani": true
+    },
+    "sableyemega": {
+      "still": true,
+      "ani": true
+    },
+    "salamence": {
+      "still": true,
+      "ani": true
+    },
+    "salamencemega": {
+      "still": true,
+      "ani": true
+    },
+    "salandit": {
+      "still": true,
+      "ani": true
+    },
+    "salazzle": {
+      "still": true,
+      "ani": true
+    },
+    "salazzletotem": {
+      "still": true,
+      "ani": true
+    },
+    "samurott": {
+      "still": true,
+      "ani": true
+    },
+    "samurotthisui": {
+      "still": true,
+      "ani": true
+    },
+    "sandaconda": {
+      "still": true,
+      "ani": true
+    },
+    "sandacondagmax": {
+      "still": true,
+      "ani": true
+    },
+    "sandile": {
+      "still": true,
+      "ani": true
+    },
+    "sandshrew": {
+      "still": true,
+      "ani": true
+    },
+    "sandshrewalola": {
+      "still": true,
+      "ani": true
+    },
+    "sandslash": {
+      "still": true,
+      "ani": true
+    },
+    "sandslashalola": {
+      "still": true,
+      "ani": true
+    },
+    "sandygast": {
+      "still": true,
+      "ani": true
+    },
+    "sandyshocks": {
+      "still": true,
+      "ani": true
+    },
+    "sawk": {
+      "still": true,
+      "ani": true
+    },
+    "sawsbuck": {
+      "still": true,
+      "ani": true
+    },
+    "scatterbug": {
+      "still": true,
+      "ani": true
+    },
+    "sceptile": {
+      "still": true,
+      "ani": true
+    },
+    "sceptilemega": {
+      "still": true,
+      "ani": true
+    },
+    "scizor": {
+      "still": true,
+      "ani": true
+    },
+    "scizormega": {
+      "still": true,
+      "ani": true
+    },
+    "scolipede": {
+      "still": true,
+      "ani": true
+    },
+    "scolipedemega": {
+      "still": true,
+      "ani": true
+    },
+    "scorbunny": {
+      "still": true,
+      "ani": true
+    },
+    "scovillain": {
+      "still": true,
+      "ani": true
+    },
+    "scovillainmega": {
+      "still": true,
+      "ani": true
+    },
+    "scrafty": {
+      "still": true,
+      "ani": true
+    },
+    "scraftymega": {
+      "still": true,
+      "ani": true
+    },
+    "scraggy": {
+      "still": true,
+      "ani": true
+    },
+    "screamtail": {
+      "still": true,
+      "ani": true
+    },
+    "scyther": {
+      "still": true,
+      "ani": true
+    },
+    "seadra": {
+      "still": true,
+      "ani": true
+    },
+    "seaking": {
+      "still": true,
+      "ani": true
+    },
+    "sealeo": {
+      "still": true,
+      "ani": true
+    },
+    "seedot": {
+      "still": true,
+      "ani": true
+    },
+    "seel": {
+      "still": true,
+      "ani": true
+    },
+    "seismitoad": {
+      "still": true,
+      "ani": true
+    },
+    "sentret": {
+      "still": true,
+      "ani": true
+    },
+    "serperior": {
+      "still": true,
+      "ani": true
+    },
+    "servine": {
+      "still": true,
+      "ani": true
+    },
+    "seviper": {
+      "still": true,
+      "ani": true
+    },
+    "sewaddle": {
+      "still": true,
+      "ani": true
+    },
+    "sharpedo": {
+      "still": true,
+      "ani": true
+    },
+    "sharpedomega": {
+      "still": true,
+      "ani": true
+    },
+    "shaymin": {
+      "still": true,
+      "ani": true
+    },
+    "shayminsky": {
+      "still": true,
+      "ani": true
+    },
+    "shedinja": {
+      "still": true,
+      "ani": true
+    },
+    "shelgon": {
+      "still": true,
+      "ani": true
+    },
+    "shellder": {
+      "still": true,
+      "ani": true
+    },
+    "shellos": {
+      "still": true,
+      "ani": true
+    },
+    "shelmet": {
+      "still": true,
+      "ani": true
+    },
+    "shieldon": {
+      "still": true,
+      "ani": true
+    },
+    "shiftry": {
+      "still": true,
+      "ani": true
+    },
+    "shiinotic": {
+      "still": true,
+      "ani": true
+    },
+    "shinx": {
+      "still": true,
+      "ani": true
+    },
+    "shroodle": {
+      "still": true,
+      "ani": true
+    },
+    "shroomish": {
+      "still": true,
+      "ani": true
+    },
+    "shuckle": {
+      "still": true,
+      "ani": true
+    },
+    "shuppet": {
+      "still": true,
+      "ani": true
+    },
+    "sigilyph": {
+      "still": true,
+      "ani": true
+    },
+    "silcoon": {
+      "still": true,
+      "ani": true
+    },
+    "silicobra": {
+      "still": true,
+      "ani": true
+    },
+    "silvally": {
+      "still": true,
+      "ani": true
+    },
+    "silvallybug": {
+      "still": true,
+      "ani": true
+    },
+    "silvallydark": {
+      "still": true,
+      "ani": true
+    },
+    "silvallydragon": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyelectric": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyfairy": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyfighting": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyfire": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyflying": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyghost": {
+      "still": true,
+      "ani": true
+    },
+    "silvallygrass": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyground": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyice": {
+      "still": true,
+      "ani": true
+    },
+    "silvallypoison": {
+      "still": true,
+      "ani": true
+    },
+    "silvallypsychic": {
+      "still": true,
+      "ani": true
+    },
+    "silvallyrock": {
+      "still": true,
+      "ani": true
+    },
+    "silvallysteel": {
+      "still": true,
+      "ani": true
+    },
+    "silvallywater": {
+      "still": true,
+      "ani": true
+    },
+    "simipour": {
+      "still": true,
+      "ani": true
+    },
+    "simisage": {
+      "still": true,
+      "ani": true
+    },
+    "simisear": {
+      "still": true,
+      "ani": true
+    },
+    "sinistcha": {
+      "still": true,
+      "ani": true
+    },
+    "sinistchamasterpiece": {
+      "still": true,
+      "ani": true
+    },
+    "sinistea": {
+      "still": true,
+      "ani": true
+    },
+    "sinisteaantique": {
+      "still": true,
+      "ani": true
+    },
+    "sirfetchd": {
+      "still": true,
+      "ani": true
+    },
+    "sizzlipede": {
+      "still": true,
+      "ani": true
+    },
+    "skarmory": {
+      "still": true,
+      "ani": true
+    },
+    "skarmorymega": {
+      "still": true,
+      "ani": true
+    },
+    "skeledirge": {
+      "still": true,
+      "ani": true
+    },
+    "skiddo": {
+      "still": true,
+      "ani": true
+    },
+    "skiploom": {
+      "still": true,
+      "ani": true
+    },
+    "skitty": {
+      "still": true,
+      "ani": true
+    },
+    "skorupi": {
+      "still": true,
+      "ani": true
+    },
+    "skrelp": {
+      "still": true,
+      "ani": true
+    },
+    "skuntank": {
+      "still": true,
+      "ani": true
+    },
+    "skwovet": {
+      "still": true,
+      "ani": true
+    },
+    "slaking": {
+      "still": true,
+      "ani": true
+    },
+    "slakoth": {
+      "still": true,
+      "ani": true
+    },
+    "sliggoo": {
+      "still": true,
+      "ani": true
+    },
+    "sliggoohisui": {
+      "still": true,
+      "ani": true
+    },
+    "slitherwing": {
+      "still": true,
+      "ani": true
+    },
+    "slowbro": {
+      "still": true,
+      "ani": true
+    },
+    "slowbrogalar": {
+      "still": true,
+      "ani": true
+    },
+    "slowbromega": {
+      "still": true,
+      "ani": true
+    },
+    "slowking": {
+      "still": true,
+      "ani": true
+    },
+    "slowkinggalar": {
+      "still": true,
+      "ani": true
+    },
+    "slowpoke": {
+      "still": true,
+      "ani": true
+    },
+    "slowpokegalar": {
+      "still": true,
+      "ani": true
+    },
+    "slugma": {
+      "still": true,
+      "ani": true
+    },
+    "slurpuff": {
+      "still": true,
+      "ani": true
+    },
+    "smeargle": {
+      "still": true,
+      "ani": true
+    },
+    "smoliv": {
+      "still": true,
+      "ani": true
+    },
+    "smoochum": {
+      "still": true,
+      "ani": true
+    },
+    "sneasel": {
+      "still": true,
+      "ani": true
+    },
+    "sneaselhisui": {
+      "still": true,
+      "ani": true
+    },
+    "sneasler": {
+      "still": true,
+      "ani": true
+    },
+    "snivy": {
+      "still": true,
+      "ani": true
+    },
+    "snom": {
+      "still": true,
+      "ani": true
+    },
+    "snorlax": {
+      "still": true,
+      "ani": true
+    },
+    "snorlaxgmax": {
+      "still": true,
+      "ani": true
+    },
+    "snorunt": {
+      "still": true,
+      "ani": true
+    },
+    "snover": {
+      "still": true,
+      "ani": true
+    },
+    "snubbull": {
+      "still": true,
+      "ani": true
+    },
+    "sobble": {
+      "still": true,
+      "ani": true
+    },
+    "solgaleo": {
+      "still": true,
+      "ani": true
+    },
+    "solosis": {
+      "still": true,
+      "ani": true
+    },
+    "solrock": {
+      "still": true,
+      "ani": true
+    },
+    "spearow": {
+      "still": true,
+      "ani": true
+    },
+    "spectrier": {
+      "still": true,
+      "ani": true
+    },
+    "spewpa": {
+      "still": true,
+      "ani": true
+    },
+    "spheal": {
+      "still": true,
+      "ani": true
+    },
+    "spidops": {
+      "still": true,
+      "ani": true
+    },
+    "spinarak": {
+      "still": true,
+      "ani": true
+    },
+    "spinda": {
+      "still": true,
+      "ani": true
+    },
+    "spiritomb": {
+      "still": true,
+      "ani": true
+    },
+    "spoink": {
+      "still": true,
+      "ani": true
+    },
+    "sprigatito": {
+      "still": true,
+      "ani": true
+    },
+    "spritzee": {
+      "still": true,
+      "ani": true
+    },
+    "squawkabilly": {
+      "still": true,
+      "ani": true
+    },
+    "squawkabillyblue": {
+      "still": true,
+      "ani": true
+    },
+    "squawkabillywhite": {
+      "still": true,
+      "ani": true
+    },
+    "squawkabillyyellow": {
+      "still": true,
+      "ani": true
+    },
+    "squirtle": {
+      "still": true,
+      "ani": true
+    },
+    "stakataka": {
+      "still": true,
+      "ani": true
+    },
+    "stantler": {
+      "still": true,
+      "ani": true
+    },
+    "staraptor": {
+      "still": true,
+      "ani": true
+    },
+    "staraptormega": {
+      "still": true,
+      "ani": true
+    },
+    "staravia": {
+      "still": true,
+      "ani": true
+    },
+    "starly": {
+      "still": true,
+      "ani": true
+    },
+    "starmie": {
+      "still": true,
+      "ani": true
+    },
+    "starmiemega": {
+      "still": true,
+      "ani": true
+    },
+    "staryu": {
+      "still": true,
+      "ani": true
+    },
+    "steelix": {
+      "still": true,
+      "ani": true
+    },
+    "steelixmega": {
+      "still": true,
+      "ani": true
+    },
+    "steenee": {
+      "still": true,
+      "ani": true
+    },
+    "stonjourner": {
+      "still": true,
+      "ani": true
+    },
+    "stoutland": {
+      "still": true,
+      "ani": true
+    },
+    "stufful": {
+      "still": true,
+      "ani": true
+    },
+    "stunfisk": {
+      "still": true,
+      "ani": true
+    },
+    "stunfiskgalar": {
+      "still": true,
+      "ani": true
+    },
+    "stunky": {
+      "still": true,
+      "ani": true
+    },
+    "sudowoodo": {
+      "still": true,
+      "ani": true
+    },
+    "suicune": {
+      "still": true,
+      "ani": true
+    },
+    "sunflora": {
+      "still": true,
+      "ani": true
+    },
+    "sunkern": {
+      "still": true,
+      "ani": true
+    },
+    "surskit": {
+      "still": true,
+      "ani": true
+    },
+    "swablu": {
+      "still": true,
+      "ani": true
+    },
+    "swadloon": {
+      "still": true,
+      "ani": true
+    },
+    "swalot": {
+      "still": true,
+      "ani": true
+    },
+    "swampert": {
+      "still": true,
+      "ani": true
+    },
+    "swampertmega": {
+      "still": true,
+      "ani": true
+    },
+    "swanna": {
+      "still": true,
+      "ani": true
+    },
+    "swellow": {
+      "still": true,
+      "ani": true
+    },
+    "swinub": {
+      "still": true,
+      "ani": true
+    },
+    "swirlix": {
+      "still": true,
+      "ani": true
+    },
+    "swoobat": {
+      "still": true,
+      "ani": true
+    },
+    "sylveon": {
+      "still": true,
+      "ani": true
+    },
+    "tadbulb": {
+      "still": true,
+      "ani": true
+    },
+    "taillow": {
+      "still": true,
+      "ani": true
+    },
+    "talonflame": {
+      "still": true,
+      "ani": true
+    },
+    "tandemaus": {
+      "still": true,
+      "ani": true
+    },
+    "tangela": {
+      "still": true,
+      "ani": true
+    },
+    "tangrowth": {
+      "still": true,
+      "ani": true
+    },
+    "tapubulu": {
+      "still": true,
+      "ani": true
+    },
+    "tapufini": {
+      "still": true,
+      "ani": true
+    },
+    "tapukoko": {
+      "still": true,
+      "ani": true
+    },
+    "tapulele": {
+      "still": true,
+      "ani": true
+    },
+    "tarountula": {
+      "still": true,
+      "ani": true
+    },
+    "tatsugiri": {
+      "still": true,
+      "ani": true
+    },
+    "tatsugiridroopy": {
+      "still": true,
+      "ani": true
+    },
+    "tatsugiristretchy": {
+      "still": true,
+      "ani": true
+    },
+    "tauros": {
+      "still": true,
+      "ani": true
+    },
+    "taurospaldeaaqua": {
+      "still": true,
+      "ani": true
+    },
+    "taurospaldeablaze": {
+      "still": true,
+      "ani": true
+    },
+    "taurospaldeacombat": {
+      "still": true,
+      "ani": true
+    },
+    "teddiursa": {
+      "still": true,
+      "ani": true
+    },
+    "tentacool": {
+      "still": true,
+      "ani": true
+    },
+    "tentacruel": {
+      "still": true,
+      "ani": true
+    },
+    "tepig": {
+      "still": true,
+      "ani": true
+    },
+    "terapagos": {
+      "still": true,
+      "ani": true
+    },
+    "terapagosstellar": {
+      "still": true,
+      "ani": true
+    },
+    "terapagosterastal": {
+      "still": true,
+      "ani": true
+    },
+    "terrakion": {
+      "still": true,
+      "ani": true
+    },
+    "thievul": {
+      "still": true,
+      "ani": true
+    },
+    "throh": {
+      "still": true,
+      "ani": true
+    },
+    "thundurus": {
+      "still": true,
+      "ani": true
+    },
+    "thundurustherian": {
+      "still": true,
+      "ani": true
+    },
+    "thwackey": {
+      "still": true,
+      "ani": true
+    },
+    "timburr": {
+      "still": true,
+      "ani": true
+    },
+    "tinglu": {
+      "still": true,
+      "ani": true
+    },
+    "tinkatink": {
+      "still": true,
+      "ani": true
+    },
+    "tinkaton": {
+      "still": true,
+      "ani": true
+    },
+    "tinkatuff": {
+      "still": true,
+      "ani": true
+    },
+    "tirtouga": {
+      "still": true,
+      "ani": true
+    },
+    "toedscool": {
+      "still": true,
+      "ani": true
+    },
+    "toedscruel": {
+      "still": true,
+      "ani": true
+    },
+    "togedemaru": {
+      "still": true,
+      "ani": true
+    },
+    "togedemarutotem": {
+      "still": true,
+      "ani": true
+    },
+    "togekiss": {
+      "still": true,
+      "ani": true
+    },
+    "togepi": {
+      "still": true,
+      "ani": true
+    },
+    "togetic": {
+      "still": true,
+      "ani": true
+    },
+    "torchic": {
+      "still": true,
+      "ani": true
+    },
+    "torkoal": {
+      "still": true,
+      "ani": true
+    },
+    "tornadus": {
+      "still": true,
+      "ani": true
+    },
+    "tornadustherian": {
+      "still": true,
+      "ani": true
+    },
+    "torracat": {
+      "still": true,
+      "ani": true
+    },
+    "torterra": {
+      "still": true,
+      "ani": true
+    },
+    "totodile": {
+      "still": true,
+      "ani": true
+    },
+    "toucannon": {
+      "still": true,
+      "ani": true
+    },
+    "toxapex": {
+      "still": true,
+      "ani": true
+    },
+    "toxel": {
+      "still": true,
+      "ani": true
+    },
+    "toxicroak": {
+      "still": true,
+      "ani": true
+    },
+    "toxtricity": {
+      "still": true,
+      "ani": true
+    },
+    "toxtricitygmax": {
+      "still": true,
+      "ani": true
+    },
+    "toxtricitylowkey": {
+      "still": true,
+      "ani": true
+    },
+    "toxtricitylowkeygmax": {
+      "still": true,
+      "ani": true
+    },
+    "tranquill": {
+      "still": true,
+      "ani": true
+    },
+    "trapinch": {
+      "still": true,
+      "ani": true
+    },
+    "treecko": {
+      "still": true,
+      "ani": true
+    },
+    "trevenant": {
+      "still": true,
+      "ani": true
+    },
+    "tropius": {
+      "still": true,
+      "ani": true
+    },
+    "trubbish": {
+      "still": true,
+      "ani": true
+    },
+    "trumbeak": {
+      "still": true,
+      "ani": true
+    },
+    "tsareena": {
+      "still": true,
+      "ani": true
+    },
+    "turtonator": {
+      "still": true,
+      "ani": true
+    },
+    "turtwig": {
+      "still": true,
+      "ani": true
+    },
+    "tympole": {
+      "still": true,
+      "ani": true
+    },
+    "tynamo": {
+      "still": true,
+      "ani": true
+    },
+    "typenull": {
+      "still": true,
+      "ani": true
+    },
+    "typhlosion": {
+      "still": true,
+      "ani": true
+    },
+    "typhlosionhisui": {
+      "still": true,
+      "ani": true
+    },
+    "tyranitar": {
+      "still": true,
+      "ani": true
+    },
+    "tyranitarmega": {
+      "still": true,
+      "ani": true
+    },
+    "tyrantrum": {
+      "still": true,
+      "ani": true
+    },
+    "tyrogue": {
+      "still": true,
+      "ani": true
+    },
+    "tyrunt": {
+      "still": true,
+      "ani": true
+    },
+    "umbreon": {
+      "still": true,
+      "ani": true
+    },
+    "unfezant": {
+      "still": true,
+      "ani": true
+    },
+    "unown": {
+      "still": true,
+      "ani": true
+    },
+    "ursaluna": {
+      "still": true,
+      "ani": true
+    },
+    "ursalunabloodmoon": {
+      "still": true,
+      "ani": true
+    },
+    "ursaring": {
+      "still": true,
+      "ani": true
+    },
+    "urshifu": {
+      "still": true,
+      "ani": true
+    },
+    "urshifugmax": {
+      "still": true,
+      "ani": true
+    },
+    "urshifurapidstrike": {
+      "still": true,
+      "ani": true
+    },
+    "uxie": {
+      "still": true,
+      "ani": true
+    },
+    "vanillish": {
+      "still": true,
+      "ani": true
+    },
+    "vanillite": {
+      "still": true,
+      "ani": true
+    },
+    "vanilluxe": {
+      "still": true,
+      "ani": true
+    },
+    "vaporeon": {
+      "still": true,
+      "ani": true
+    },
+    "varoom": {
+      "still": true,
+      "ani": true
+    },
+    "veluza": {
+      "still": true,
+      "ani": true
+    },
+    "venipede": {
+      "still": true,
+      "ani": true
+    },
+    "venomoth": {
+      "still": true,
+      "ani": true
+    },
+    "venonat": {
+      "still": true,
+      "ani": true
+    },
+    "venusaur": {
+      "still": true,
+      "ani": true
+    },
+    "venusaurgmax": {
+      "still": true,
+      "ani": true
+    },
+    "venusaurmega": {
+      "still": true,
+      "ani": true
+    },
+    "vespiquen": {
+      "still": true,
+      "ani": true
+    },
+    "vibrava": {
+      "still": true,
+      "ani": true
+    },
+    "victini": {
+      "still": true,
+      "ani": true
+    },
+    "victreebel": {
+      "still": true,
+      "ani": true
+    },
+    "victreebelmega": {
+      "still": true,
+      "ani": true
+    },
+    "vigoroth": {
+      "still": true,
+      "ani": true
+    },
+    "vikavolt": {
+      "still": true,
+      "ani": true
+    },
+    "vikavolttotem": {
+      "still": true,
+      "ani": true
+    },
+    "vileplume": {
+      "still": true,
+      "ani": true
+    },
+    "virizion": {
+      "still": true,
+      "ani": true
+    },
+    "vivillon": {
+      "still": true,
+      "ani": true
+    },
+    "vivillonfancy": {
+      "still": true,
+      "ani": true
+    },
+    "vivillonpokeball": {
+      "still": true,
+      "ani": true
+    },
+    "volbeat": {
+      "still": true,
+      "ani": true
+    },
+    "volcanion": {
+      "still": true,
+      "ani": true
+    },
+    "volcarona": {
+      "still": true,
+      "ani": true
+    },
+    "voltorb": {
+      "still": true,
+      "ani": true
+    },
+    "voltorbhisui": {
+      "still": true,
+      "ani": true
+    },
+    "vullaby": {
+      "still": true,
+      "ani": true
+    },
+    "vulpix": {
+      "still": true,
+      "ani": true
+    },
+    "vulpixalola": {
+      "still": true,
+      "ani": true
+    },
+    "wailmer": {
+      "still": true,
+      "ani": true
+    },
+    "wailord": {
+      "still": true,
+      "ani": true
+    },
+    "walkingwake": {
+      "still": true,
+      "ani": true
+    },
+    "walrein": {
+      "still": true,
+      "ani": true
+    },
+    "wartortle": {
+      "still": true,
+      "ani": true
+    },
+    "watchog": {
+      "still": true,
+      "ani": true
+    },
+    "wattrel": {
+      "still": true,
+      "ani": true
+    },
+    "weavile": {
+      "still": true,
+      "ani": true
+    },
+    "weedle": {
+      "still": true,
+      "ani": true
+    },
+    "weepinbell": {
+      "still": true,
+      "ani": true
+    },
+    "weezing": {
+      "still": true,
+      "ani": true
+    },
+    "weezinggalar": {
+      "still": true,
+      "ani": true
+    },
+    "whimsicott": {
+      "still": true,
+      "ani": true
+    },
+    "whirlipede": {
+      "still": true,
+      "ani": true
+    },
+    "whiscash": {
+      "still": true,
+      "ani": true
+    },
+    "whismur": {
+      "still": true,
+      "ani": true
+    },
+    "wigglytuff": {
+      "still": true,
+      "ani": true
+    },
+    "wiglett": {
+      "still": true,
+      "ani": true
+    },
+    "wimpod": {
+      "still": true,
+      "ani": true
+    },
+    "wingull": {
+      "still": true,
+      "ani": true
+    },
+    "wishiwashi": {
+      "still": true,
+      "ani": true
+    },
+    "wishiwashischool": {
+      "still": true,
+      "ani": true
+    },
+    "wobbuffet": {
+      "still": true,
+      "ani": true
+    },
+    "wochien": {
+      "still": true,
+      "ani": true
+    },
+    "woobat": {
+      "still": true,
+      "ani": true
+    },
+    "wooloo": {
+      "still": true,
+      "ani": true
+    },
+    "wooper": {
+      "still": true,
+      "ani": true
+    },
+    "wooperpaldea": {
+      "still": true,
+      "ani": true
+    },
+    "wormadam": {
+      "still": true,
+      "ani": true
+    },
+    "wormadamsandy": {
+      "still": true,
+      "ani": true
+    },
+    "wormadamtrash": {
+      "still": true,
+      "ani": true
+    },
+    "wugtrio": {
+      "still": true,
+      "ani": true
+    },
+    "wurmple": {
+      "still": true,
+      "ani": true
+    },
+    "wynaut": {
+      "still": true,
+      "ani": true
+    },
+    "wyrdeer": {
+      "still": true,
+      "ani": true
+    },
+    "xatu": {
+      "still": true,
+      "ani": true
+    },
+    "xerneas": {
+      "still": true,
+      "ani": true
+    },
+    "xerneasneutral": {
+      "still": true,
+      "ani": true
+    },
+    "xurkitree": {
+      "still": true,
+      "ani": true
+    },
+    "yamask": {
+      "still": true,
+      "ani": true
+    },
+    "yamaskgalar": {
+      "still": true,
+      "ani": true
+    },
+    "yamper": {
+      "still": true,
+      "ani": true
+    },
+    "yanma": {
+      "still": true,
+      "ani": true
+    },
+    "yanmega": {
+      "still": true,
+      "ani": true
+    },
+    "yungoos": {
+      "still": true,
+      "ani": true
+    },
+    "yveltal": {
+      "still": true,
+      "ani": true
+    },
+    "zacian": {
+      "still": true,
+      "ani": true
+    },
+    "zaciancrowned": {
+      "still": true,
+      "ani": true
+    },
+    "zamazenta": {
+      "still": true,
+      "ani": true
+    },
+    "zamazentacrowned": {
+      "still": true,
+      "ani": true
+    },
+    "zangoose": {
+      "still": true,
+      "ani": true
+    },
+    "zapdos": {
+      "still": true,
+      "ani": true
+    },
+    "zapdosgalar": {
+      "still": true,
+      "ani": true
+    },
+    "zarude": {
+      "still": true,
+      "ani": true
+    },
+    "zarudedada": {
+      "still": true,
+      "ani": true
+    },
+    "zebstrika": {
+      "still": true,
+      "ani": true
+    },
+    "zekrom": {
+      "still": true,
+      "ani": true
+    },
+    "zeraora": {
+      "still": true,
+      "ani": true
+    },
+    "zigzagoon": {
+      "still": true,
+      "ani": true
+    },
+    "zigzagoongalar": {
+      "still": true,
+      "ani": true
+    },
+    "zoroark": {
+      "still": true,
+      "ani": true
+    },
+    "zoroarkhisui": {
+      "still": true,
+      "ani": true
+    },
+    "zorua": {
+      "still": true,
+      "ani": true
+    },
+    "zoruahisui": {
+      "still": true,
+      "ani": true
+    },
+    "zubat": {
+      "still": true,
+      "ani": true
+    },
+    "zweilous": {
+      "still": true,
+      "ani": true
+    },
+    "zygarde": {
+      "still": true,
+      "ani": true
+    },
+    "zygarde10": {
+      "still": true,
+      "ani": true
+    },
+    "zygardecomplete": {
+      "still": true,
+      "ani": true
+    }
+  }
+}
