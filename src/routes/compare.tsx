@@ -1,5 +1,6 @@
 import * as React from "react"
-import { useSearch, Link, useNavigate, useRouter } from "@tanstack/react-router"
+import { useSearch, Link } from "@tanstack/react-router"
+import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { useDataset } from "@/hooks/useDataset"
 import { TypeBadge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -78,12 +79,10 @@ export function ComparePage() {
   const ids = React.useMemo(() => (search.ids ? search.ids.split(",").filter(Boolean).slice(0, 4) : []), [search.ids])
   const { data } = useDataset()
   const { t, typeName } = useI18n()
-  const navigate = useNavigate()
-  const router = useRouter()
+  const { back } = useWorkspace()
   const handleBack = React.useCallback(() => {
-    if (window.history.length > 1) router.history.back()
-    else navigate({ to: "/" })
-  }, [router, navigate])
+    back()
+  }, [back])
 
   if (ids.length === 0) {
     return (

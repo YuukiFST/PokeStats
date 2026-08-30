@@ -7,6 +7,8 @@ import { useDataset } from "./useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { toSlug } from "@/lib/utils"
 import { TypeBadge } from "@/components/ui/badge"
+import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
+import type { LocationSnapshot } from "@/lib/workspace/state"
 
 type Result =
   | { kind: "form"; key: string; label: string; hint: string; formId: string }
@@ -26,6 +28,7 @@ const SECTION_LABEL: Record<Result["kind"], TranslationKey> = {
 export function CommandPalette() {
   const { data } = useDataset()
   const navigate = useNavigate()
+  const { openInNewTab, openLinkMenu } = useWorkspace()
   const { t, typeName } = useI18n()
   const [open, setOpen] = React.useState(false)
   const [q, setQ] = React.useState("")
@@ -79,14 +82,25 @@ export function CommandPalette() {
 
   const flat = React.useMemo(() => groups.flatMap((g) => g.items), [groups])
 
+  const destFor = React.useCallback((r: Result): LocationSnapshot => {
+    if (r.kind === "form") return { pathname: `/form/${r.formId}`, search: "" }
+    if (r.kind === "type") return { pathname: `/types/${r.label}`, search: "" }
+    return { pathname: `/moves/${r.moveId}`, search: "" }
+  }, [])
+
   const go = React.useCallback(
-    (r: Result) => {
+    (r: Result, e?: React.MouseEvent) => {
       setOpen(false)
+      if (e && (e.ctrlKey || e.metaKey || e.button === 1)) {
+        e.preventDefault()
+        openInNewTab(destFor(r))
+        return
+      }
       if (r.kind === "form") navigate({ to: "/form/$formId", params: { formId: r.formId } as never })
       else if (r.kind === "type") navigate({ to: "/types/$typeId", params: { typeId: r.label } as never })
       else navigate({ to: "/moves/$moveId", params: { moveId: r.moveId } as never })
     },
-    [navigate],
+    [navigate, destFor, openInNewTab],
   )
 
   if (!open) return null
@@ -118,7 +132,11 @@ export function CommandPalette() {
                     <button
                       key={`type-${r.key}`}
                       className="w-full text-left px-3 py-2 rounded hover:bg-[var(--ds-gray-100)] flex items-center justify-between gap-2 text-sm"
-                      onClick={() => go(r)}
+                      onClick={(e) => go(r, e)}
+                      onContextMenu={(e) => {
+                        e.preventDefault()
+                        openLinkMenu(e.clientX, e.clientY, destFor(r))
+                      }}
                     >
                       <TypeBadge type={r.label} />
                       <span className="text-xs text-[var(--ds-gray-700)]">{t("palette.typeHint")}</span>
@@ -127,7 +145,11 @@ export function CommandPalette() {
                     <button
                       key={`${r.kind}-${r.key}`}
                       className="w-full text-left px-3 py-2 rounded hover:bg-[var(--ds-gray-100)] flex items-center justify-between gap-2 text-sm"
-                      onClick={() => go(r)}
+                      onClick={(e) => go(r, e)}
+                      onContextMenu={(e) => {
+                        e.preventDefault()
+                        openLinkMenu(e.clientX, e.clientY, destFor(r))
+                      }}
                     >
                       <span className="truncate">{r.label}</span>
                       <span className="text-xs text-[var(--ds-gray-700)] shrink-0 truncate max-w-[220px]">{r.hint}</span>

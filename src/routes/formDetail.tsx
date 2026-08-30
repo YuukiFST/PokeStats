@@ -1,5 +1,6 @@
 import * as React from "react"
 import { useParams, useRouter, useSearch } from "@tanstack/react-router"
+import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { useDataset } from "@/hooks/useDataset"
 import { Badge, LinkedTypeBadge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ function fmtMult(v: number, pt: boolean): string {
 export function FormDetailPage() {
   const { formId } = useParams({ strict: false }) as { formId: string }
   const router = useRouter()
+  const { back } = useWorkspace()
   const { t, lang, typeName } = useI18n()
   const { data, loading } = useDataset()
   const search = useSearch({ from: "/form/$formId" })
@@ -41,9 +43,8 @@ export function FormDetailPage() {
   )
 
   const handleBack = React.useCallback(() => {
-    if (window.history.length > 1) router.history.back()
-    else router.navigate({ to: "/" })
-  }, [router])
+    back()
+  }, [back])
 
   if (loading || !data) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
 

@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge, LinkedTypeBadge, TypeBadge, TYPE_CHIP } from "@/components/ui/badge"
@@ -12,6 +12,7 @@ import { useDataset } from "@/hooks/useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import type { DexSearch } from "@/App"
 import { SpriteThumb } from "@/components/ui/sprite"
+import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 
 type SortKey = "name" | "bst" | "hp" | "atk" | "def" | "spa" | "spd" | "spe" | "tier"
 
@@ -24,6 +25,7 @@ export function DexPage() {
   const navigate = useNavigate({ from: "/" })
   const search = useSearch({ from: "/" }) as DexSearch
   const { t, typeName } = useI18n()
+  const { openInNewTab, openLinkMenu } = useWorkspace()
 
   const query = search.q ?? ""
   const sortBy = (search.sort as SortKey) ?? "name"
@@ -283,7 +285,7 @@ export function DexPage() {
   const selCount = selected.size
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full min-h-0">
       <div className="shrink-0 border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-4 py-3 space-y-3">
         <Input placeholder={t("dex.searchPlaceholder")} value={inputValue} onChange={(e) => setInputValue(e.target.value)} className="w-full max-w-xl" />
 
@@ -421,7 +423,27 @@ export function DexPage() {
             <Button size="sm" variant="outline" className="bg-white text-black hover:bg-gray-100" onClick={() => setSelected(new Set())}>
               {t("dex.clear")}
             </Button>
-            <Button size="sm" className="bg-white text-black hover:bg-gray-100" disabled={selCount < 2} onClick={() => { saveScroll(); navigate({ to: "/compare", search: { ids: [...selected].join(",") } as never }) }}>
+            <Button
+              size="sm"
+              className="bg-white text-black hover:bg-gray-100"
+              disabled={selCount < 2}
+              onClick={(e) => {
+                saveScroll()
+                const ids = [...selected].join(",")
+                const loc = { pathname: "/compare", search: `?ids=${ids}` }
+                if (e.ctrlKey || e.metaKey) {
+                  e.preventDefault()
+                  openInNewTab(loc)
+                  return
+                }
+                navigate({ to: "/compare", search: { ids } as never })
+              }}
+              onContextMenu={(e) => {
+                if (selCount < 2) return
+                e.preventDefault()
+                openLinkMenu(e.clientX, e.clientY, { pathname: "/compare", search: `?ids=${[...selected].join(",")}` })
+              }}
+            >
               {t("dex.compare")}
             </Button>
           </div>
@@ -480,17 +502,16 @@ export function DexPage() {
                 <input type="checkbox" checked={isSel} onChange={() => toggleSelect(f.id)} className="rounded" />
                 <span className="text-center tnum text-xs text-[var(--ds-gray-700)] tabular-nums">{row.index + 1}</span>
                 <SpriteThumb form={f} />
-                <button
+                <Link
+                  to="/form/$formId"
+                  params={{ formId: f.id } as never}
                   className="text-left truncate hover:underline font-medium"
-                  onClick={() => {
-                    saveScroll()
-                    navigate({ to: "/form/$formId", params: { formId: f.id } as never })
-                  }}
+                  onClick={() => saveScroll()}
                   title={f.id}
                 >
                   {f.name}
                   {f.traits.length > 0 && <span className="ml-1 text-xs text-[var(--ds-gray-700)]">[{f.traits.join(",")}]</span>}
-                </button>
+                </Link>
                 <span className="flex gap-1">
                   {f.types.map((tt) => (
                     <LinkedTypeBadge key={tt} type={tt} />
