@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/lib/i18n"
+import { TabBar } from "@/components/layout/TabBar"
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const { location } = useRouterState()
@@ -14,9 +15,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
   ] as const
 
   return (
-    <div className="min-h-screen flex bg-[var(--ds-background-100)] text-[var(--ds-gray-1000)]">
+    <div className="h-full min-h-0 flex overflow-hidden bg-[var(--ds-background-100)] text-[var(--ds-gray-1000)]">
       {/* Sidebar fixed left — 200px per ticket 12. Geist tokens, not Vercel top nav. */}
-      <aside className="w-[200px] shrink-0 border-r border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] flex flex-col sticky top-0 h-screen">
+      <aside className="w-[200px] shrink-0 border-r border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] flex flex-col h-full">
         <div className="h-12 flex items-center px-4 border-b border-[var(--ds-gray-400)]">
           <span className="font-semibold tracking-tight">PokeStats</span>
           <span className="ml-auto text-xs text-[var(--ds-gray-700)]">v2</span>
@@ -58,7 +59,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 min-w-0 flex flex-col">{children}</main>
+      <main className="flex-1 min-w-0 min-h-0 flex flex-col">
+        <TabBar />
+        <div className="flex-1 min-h-0 overflow-auto">
+          {children}
+        </div>
+      </main>
     </div>
   )
 }

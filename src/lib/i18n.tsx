@@ -8,6 +8,13 @@ const dict = {
   en: {
     // Shell
     "shell.palette": "palette",
+    "workspace.openInNewTab": "Open in new tab",
+    "workspace.closeTab": "Close tab",
+    "workspace.newTab": "New tab",
+    "workspace.dex": "Dex",
+    "workspace.compare": "Compare",
+    "workspace.dismissMenu": "Dismiss menu",
+    "workspace.tabs": "Open tabs",
     // Dex
     "dex.pokedex": "Pokedex",
     "dex.ranking": "Ranking",
@@ -269,6 +276,13 @@ const dict = {
   },
   "pt-BR": {
     "shell.palette": "paleta",
+    "workspace.openInNewTab": "Abrir em nova aba",
+    "workspace.closeTab": "Fechar aba",
+    "workspace.newTab": "Nova aba",
+    "workspace.dex": "Dex",
+    "workspace.compare": "Comparar",
+    "workspace.dismissMenu": "Fechar menu",
+    "workspace.tabs": "Abas abertas",
     "dex.pokedex": "Pokédex",
     "dex.ranking": "Ranking",
     "dex.allTypes": "Todos os tipos",
