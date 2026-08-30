@@ -60,6 +60,7 @@ const dict = {
     "detail.immunities": "Immunities —",
     "detail.abilities": "Abilities:",
     "detail.noSets": "No Sets for this filter.",
+    "detail.setsLoading": "Loading Sets…",
     "detail.showing": "Showing",
     "detail.of": "of",
     "detail.refine": "Refine filter.",
@@ -124,7 +125,7 @@ const dict = {
     "compare.highest": "highest",
     "compare.lowest": "lowest",
     "compare.delta": "Δ max",
-    "compare.spriteNote": "Sprites from play.pokemonshowdown.com/ani (GIF 154 MB). Bundled offline via pnpm sprites:fetch — see public/sprites/README.md. Missing = placeholder.",
+    "compare.spriteNote": "List thumbs use local still PNGs; Form detail uses ani GIFs. Files are listed in public/sprites/manifest.json after pnpm sprites:fetch. Missing FormIds show a placeholder; the app does not request CDNs at runtime.",
     "compare.clearSelection": "Clear selection",
     "compare.addMore": "Add more in Dex",
     "compare.sole": "sole leader",
@@ -132,7 +133,7 @@ const dict = {
     // Glossary
     "glossary.bst": "BST (Base Stat Total) = HP + Atk + Def + SpA + SpD + Spe. It is a derived total that summarizes overall power — not a stat itself: it says nothing about how the spread is distributed.",
     // Sprite
-    "sprite.baseFallback": "Sprite from the Species' Base Form — this Form's own sprite does not exist in any CDN yet.",
+    "sprite.baseFallback": "Showing the Species' Base Form bundled sprite — this Form has no own file in the local manifest.",
     // Traits / Form Kind
     "dex.traitLabel": "Form Kind",
     "trait.mega": "Mega",
@@ -326,6 +327,7 @@ const dict = {
     "detail.immunities": "Imunidades —",
     "detail.abilities": "Habilidades:",
     "detail.noSets": "Nenhum Set para este filtro.",
+    "detail.setsLoading": "Carregando Sets…",
     "detail.showing": "Mostrando",
     "detail.of": "de",
     "detail.refine": "Refine o filtro.",
@@ -387,7 +389,7 @@ const dict = {
     "compare.highest": "maior",
     "compare.lowest": "menor",
     "compare.delta": "Δ max",
-    "compare.spriteNote": "Sprites de play.pokemonshowdown.com/ani (GIF 154 MB). Empacote offline com pnpm sprites:fetch — veja public/sprites/README.md. Faltando = placeholder.",
+    "compare.spriteNote": "As listas usam PNG still locais; o detalhe da Forma usa GIF ani. Os ficheiros estão em public/sprites/manifest.json após pnpm sprites:fetch. FormIds em falta mostram um placeholder; a app não pede CDNs em runtime.",
     "compare.clearSelection": "Limpar seleção",
     "compare.addMore": "Adicionar na Dex",
     "compare.sole": "líder isolado",
@@ -395,7 +397,7 @@ const dict = {
     // Glossário
     "glossary.bst": "BST (Base Stat Total) = HP + Atk + Def + SpA + SpD + Spe. É um total derivado que resume o poder geral — não é um stat: não diz nada sobre como o spread é distribuído.",
     // Sprite
-    "sprite.baseFallback": "Sprite da Forma base da Espécie — o sprite próprio desta Forma ainda não existe em nenhum CDN.",
+    "sprite.baseFallback": "A mostrar o sprite empacotado da Forma base da Espécie — esta Forma não tem ficheiro próprio no manifesto local.",
     // Traits / Classe da Forma
     "dex.traitLabel": "Classe da Forma",
     "trait.mega": "Mega",
