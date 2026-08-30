@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { TypeBadge } from "@/components/ui/badge"
@@ -284,7 +284,7 @@ export function MovesPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full min-h-0">
       <div className="shrink-0 border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-4 py-3 space-y-3">
         <Input placeholder={t("moves.searchPlaceholder")} value={inputValue} onChange={(e) => setInputValue(e.target.value)} className="w-full max-w-xl" />
 
@@ -361,9 +361,11 @@ export function MovesPage() {
             const m = filtered[row.index]!
             const learners = learnsets ? (learnsets[moveIdForName(m.name)]?.length ?? 0) : 0
             return (
-              <button
+              <Link
                 key={m.name}
-                onClick={() => { saveScroll(); navigate({ to: "/moves/$moveId", params: { moveId: moveIdForName(m.name) } as never }) }}
+                to="/moves/$moveId"
+                params={{ moveId: moveIdForName(m.name) } as never}
+                onClick={() => saveScroll()}
                 style={{ position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${row.start}px)` }}
                 className="w-full text-left grid grid-cols-[minmax(180px,1fr)_92px_96px_64px_64px_48px_64px_96px_minmax(160px,1.4fr)] gap-2 px-4 py-1.5 items-center text-sm border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)]"
               >
@@ -379,7 +381,7 @@ export function MovesPage() {
                 <span className="text-right tnum">{m.priority !== 0 ? (m.priority > 0 ? `+${m.priority}` : m.priority) : "—"}</span>
                 <span className="text-right tnum text-[var(--ds-gray-700)]">{learners > 0 ? learners : "—"}</span>
                 <span className="truncate text-xs text-[var(--ds-gray-700)]" title={m.shortDesc}>{m.shortDesc}</span>
-              </button>
+              </Link>
             )
           })}
         </div>

@@ -1,5 +1,6 @@
 import * as React from "react"
-import { Link, useParams, useRouter } from "@tanstack/react-router"
+import { Link, useParams } from "@tanstack/react-router"
+import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { Badge, LinkedTypeBadge, TypeBadge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { HelpTip } from "@/components/ui/helptip"
@@ -77,7 +78,7 @@ function LearnerRow({ form }: { form: Form }) {
 
 export function MoveDetailPage() {
   const { moveId } = useParams({ strict: false }) as { moveId: string }
-  const router = useRouter()
+  const { back } = useWorkspace()
   const { data, loading } = useDataset()
   const { t } = useI18n()
   const [showAllLearners, setShowAllLearners] = React.useState(false)
@@ -102,7 +103,7 @@ export function MoveDetailPage() {
   return (
     <div className="flex flex-col">
       <div className="border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-6 py-4">
-        <Button variant="ghost" size="sm" onClick={() => window.history.length > 1 ? router.history.back() : router.navigate({ to: "/moves" })} className="-ml-2 mb-2">
+        <Button variant="ghost" size="sm" onClick={() => back({ pathname: "/moves", search: "" })} className="-ml-2 mb-2">
           ← {t("moves.back")}
         </Button>
         <div className="flex items-start justify-between gap-4 flex-wrap">

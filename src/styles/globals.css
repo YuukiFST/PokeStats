@@ -25,6 +25,18 @@
 
 /* Base — Geist: dark is default per R7, light optional. Font synthesis off. */
 @layer base {
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
   html {
     font-feature-settings: "rlig" 1, "calt" 0, "ss11" 1;
     font-synthesis: none;
@@ -62,7 +74,8 @@
     outline-offset: 2px;
   }
 
-  /* Scrollbar Geist */
+  /* Scrollbar Geist — hide on the workspace tab strip (a 30px-tall
+     overflow-x scroller otherwise shows an 8px thumb as a "bar" on the tab). */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -73,5 +86,16 @@
   }
   ::-webkit-scrollbar-track {
     background: var(--ds-background-200);
+  }
+
+  .workspace-tab-strip {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .workspace-tab-strip::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 }

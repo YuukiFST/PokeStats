@@ -11,6 +11,7 @@ import { TeamsPage } from "@/routes/teams"
 import { SettingsPage } from "@/routes/settings"
 import { CommandPalette } from "@/hooks/usePalette"
 import { I18nProvider } from "@/lib/i18n"
+import { WorkspaceProvider } from "@/lib/workspace/WorkspaceProvider"
 
 export type DexSearch = {
   q?: string
@@ -26,12 +27,12 @@ export type DexSearch = {
 
 const rootRoute = createRootRoute({
   component: () => (
-    <>
+    <WorkspaceProvider>
       <Shell>
         <Outlet />
       </Shell>
       <CommandPalette />
-    </>
+    </WorkspaceProvider>
   ),
 })
 
@@ -115,6 +116,7 @@ const router = createRouter({
   routeTree,
   scrollRestoration: ({ location }) => !VIRTUALIZED_LIST_ROUTES.includes(location.pathname),
 })
+router.history.push = router.history.replace.bind(router.history)
 
 declare module "@tanstack/react-router" {
   interface Register {

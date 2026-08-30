@@ -1,5 +1,6 @@
 import * as React from "react"
-import { Link, useNavigate, useParams } from "@tanstack/react-router"
+import { Link, useParams } from "@tanstack/react-router"
+import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { Badge, LinkedTypeBadge, TypeBadge, TYPE_CHIP } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SpriteThumb } from "@/components/ui/sprite"
@@ -30,7 +31,7 @@ function TypeList({ types, linked = true }: { types: TypeName[]; linked?: boolea
 
 export function TypeDetailPage() {
   const { typeId } = useParams({ strict: false }) as { typeId: string }
-  const navigate = useNavigate()
+  const { back } = useWorkspace()
   const { data, loading } = useDataset()
   const { t, typeName } = useI18n()
 
@@ -76,7 +77,7 @@ export function TypeDetailPage() {
   if (!valid) {
     return (
       <div className="p-8 space-y-3">
-        <Button variant="outline" size="sm" onClick={() => navigate({ to: "/" })}>
+        <Button variant="outline" size="sm" onClick={() => back()}>
           ← {t("compare.back")}
         </Button>
         <div className="rounded-md border border-[var(--ds-red-700)] bg-[var(--ds-background-200)] p-4 text-sm">
@@ -92,7 +93,7 @@ export function TypeDetailPage() {
   return (
     <div className="flex flex-col">
       <div className="border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-6 py-4">
-        <Button variant="ghost" size="sm" onClick={() => window.history.length > 1 ? window.history.back() : undefined} className="-ml-2 mb-2">
+        <Button variant="ghost" size="sm" onClick={() => back()} className="-ml-2 mb-2">
           ← {t("typeDetail.back")}
         </Button>
         <div className="flex items-center gap-4 flex-wrap">
