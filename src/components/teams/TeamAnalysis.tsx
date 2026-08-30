@@ -139,7 +139,7 @@ export function TeamAnalysis({
   )
 
   const suggestions = React.useMemo<SuggestionsResult>(() => {
-    if (!data || members.length === 0) return { items: [], rankedPoolSize: 0, rankedPool: [] }
+    if (!data || members.length === 0 || !data.extrasReady) return { items: [], rankedPoolSize: 0, rankedPool: [] }
     const formsWithSets = new Set(data.sets.sets.map((s) => s.formId))
     return suggestTeamAdditions(members, data.core.forms as Form[], {
       formsWithSets,
@@ -311,6 +311,10 @@ export function TeamAnalysis({
             <HelpTip text={t("analysis.suggestedHelp")} />
           </h2>
           <p className="text-xs text-[var(--ds-gray-700)] mb-3">{t("analysis.suggestedDesc")}</p>
+          {!data.extrasReady ? (
+            <p className="text-xs text-[var(--ds-gray-700)]">{t("detail.loading")}</p>
+          ) : (
+          <>
           <div className="flex flex-wrap items-end gap-2 mb-3">
             <label className="flex flex-col gap-1">
               <span className="text-[10px] text-[var(--ds-gray-700)]">BST ≥</span>
@@ -498,6 +502,8 @@ export function TeamAnalysis({
                 {t("analysis.moreSuggestions")}
               </Button>
             </div>
+          )}
+          </>
           )}
         </div>
       )}

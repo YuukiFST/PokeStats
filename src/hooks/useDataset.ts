@@ -1,37 +1,18 @@
 import * as React from "react"
-import { loadDataset, getDatasetSync, type LoadedDataset } from "@/lib/dataset/load"
+import { loadDataset, getDatasetSync, subscribeDataset, type LoadedDataset } from "@/lib/dataset/load"
 
 export function useDataset() {
-  const sync = getDatasetSync()
-  const [data, setData] = React.useState<LoadedDataset | null>(sync)
-  const [loading, setLoading] = React.useState(!sync)
+  const [, setTick] = React.useState(0)
   const [error, setError] = React.useState<unknown>(null)
+  const data: LoadedDataset | null = getDatasetSync()
 
   React.useEffect(() => {
-    if (sync) return
-    let cancelled = false
-    loadDataset()
-      .then((d) => {
-        if (!cancelled) setData(d)
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
+    const unsub = subscribeDataset(() => setTick((n) => n + 1))
+    if (!getDatasetSync()) {
+      loadDataset().catch((e) => setError(e))
     }
-  }, [sync])
+    return unsub
+  }, [])
 
-  // If sync appears after mount (preloaded), sync state
-  React.useEffect(() => {
-    if (sync && !data) {
-      setData(sync)
-      setLoading(false)
-    }
-  }, [sync, data])
-
-  return { data, loading, error }
+  return { data, loading: !data && !error, error, extrasReady: data?.extrasReady ?? false }
 }

@@ -7,6 +7,8 @@ export interface LoadedDataset {
   sets: DatasetSets
   /** Inverted index moveId (slug) -> FormIds that learn it. Lazy artifact, loaded with the rest. */
   learnsets: LearnsetsArtifact
+  /** False until sets.json + learnsets.json have settled (success or warned-empty). */
+  extrasReady: boolean
   formsById: Map<string, Form>
   speciesById: Map<number, Species>
   enrichment: Map<string, { bst: number; defensive: Record<string, number> }>
@@ -19,64 +21,135 @@ export interface LoadedDataset {
   naturesByName: Map<string, NatureInfo>
 }
 
+export function indexCore(core: DatasetCore): Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady"> {
+  const formsById = new Map(core.forms.map((f) => [f.id, f] as const))
+  const speciesById = new Map(core.species.map((s) => [s.id, s] as const))
+
+  const enrichment = new Map<string, { bst: number; defensive: Record<string, number> }>()
+  const nameIndex: LoadedDataset["nameIndex"] = []
+
+  for (const f of core.forms) {
+    const bst = f.baseStats.hp + f.baseStats.atk + f.baseStats.def + f.baseStats.spa + f.baseStats.spd + f.baseStats.spe
+    const defensive = defensiveProfile(f.types as unknown as string[] as never) as Record<string, number>
+    enrichment.set(f.id, { bst, defensive })
+    nameIndex.push({ slug: f.id, name: f.name, formId: f.id })
+  }
+  nameIndex.sort((a, b) => a.name.localeCompare(b.name))
+
+  const movesByName = new Map(core.moves.map((m) => [m.name, m] as const))
+  const movesById = new Map(core.moves.map((m) => [toSlug(m.name), m] as const))
+  const itemsByName = new Map(core.items.map((i) => [i.name, i] as const))
+  const abilitiesByName = new Map(core.abilities.map((a) => [a.name, a] as const))
+  const naturesByName = new Map(core.natures.map((n) => [n.name, n] as const))
+
+  return { core, formsById, speciesById, enrichment, nameIndex, movesByName, movesById, itemsByName, abilitiesByName, naturesByName }
+}
+
+export function withExtras(
+  indexed: ReturnType<typeof indexCore> & { core: DatasetCore },
+  sets: DatasetSets,
+  learnsets: LearnsetsArtifact,
+  extrasReady: boolean,
+): LoadedDataset {
+  return { ...indexed, sets, learnsets, extrasReady }
+}
+
 let cache: LoadedDataset | null = null
-let inflight: Promise<LoadedDataset> | null = null
+let coreInflight: Promise<LoadedDataset> | null = null
+let extrasInflight: Promise<void> | null = null
+const listeners = new Set<() => void>()
+
+export function subscribeDataset(fn: () => void): () => void {
+  listeners.add(fn)
+  return () => {
+    listeners.delete(fn)
+  }
+}
+
+function notifyDataset(): void {
+  for (const fn of listeners) fn()
+}
+
+async function loadSets(): Promise<DatasetSets> {
+  try {
+    const setsRes = await fetch("/dataset/sets.json")
+    if (!setsRes.ok) {
+      console.warn(`[dataset] sets.json fetch failed: ${setsRes.status}`)
+      return { sets: [] }
+    }
+    return (await setsRes.json()) as DatasetSets
+  } catch (e) {
+    console.warn("[dataset] sets.json failed", e)
+    return { sets: [] }
+  }
+}
+
+async function loadLearnsets(): Promise<LearnsetsArtifact> {
+  try {
+    const learnRes = await fetch("/dataset/learnsets.json")
+    if (learnRes.ok) return (await learnRes.json()) as LearnsetsArtifact
+  } catch {
+    // offline-tolerant: move->learners features degrade to empty
+  }
+  return {}
+}
+
+export async function ensureExtras(): Promise<void> {
+  if (cache?.extrasReady) return
+  if (extrasInflight) return extrasInflight
+
+  extrasInflight = (async () => {
+    const started = performance.now()
+    const [sets, learnsets] = await Promise.all([loadSets(), loadLearnsets()])
+    if (!cache) return
+    cache = withExtras(cache, sets, learnsets, true)
+    const elapsed = performance.now() - started
+    if (elapsed > 500) console.warn(`[dataset] extras ${elapsed.toFixed(1)}ms`)
+    else console.log(`[dataset] extras ${elapsed.toFixed(1)}ms`)
+    notifyDataset()
+  })()
+
+  try {
+    await extrasInflight
+  } finally {
+    extrasInflight = null
+  }
+}
 
 export async function loadDataset(): Promise<LoadedDataset> {
   if (cache) return cache
-  if (inflight) return inflight
+  if (coreInflight) return coreInflight
 
-  inflight = (async () => {
+  coreInflight = (async () => {
     const started = performance.now()
     const coreRes = await fetch("/dataset/core.json")
     if (!coreRes.ok) throw new Error(`core.json fetch failed: ${coreRes.status}`)
     const core: DatasetCore = await coreRes.json()
 
-    const setsRes = await fetch("/dataset/sets.json")
-    if (!setsRes.ok) throw new Error(`sets.json fetch failed: ${setsRes.status}`)
-    const sets: DatasetSets = await setsRes.json()
-
-    // learnsets.json is optional (build emits {} when the fixture is missing)
-    let learnsets: LearnsetsArtifact = {}
-    try {
-      const learnRes = await fetch("/dataset/learnsets.json")
-      if (learnRes.ok) learnsets = (await learnRes.json()) as LearnsetsArtifact
-    } catch {
-      // offline-tolerant: move->learners features degrade to empty
-    }
-
-    const formsById = new Map(core.forms.map((f) => [f.id, f] as const))
-    const speciesById = new Map(core.species.map((s) => [s.id, s] as const))
-
-    const enrichment = new Map<string, { bst: number; defensive: Record<string, number> }>()
-    const nameIndex: LoadedDataset["nameIndex"] = []
-
-    for (const f of core.forms) {
-      const bst = f.baseStats.hp + f.baseStats.atk + f.baseStats.def + f.baseStats.spa + f.baseStats.spd + f.baseStats.spe
-      const defensive = defensiveProfile(f.types as unknown as string[] as never) as Record<string, number>
-      enrichment.set(f.id, { bst, defensive })
-      nameIndex.push({ slug: f.id, name: f.name, formId: f.id })
-    }
-    nameIndex.sort((a, b) => a.name.localeCompare(b.name))
-
-    const movesByName = new Map(core.moves.map((m) => [m.name, m] as const))
-    const movesById = new Map(core.moves.map((m) => [toSlug(m.name), m] as const))
-    const itemsByName = new Map(core.items.map((i) => [i.name, i] as const))
-    const abilitiesByName = new Map(core.abilities.map((a) => [a.name, a] as const))
-    const naturesByName = new Map(core.natures.map((n) => [n.name, n] as const))
-
+    cache = withExtras(indexCore(core), { sets: [] }, {}, false)
     const elapsed = performance.now() - started
-    if (elapsed > 500) console.warn(`[dataset] slow load: ${elapsed.toFixed(1)}ms`)
-    else console.log(`[dataset] loaded ${core.forms.length} forms in ${elapsed.toFixed(1)}ms`)
-
-    cache = { core, sets, learnsets, formsById, speciesById, enrichment, nameIndex, movesByName, movesById, itemsByName, abilitiesByName, naturesByName }
+    if (elapsed > 500) console.warn(`[dataset] core ${elapsed.toFixed(1)}ms`)
+    else console.log(`[dataset] core ${core.forms.length} forms in ${elapsed.toFixed(1)}ms`)
+    notifyDataset()
+    // Let the Dex commit before parsing sets.json + learnsets.json on the main thread.
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          void ensureExtras()
+        })
+      })
+    } else {
+      setTimeout(() => {
+        void ensureExtras()
+      }, 0)
+    }
     return cache
   })()
 
   try {
-    return await inflight
+    return await coreInflight
   } finally {
-    inflight = null
+    coreInflight = null
   }
 }
 
