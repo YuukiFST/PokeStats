@@ -209,7 +209,9 @@ export function FormDetailPage() {
             </select>
             <span className="text-xs text-[var(--ds-gray-700)] self-center ml-2">{filteredSets.length} {t("detail.setsCount")}</span>
           </div>
-          {filteredSets.length === 0 ? (
+          {activeTab === "sets" && !data.extrasReady ? (
+            <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">{t("detail.setsLoading")}</div>
+          ) : filteredSets.length === 0 ? (
             <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">{t("detail.noSets")}</div>
           ) : (
             <div className="grid gap-3">

@@ -25,6 +25,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "tools/dataset/build.ts", "tools/dataset/fetch.ts"],
+    "include": ["vite.config.ts", "vitest.config.ts", "tools/dataset/build.ts", "tools/dataset/fetch.ts", "tools/sprites/fetch.ts", "tools/sprites/manifest.ts"],
   "exclude": ["tools/dataset/fixtures"]
 }

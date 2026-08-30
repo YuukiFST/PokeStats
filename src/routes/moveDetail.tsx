@@ -150,7 +150,8 @@ export function MoveDetailPage() {
             </h2>
             <span className="text-xs text-[var(--ds-gray-700)]">{learnerForms.length} {learnerForms.length === 1 ? t("moves.form") : t("dex.count")}</span>
           </div>
-          {learnerForms.length === 0 ? (
+          {data.extrasReady ? (
+            learnerForms.length === 0 ? (
             <div className="p-6 text-center text-sm text-[var(--ds-gray-700)]">{t("moves.noLearners")}</div>
           ) : (
             <>
@@ -174,6 +175,9 @@ export function MoveDetailPage() {
                 </button>
               )}
             </>
+          )
+          ) : (
+            <div className="p-6 text-center text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
           )}
         </section>
       </div>

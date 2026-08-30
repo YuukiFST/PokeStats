@@ -180,6 +180,7 @@ export function MovesPage() {
 
   const moves = React.useMemo(() => data?.core.moves ?? [], [data?.core.moves])
   const learnsets = data?.learnsets
+  const extrasReady = data?.extrasReady ?? false
 
   const handleSort = React.useCallback(
     (col: SortKey) => {
@@ -214,6 +215,7 @@ export function MovesPage() {
         av = a.name
         bv = b.name
       } else if (sortBy === "learners") {
+        if (!extrasReady) return a.name.localeCompare(b.name)
         av = learnersOf(a.name)
         bv = learnersOf(b.name)
       } else {
@@ -228,7 +230,7 @@ export function MovesPage() {
       return (av - (bv as number)) * dir
     })
     return out
-  }, [moves, search.q, deferredQuery, selectedType, selectedCategory, sortBy, sortDir, learnsets])
+  }, [moves, search.q, deferredQuery, selectedType, selectedCategory, sortBy, sortDir, learnsets, extrasReady])
 
   const parentRef = React.useRef<HTMLDivElement>(null)
   const virtualizer = useVirtualizer({
@@ -359,7 +361,7 @@ export function MovesPage() {
         <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
           {virtualizer.getVirtualItems().map((row) => {
             const m = filtered[row.index]!
-            const learners = learnsets ? (learnsets[moveIdForName(m.name)]?.length ?? 0) : 0
+            const learners = extrasReady && learnsets ? (learnsets[moveIdForName(m.name)]?.length ?? 0) : 0
             return (
               <Link
                 key={m.name}
@@ -379,7 +381,7 @@ export function MovesPage() {
                 <span className="text-right tnum">{m.accuracy !== null ? `${m.accuracy}%` : "—"}</span>
                 <span className="text-right tnum">{m.pp ?? "—"}</span>
                 <span className="text-right tnum">{m.priority !== 0 ? (m.priority > 0 ? `+${m.priority}` : m.priority) : "—"}</span>
-                <span className="text-right tnum text-[var(--ds-gray-700)]">{learners > 0 ? learners : "—"}</span>
+                <span className="text-right tnum text-[var(--ds-gray-700)]">{extrasReady && learners > 0 ? learners : "—"}</span>
                 <span className="truncate text-xs text-[var(--ds-gray-700)]" title={m.shortDesc}>{m.shortDesc}</span>
               </Link>
             )
