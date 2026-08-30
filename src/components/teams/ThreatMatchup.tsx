@@ -137,7 +137,10 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
   }
 
   const smartIndex = React.useMemo(
-    () => buildSmartCounterIndex(data.core.forms as Form[], data.sets.sets, data.movesByName, data.naturesByName),
+    () =>
+      data.extrasReady
+        ? buildSmartCounterIndex(data.core.forms as Form[], data.sets.sets, data.movesByName, data.naturesByName)
+        : { profiles: new Map(), battle: new Map(), setCount: new Map() },
     [data],
   )
 
@@ -262,7 +265,7 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
             ? suggestCounters(opp.types as unknown as TypeName[], data.core.forms as Form[], excludeIds, windowOpts)
             : null
         const smartCounters =
-          counterMode === "smart"
+          counterMode === "smart" && data.extrasReady
             ? suggestSmartCounters(opp, smartIndex, data.core.forms as Form[], excludeIds, windowOpts)
             : null
         return (
@@ -350,7 +353,9 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
             </div>
 
             {/* suggested counters: Dataset (type math) or Smart (Sets, beta) */}
-            {(datasetCounters?.length ?? smartCounters?.length ?? 0) > 0 && (
+            {counterMode === "smart" && !data.extrasReady ? (
+              <p className="text-xs text-[var(--ds-gray-700)]">{t("detail.loading")}</p>
+            ) : (datasetCounters?.length ?? smartCounters?.length ?? 0) > 0 && (
               <div>
                 <div className="text-xs font-medium mb-1 flex items-center gap-1.5">
                   <span>
