@@ -73,7 +73,6 @@ function internalAnchor(target: EventTarget | null): HTMLAnchorElement | null {
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { t } = useI18n()
-  const skipRecordRef = React.useRef(false)
   const [state, setState] = React.useState<WorkspaceState>(() =>
     createInitialState(snapshotFromUnknownLocation(router.state.location)),
   )
@@ -88,11 +87,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     setState(next)
     stateRef.current = next
     if (!navigate) return
-    skipRecordRef.current = true
     router.history.replace(hrefOf(currentLocation(next)))
-    window.setTimeout(() => {
-      skipRecordRef.current = false
-    }, 100)
   }, [router])
 
   const openInNewTab = React.useCallback(
@@ -142,12 +137,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const unsub = router.subscribe("onResolved", (evt: { fromLocation?: { pathname: string; href?: string; searchStr?: string } }) => {
-      if (skipRecordRef.current) {
-        skipRecordRef.current = false
-        return
-      }
       const s = stateRef.current
       const to = snapshotFromUnknownLocation(router.state.location)
+      if (hrefOf(to) === hrefOf(currentLocation(s))) return
       const from = evt.fromLocation ? snapshotFromUnknownLocation(evt.fromLocation) : currentLocation(s)
       if (hrefOf(from) === hrefOf(to)) return
       const next = from.pathname === to.pathname ? replaceInTab(s, to) : pushInTab(s, to)
@@ -162,7 +154,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const onPop = () => {
       const s = stateRef.current!
       if (canGoBack(s)) apply(goBack(s), true)
-      else window.history.pushState({ pokestatsWorkspace: true }, "", window.location.href)
+      // Keep a sentinel entry so Back at stack start stays in the app.
+      window.history.pushState({ pokestatsWorkspace: true }, "", window.location.href)
     }
     window.addEventListener("popstate", onPop)
     return () => window.removeEventListener("popstate", onPop)
