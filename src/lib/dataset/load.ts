@@ -17,6 +17,7 @@ export interface LoadedDataset {
   /** Canonical moveId (slug) -> MoveInfo, for route params like /moves/$moveId. */
   movesById: Map<string, MoveInfo>
   itemsByName: Map<string, ItemInfo>
+  itemsById: Map<string, ItemInfo>
   abilitiesByName: Map<string, AbilityInfo>
   naturesByName: Map<string, NatureInfo>
 }
@@ -39,10 +40,11 @@ export function indexCore(core: DatasetCore): Omit<LoadedDataset, "sets" | "lear
   const movesByName = new Map(core.moves.map((m) => [m.name, m] as const))
   const movesById = new Map(core.moves.map((m) => [toSlug(m.name), m] as const))
   const itemsByName = new Map(core.items.map((i) => [i.name, i] as const))
+  const itemsById = new Map(core.items.map((i) => [toSlug(i.name), i] as const))
   const abilitiesByName = new Map(core.abilities.map((a) => [a.name, a] as const))
   const naturesByName = new Map(core.natures.map((n) => [n.name, n] as const))
 
-  return { core, formsById, speciesById, enrichment, nameIndex, movesByName, movesById, itemsByName, abilitiesByName, naturesByName }
+  return { core, formsById, speciesById, enrichment, nameIndex, movesByName, movesById, itemsByName, itemsById, abilitiesByName, naturesByName }
 }
 
 export function withExtras(

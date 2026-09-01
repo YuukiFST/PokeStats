@@ -6,13 +6,30 @@ import { TabBar } from "@/components/layout/TabBar"
 export function Shell({ children }: { children: React.ReactNode }) {
   const { location } = useRouterState()
   const { t } = useI18n()
-  const NAV = [
+  const PRIMARY = [
     { to: "/", label: "Dex", icon: "▦", title: t("dex.tabsHelp") },
     { to: "/moves", label: t("moves.title"), icon: "✦", title: t("moves.navDesc") },
+  ] as const
+  const REF = [
+    { to: "/types", label: t("types.title"), icon: "◆", title: t("types.navDesc") },
+    { to: "/items", label: t("items.title"), icon: "◇", title: t("items.navDesc") },
+    { to: "/natures", label: t("natures.title"), icon: "◎", title: t("natures.navDesc") },
+  ] as const
+  const REST = [
     { to: "/compare", label: "Compare", icon: "⇄", title: t("compare.desc") },
     { to: "/teams", label: t("teams.title"), icon: "⬢", title: t("teams.desc") },
     { to: "/settings", label: t("settings.title"), icon: "⚙" },
   ] as const
+
+  const linkClass = (to: string) => {
+    const active = location.pathname === to || (to !== "/" && location.pathname.startsWith(to))
+    return cn(
+      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
+      active
+        ? "bg-[var(--ds-gray-100)] text-[var(--ds-gray-1000)]"
+        : "text-[var(--ds-gray-900)] hover:bg-[var(--ds-gray-100)] hover:text-[var(--ds-gray-1000)]",
+    )
+  }
 
   return (
     <div className="h-full min-h-0 flex overflow-hidden bg-[var(--ds-background-100)] text-[var(--ds-gray-1000)]">
@@ -24,25 +41,28 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="p-2 space-y-1">
-          {NAV.map((item) => {
-            const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to))
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                title={(item as any).title}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                  active
-                    ? "bg-[var(--ds-gray-100)] text-[var(--ds-gray-1000)]"
-                    : "text-[var(--ds-gray-900)] hover:bg-[var(--ds-gray-100)] hover:text-[var(--ds-gray-1000)]",
-                )}
-              >
+          {[...PRIMARY].map((item) => (
+            <Link key={item.to} to={item.to} title={(item as { title?: string }).title} className={linkClass(item.to)}>
+              <span className="w-4 text-center">{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
+          <div className="pt-2 mt-1 border-t border-[var(--ds-gray-400)] space-y-1">
+            {REF.map((item) => (
+              <Link key={item.to} to={item.to} title={item.title} className={linkClass(item.to)}>
                 <span className="w-4 text-center">{item.icon}</span>
                 {item.label}
               </Link>
-            )
-          })}
+            ))}
+          </div>
+          <div className="pt-2 mt-1 border-t border-[var(--ds-gray-400)] space-y-1">
+            {REST.map((item) => (
+              <Link key={item.to} to={item.to} title={(item as { title?: string }).title} className={linkClass(item.to)}>
+                <span className="w-4 text-center">{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
+          </div>
         </nav>
 
         <div className="mt-auto border-t border-[var(--ds-gray-400)]">

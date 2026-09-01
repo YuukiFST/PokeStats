@@ -1,11 +1,12 @@
 import * as React from "react"
 import { Link, useParams } from "@tanstack/react-router"
 import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
-import { Badge, LinkedTypeBadge, TypeBadge, TYPE_CHIP } from "@/components/ui/badge"
+import { Badge, TypeBadge, TYPE_CHIP } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SpriteThumb } from "@/components/ui/sprite"
 import { calcBST, cn } from "@/lib/utils"
-import { getMultiplier, TYPE_NAMES } from "@/lib/domain/typeChart"
+import { matchupBands, offensiveBands, TYPE_NAMES } from "@/lib/domain/typeChart"
+import { MatchupBands } from "@/components/types/MatchupBands"
 import type { TypeName } from "@/lib/domain/types"
 import { moveIdForName } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
@@ -17,18 +18,6 @@ const CATEGORY_ICON: Record<string, string> = {
   Status: "/sprites/category-status.png",
 }
 
-function TypeList({ types, linked = true }: { types: TypeName[]; linked?: boolean }) {
-  const { typeName } = useI18n()
-  if (!types.length) return <span className="text-xs text-[var(--ds-gray-700)]">—</span>
-  return (
-    <div className="flex flex-wrap gap-1">
-      {types.map((tt) =>
-        linked ? <LinkedTypeBadge key={tt} type={tt} /> : <span key={tt} className={cn("inline-flex items-center justify-center rounded-md text-[11px] font-semibold tracking-wide border uppercase min-w-[62px] px-1 h-[20px]", TYPE_CHIP[tt]?.solid)}>{typeName(tt)}</span>,
-      )}
-    </div>
-  )
-}
-
 export function TypeDetailPage() {
   const { typeId } = useParams({ strict: false }) as { typeId: string }
   const { back } = useWorkspace()
@@ -38,23 +27,8 @@ export function TypeDetailPage() {
   const valid = TYPE_NAMES.includes(typeId as TypeName)
   const tt = typeId as TypeName
 
-  const asAttacker = React.useMemo(() => {
-    if (!valid) return null
-    return {
-      superEffective: TYPE_NAMES.filter((d) => getMultiplier(tt, d) > 1),
-      notVery: TYPE_NAMES.filter((d) => getMultiplier(tt, d) > 0 && getMultiplier(tt, d) < 1),
-      noEffect: TYPE_NAMES.filter((d) => getMultiplier(tt, d) === 0),
-    }
-  }, [valid, tt])
-
-  const asDefender = React.useMemo(() => {
-    if (!valid) return null
-    return {
-      weakTo: TYPE_NAMES.filter((a) => getMultiplier(a, tt) > 1),
-      resists: TYPE_NAMES.filter((a) => getMultiplier(a, tt) > 0 && getMultiplier(a, tt) < 1),
-      immuneTo: TYPE_NAMES.filter((a) => getMultiplier(a, tt) === 0),
-    }
-  }, [valid, tt])
+  const atkBands = React.useMemo(() => (valid ? offensiveBands(tt) : []), [valid, tt])
+  const defBands = React.useMemo(() => (valid ? matchupBands([tt]) : []), [valid, tt])
 
   const topForms = React.useMemo(() => {
     if (!data || !valid) return []
@@ -92,9 +66,9 @@ export function TypeDetailPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-6 py-4">
-        <Button variant="ghost" size="sm" onClick={() => back()} className="-ml-2 mb-2">
-          ← {t("typeDetail.back")}
+      <div className={cn("border-b border-[var(--ds-gray-400)] px-6 py-4", chip.soft)}>
+        <Button variant="ghost" size="sm" onClick={() => back({ pathname: "/types", search: "" })} className="-ml-2 mb-2">
+          ← {t("types.title")}
         </Button>
         <div className="flex items-center gap-4 flex-wrap">
           <span className={cn("inline-flex items-center justify-center rounded-md border h-11 px-5 text-lg font-bold tracking-wide uppercase", chip.solid)}>{typeName(tt)}</span>
@@ -118,35 +92,12 @@ export function TypeDetailPage() {
         {/* attacking */}
         <section className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{t("typeDetail.attacking")}</h2>
-          <div>
-            <div className="text-xs font-medium mb-1.5 text-green-500">2× — {t("typeDetail.superEffective")}</div>
-            <TypeList types={asAttacker!.superEffective} />
-          </div>
-          <div>
-            <div className="text-xs font-medium mb-1.5 text-[var(--ds-gray-900)]">½× — {t("typeDetail.notVery")}</div>
-            <TypeList types={asAttacker!.notVery} />
-          </div>
-          <div>
-            <div className="text-xs font-medium mb-1.5 text-red-400">0× — {t("typeDetail.noEffectVs")}</div>
-            <TypeList types={asAttacker!.noEffect} />
-          </div>
+          <MatchupBands bands={atkBands} />
         </section>
 
-        {/* defending */}
         <section className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{t("typeDetail.defending")}</h2>
-          <div>
-            <div className="text-xs font-medium mb-1.5 text-red-400">2× — {t("typeDetail.weakTo")}</div>
-            <TypeList types={asDefender!.weakTo} />
-          </div>
-          <div>
-            <div className="text-xs font-medium mb-1.5 text-green-500">½× — {t("typeDetail.resists")}</div>
-            <TypeList types={asDefender!.resists} />
-          </div>
-          <div>
-            <div className="text-xs font-medium mb-1.5 text-[var(--ds-gray-900)]">0× — {t("typeDetail.immuneTo")}</div>
-            <TypeList types={asDefender!.immuneTo} />
-          </div>
+          <MatchupBands bands={defBands} />
         </section>
       </div>
 

@@ -6,7 +6,9 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs"
 import { resolve, dirname } from "node:path"
 import { fileURLToPath } from "node:url"
-import type { DatasetCore, DatasetSets, Form, Species, TierEntry, FormatMeta, BaseStatOverride, TypeOverride, FormTrait, TypeName, MoveInfo, ItemInfo, AbilityInfo, NatureInfo, LearnsetsArtifact } from "../../src/lib/domain/types.js"
+import type { DatasetCore, DatasetSets, Form, Species, TierEntry, FormatMeta, BaseStatOverride, TypeOverride, FormTrait, TypeName, MoveInfo, ItemInfo, AbilityInfo, LearnsetsArtifact } from "../../src/lib/domain/types.js"
+import { itemKindFromShowdown } from "../../src/lib/domain/items.js"
+import { NATURES } from "../../src/lib/domain/natures.js"
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
 const OUT_DIR = resolve(ROOT, "public/dataset")
@@ -24,35 +26,6 @@ function slug(name: string): string {
 function toID(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]/g, "")
 }
-
-/** The 25 fixed natures — game constants, not scraped. */
-const NATURES: NatureInfo[] = [
-  { name: "Adamant", plus: "atk", minus: "spa" },
-  { name: "Bashful", plus: null, minus: null },
-  { name: "Bold", plus: "def", minus: "atk" },
-  { name: "Brave", plus: "atk", minus: "spe" },
-  { name: "Calm", plus: "spd", minus: "atk" },
-  { name: "Careful", plus: "spd", minus: "spa" },
-  { name: "Docile", plus: null, minus: null },
-  { name: "Gentle", plus: "spd", minus: "def" },
-  { name: "Hardy", plus: null, minus: null },
-  { name: "Hasty", plus: "spe", minus: "def" },
-  { name: "Impish", plus: "def", minus: "spa" },
-  { name: "Jolly", plus: "spe", minus: "spa" },
-  { name: "Lax", plus: "def", minus: "spd" },
-  { name: "Lonely", plus: "atk", minus: "def" },
-  { name: "Mild", plus: "spa", minus: "def" },
-  { name: "Modest", plus: "spa", minus: "atk" },
-  { name: "Naive", plus: "spe", minus: "spd" },
-  { name: "Naughty", plus: "atk", minus: "spd" },
-  { name: "Quiet", plus: "spa", minus: "spe" },
-  { name: "Quirky", plus: null, minus: null },
-  { name: "Rash", plus: "spa", minus: "spd" },
-  { name: "Relaxed", plus: "def", minus: "spe" },
-  { name: "Sassy", plus: "spd", minus: "spe" },
-  { name: "Serious", plus: null, minus: null },
-  { name: "Timid", plus: "spe", minus: "atk" },
-]
 
 function parseTsTable(path: string): Record<string, any> {
   const raw = readFileSync(path, "utf8")
@@ -484,13 +457,34 @@ function buildFromFixtures(): BuildResult {
     core.moves = moves.sort((a, b) => a.name.localeCompare(b.name))
 
     const items: ItemInfo[] = []
-    for (const name of referencedItems) {
-      const src = itemsData[toID(name)]
-      if (!src || !src.name) continue
+    const seenItemNames = new Set<string>()
+    for (const raw of Object.values(itemsData)) {
+      const src = raw as Record<string, any>
+      if (!src || !src.name || seenItemNames.has(src.name)) continue
+      seenItemNames.add(src.name)
       items.push({
         name: src.name,
         shortDesc: src.shortDesc ?? src.desc ?? "",
+        desc: src.desc ?? src.shortDesc ?? "",
         spriteNum: typeof src.spritenum === "number" ? src.spritenum : null,
+        gen: typeof src.gen === "number" ? src.gen : null,
+        kind: itemKindFromShowdown(src),
+        isNonstandard: typeof src.isNonstandard === "string" ? src.isNonstandard : null,
+      })
+    }
+    for (const name of referencedItems) {
+      if (seenItemNames.has(name)) continue
+      const src = itemsData[toID(name)]
+      if (!src || !src.name) continue
+      seenItemNames.add(src.name)
+      items.push({
+        name: src.name,
+        shortDesc: src.shortDesc ?? src.desc ?? "",
+        desc: src.desc ?? src.shortDesc ?? "",
+        spriteNum: typeof src.spritenum === "number" ? src.spritenum : null,
+        gen: typeof src.gen === "number" ? src.gen : null,
+        kind: itemKindFromShowdown(src),
+        isNonstandard: typeof src.isNonstandard === "string" ? src.isNonstandard : null,
       })
     }
     core.items = items.sort((a, b) => a.name.localeCompare(b.name))
