@@ -181,9 +181,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       }
     }
     const onContext = (e: MouseEvent) => {
+      e.preventDefault()
       const a = internalAnchor(e.target)
       if (!a) return
-      e.preventDefault()
       setMenu({ x: e.clientX, y: e.clientY, loc: snapshotFromHref(a.href) })
     }
     document.addEventListener("click", onClick, true)

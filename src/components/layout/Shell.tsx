@@ -2,10 +2,12 @@ import { Link, useRouterState } from "@tanstack/react-router"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/lib/i18n"
 import { TabBar } from "@/components/layout/TabBar"
+import { useCobblemonEgg } from "@/lib/cobblemon/CobblemonEggProvider"
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const { location } = useRouterState()
   const { t } = useI18n()
+  const { registerLogoClick, justUnlocked } = useCobblemonEgg()
   const PRIMARY = [
     { to: "/", label: "Dex", icon: "▦", title: t("dex.tabsHelp") },
     { to: "/moves", label: t("moves.title"), icon: "✦", title: t("moves.navDesc") },
@@ -18,6 +20,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const REST = [
     { to: "/compare", label: "Compare", icon: "⇄", title: t("compare.desc") },
     { to: "/teams", label: t("teams.title"), icon: "⬢", title: t("teams.desc") },
+    { to: "/favorites", label: t("bookmarks.nav"), icon: "★", title: t("bookmarks.desc") },
     { to: "/settings", label: t("settings.title"), icon: "⚙" },
   ] as const
 
@@ -67,7 +70,16 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
         <div className="mt-auto border-t border-[var(--ds-gray-400)]">
           <div className="p-4 flex flex-col items-center">
-            <img src="/logo.png" alt="PokeStats" className="w-36 h-36 object-contain" style={{ background: "transparent" }} />
+            <button
+              type="button"
+              onClick={registerLogoClick}
+              className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ds-blue-700)]"
+            >
+              <img src="/logo.png" alt="PokeStats" className="w-36 h-36 object-contain select-none" style={{ background: "transparent" }} />
+            </button>
+            {justUnlocked ? (
+              <p className="mt-2 text-[10px] text-center text-[var(--ds-gray-700)]">{t("cobblemon.unlocked")}</p>
+            ) : null}
           </div>
           <div className="p-3 pt-0 text-xs text-[var(--ds-gray-700)] text-center">
             <div className="flex gap-1 justify-center">

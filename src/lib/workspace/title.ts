@@ -14,6 +14,7 @@ export function tabTitle(
   if (pathname === "/types") return t("types.title")
   if (pathname === "/items") return t("items.title")
   if (pathname === "/natures") return t("natures.title")
+  if (pathname === "/favorites") return t("bookmarks.title")
   const form = pathname.match(/^\/form\/([^/]+)$/)
   if (form) return decodeURIComponent(form[1]!)
   const move = pathname.match(/^\/moves\/([^/]+)$/)
