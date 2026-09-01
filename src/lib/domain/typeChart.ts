@@ -227,3 +227,35 @@ export function offensiveCoverage(attackerTypes: TypeName[]): {
   )
   return { superEffective, noEffect }
 }
+
+export const MATCHUP_BAND_ORDER = [4, 2, 0.5, 0.25, 0] as const
+export type MatchupMult = (typeof MATCHUP_BAND_ORDER)[number]
+
+export interface MatchupBand {
+  mult: MatchupMult
+  types: TypeName[]
+}
+
+function almost(a: number, b: number): boolean {
+  return Math.abs(a - b) < 1e-9
+}
+
+/** Group attacking types by damage vs a 1–2 type defender. Neutral (1×) is omitted. */
+export function matchupBands(defTypes: TypeName[]): MatchupBand[] {
+  const profile = defensiveProfile(defTypes)
+  return MATCHUP_BAND_ORDER.map((mult) => ({
+    mult,
+    types: TYPE_NAMES.filter((t) => almost(profile[t]!, mult)),
+  })).filter((b) => b.types.length > 0)
+}
+
+/** Group defending types by damage from a single attacking type. Neutral omitted. */
+export function offensiveBands(atk: TypeName): MatchupBand[] {
+  const order: MatchupMult[] = [2, 0.5, 0]
+  return order
+    .map((mult) => ({
+      mult,
+      types: TYPE_NAMES.filter((d) => almost(getMultiplier(atk, d), mult)),
+    }))
+    .filter((b) => b.types.length > 0)
+}

@@ -28,10 +28,19 @@ function useTabMeta(loc: LocationSnapshot): { label: string; glyph: React.ReactN
     const found = data?.core.moves.find((m) => moveIdForName(m.name) === id)
     return { label: found?.name ?? fallback, glyph: <span className="text-[13px] leading-none opacity-80">✦</span> }
   }
+  const itemMatch = loc.pathname.match(/^\/items\/([^/]+)$/)
+  if (itemMatch) {
+    const id = decodeURIComponent(itemMatch[1]!)
+    const found = data?.itemsById.get(id)
+    return { label: found?.name ?? fallback, glyph: <span className="text-[13px] leading-none opacity-80">◇</span> }
+  }
   const typeMatch = loc.pathname.match(/^\/types\/([^/]+)$/)
   if (typeMatch) return { label: typeName(decodeURIComponent(typeMatch[1]!)), glyph: <span className="text-[13px] leading-none opacity-80">◆</span> }
   if (loc.pathname === "/") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">▦</span> }
   if (loc.pathname === "/moves") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">✦</span> }
+  if (loc.pathname === "/types") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">◆</span> }
+  if (loc.pathname === "/items") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">◇</span> }
+  if (loc.pathname === "/natures") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">◎</span> }
   if (loc.pathname === "/compare") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">⇄</span> }
   if (loc.pathname === "/teams") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">⬢</span> }
   if (loc.pathname === "/settings") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">⚙</span> }

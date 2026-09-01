@@ -134,11 +134,19 @@ export interface LearnsetsArtifact {
   [moveId: string]: FormId[]
 }
 
+export type ItemKind = "mega" | "zcrystal" | "berry" | "choice" | "plate" | "memory" | "drive" | "utility"
+
 export interface ItemInfo {
   name: string
   shortDesc: string
+  /** Long English effect text (Showdown desc); falls back to shortDesc at build. */
+  desc: string
   /** Position index in the Showdown itemicons-sheet.png (16 columns × 24px cells). null = no icon. */
   spriteNum: number | null
+  gen: number | null
+  kind: ItemKind
+  /** Showdown isNonstandard flag, or null when current. */
+  isNonstandard: string | null
 }
 
 export interface AbilityInfo {
@@ -206,7 +214,7 @@ export interface DatasetCore {
   baseStatOverrides: BaseStatOverride[]
   typeOverrides: TypeOverride[]
   formats: FormatMeta[]
-  /** Support tables filtered to Set-referenced entries, enriched from Showdown data files (ticket 07 eixo 4). */
+  /** Moves: legal + Set-referenced. Items: full Showdown held-item table. Abilities: Set-referenced. */
   moves: MoveInfo[]
   items: ItemInfo[]
   abilities: AbilityInfo[]

@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import type { TypeName } from "@/lib/domain/types"
 import { moveIdForName } from "@/lib/dataset/load"
+import { itemIdForName } from "@/lib/domain/items"
 import { useDataset } from "./useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { toSlug } from "@/lib/utils"
@@ -14,11 +15,15 @@ type Result =
   | { kind: "form"; key: string; label: string; hint: string; formId: string }
   | { kind: "move"; key: string; label: string; hint: string; moveId: string }
   | { kind: "type"; key: string; label: TypeName }
+  | { kind: "item"; key: string; label: string; hint: string; itemId: string }
+  | { kind: "nature"; key: string; label: string; hint: string }
 
 const SECTION_LABEL: Record<Result["kind"], TranslationKey> = {
   form: "palette.forms",
   type: "palette.types",
   move: "palette.moves",
+  item: "palette.items",
+  nature: "palette.natures",
 }
 
 /**
@@ -72,10 +77,26 @@ export function CommandPalette() {
       .slice(0, 6)
       .map((m) => ({ kind: "move" as const, key: m.name, label: m.name, hint: `${typeName(m.type)} · ${m.category}`, moveId: moveIdForName(m.name) }))
 
+    const items: Result[] = data.core.items
+      .filter((it) => it.name.toLowerCase().includes(qq) || it.shortDesc.toLowerCase().includes(qq))
+      .slice(0, 6)
+      .map((it) => ({ kind: "item" as const, key: it.name, label: it.name, hint: it.shortDesc, itemId: itemIdForName(it.name) }))
+
+    const natures: Result[] = data.core.natures
+      .filter((n) => n.name.toLowerCase().includes(qq))
+      .map((n) => ({
+        kind: "nature" as const,
+        key: n.name,
+        label: n.name,
+        hint: n.plus && n.minus ? `+${n.plus} −${n.minus}` : "neutral",
+      }))
+
     const out: { kind: Result["kind"]; items: Result[] }[] = [
       { kind: "form", items: forms },
       { kind: "type", items: types },
       { kind: "move", items: moves },
+      { kind: "item", items: items },
+      { kind: "nature", items: natures },
     ]
     return out.filter((g) => g.items.length > 0)
   }, [data, q, typeName])
@@ -85,6 +106,8 @@ export function CommandPalette() {
   const destFor = React.useCallback((r: Result): LocationSnapshot => {
     if (r.kind === "form") return { pathname: `/form/${r.formId}`, search: "" }
     if (r.kind === "type") return { pathname: `/types/${r.label}`, search: "" }
+    if (r.kind === "item") return { pathname: `/items/${r.itemId}`, search: "" }
+    if (r.kind === "nature") return { pathname: "/natures", search: `?n=${encodeURIComponent(r.label)}` }
     return { pathname: `/moves/${r.moveId}`, search: "" }
   }, [])
 
@@ -98,6 +121,8 @@ export function CommandPalette() {
       }
       if (r.kind === "form") navigate({ to: "/form/$formId", params: { formId: r.formId } as never })
       else if (r.kind === "type") navigate({ to: "/types/$typeId", params: { typeId: r.label } as never })
+      else if (r.kind === "item") navigate({ to: "/items/$itemId", params: { itemId: r.itemId } as never })
+      else if (r.kind === "nature") navigate({ to: "/natures", search: { n: r.label } as never })
       else navigate({ to: "/moves/$moveId", params: { moveId: r.moveId } as never })
     },
     [navigate, destFor, openInNewTab],

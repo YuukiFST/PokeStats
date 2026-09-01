@@ -49,7 +49,7 @@ const core: DatasetCore = {
       priority: 0,
     },
   ],
-  items: [{ name: "Leftovers", shortDesc: "", spriteNum: null }],
+  items: [{ name: "Leftovers", shortDesc: "", desc: "", spriteNum: null, gen: 2, kind: "utility", isNonstandard: null }],
   abilities: [{ name: "Blaze", shortDesc: "" }],
   natures: [{ name: "Modest", plus: "spa", minus: "atk" }],
 }
@@ -68,6 +68,11 @@ describe("indexCore / withExtras", () => {
     expect(staged.extrasReady).toBe(false)
     expect(staged.sets.sets).toEqual([])
     expect(staged.learnsets).toEqual({})
+  })
+
+  it("indexes items by slug id", () => {
+    const indexed = indexCore(core)
+    expect(indexed.itemsById.get("leftovers")?.name).toBe("Leftovers")
   })
 
   it("withExtras extrasReady true reuses the same formsById map", () => {

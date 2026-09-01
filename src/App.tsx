@@ -4,7 +4,11 @@ import { Shell } from "@/components/layout/Shell"
 import { DexPage } from "@/routes/dex"
 import { MovesPage, type MovesSearch } from "@/routes/moves"
 import { MoveDetailPage } from "@/routes/moveDetail"
+import { TypesPage, type TypesSearch } from "@/routes/types"
 import { TypeDetailPage } from "@/routes/typeDetail"
+import { ItemsPage, type ItemsSearch } from "@/routes/items"
+import { ItemDetailPage } from "@/routes/itemDetail"
+import { NaturesPage, type NaturesSearch } from "@/routes/natures"
 import { FormDetailPage } from "@/routes/formDetail"
 import { ComparePage } from "@/routes/compare"
 import { TeamsPage } from "@/routes/teams"
@@ -70,10 +74,42 @@ const moveDetailRoute = createRoute({
   path: "/moves/$moveId",
   component: MoveDetailPage,
 })
+const typesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/types",
+  validateSearch: (search: Record<string, unknown>): TypesSearch => ({
+    t: typeof search.t === "string" ? search.t : undefined,
+    view: typeof search.view === "string" ? search.view : undefined,
+  }),
+  component: TypesPage,
+})
 const typeDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/types/$typeId",
   component: TypeDetailPage,
+})
+const itemsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/items",
+  validateSearch: (search: Record<string, unknown>): ItemsSearch => ({
+    q: typeof search.q === "string" ? search.q : undefined,
+    kind: typeof search.kind === "string" ? search.kind : undefined,
+    used: typeof search.used === "string" ? search.used : undefined,
+  }),
+  component: ItemsPage,
+})
+const itemDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/items/$itemId",
+  component: ItemDetailPage,
+})
+const naturesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/natures",
+  validateSearch: (search: Record<string, unknown>): NaturesSearch => ({
+    n: typeof search.n === "string" ? search.n : undefined,
+  }),
+  component: NaturesPage,
 })
 const teamsRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -101,7 +137,11 @@ const routeTree = rootRoute.addChildren([
   compareRoute,
   movesRoute,
   moveDetailRoute,
+  typesRoute,
   typeDetailRoute,
+  itemsRoute,
+  itemDetailRoute,
+  naturesRoute,
   teamsRoute,
   settingsRoute,
   formRoute,
@@ -111,7 +151,7 @@ const routeTree = rootRoute.addChildren([
 // (src/routes/dex.tsx, src/routes/moves.tsx) — the router's generic
 // inner-element restore keys elements by generated CSS paths that collide
 // across pages and corrupts the offset.
-const VIRTUALIZED_LIST_ROUTES = ["/", "/moves"]
+const VIRTUALIZED_LIST_ROUTES = ["/", "/moves", "/items"]
 const router = createRouter({
   routeTree,
   scrollRestoration: ({ location }) => !VIRTUALIZED_LIST_ROUTES.includes(location.pathname),

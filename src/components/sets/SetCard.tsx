@@ -4,7 +4,9 @@ import { Badge, LinkedTypeBadge, TypeBadge, TYPE_CHIP } from "@/components/ui/ba
 import { Button } from "@/components/ui/button"
 import { InfoTip, TipRow } from "@/components/ui/infotip"
 import { resolveMoveInfo, moveIdForName, type LoadedDataset } from "@/lib/dataset/load"
-import type { Form, ItemInfo, MoveInfo, Set } from "@/lib/domain/types"
+import type { Form, MoveInfo, Set } from "@/lib/domain/types"
+import { ItemIcon } from "@/components/ui/itemIcon"
+import { itemIdForName } from "@/lib/domain/items"
 import { cn, formatSpread, STAT_LABEL } from "@/lib/utils"
 import { useI18n } from "@/lib/i18n"
 
@@ -12,20 +14,6 @@ const CATEGORY_ICON: Record<string, string> = {
   Physical: "/sprites/category-physical.png",
   Special: "/sprites/category-special.png",
   Status: "/sprites/category-status.png",
-}
-
-/** 24x24 cell of the vendored Showdown itemicons sheet, positioned by spriteNum. */
-function ItemIcon({ item }: { item: ItemInfo | undefined }) {
-  if (!item || item.spriteNum === null) return null
-  const left = (item.spriteNum % 16) * 24
-  const top = Math.floor(item.spriteNum / 16) * 24
-  return (
-    <span
-      aria-hidden
-      className="inline-block h-6 w-6 shrink-0 bg-no-repeat"
-      style={{ backgroundImage: "url(/sprites/itemicons-sheet.png)", backgroundPosition: `-${left}px -${top}px` }}
-    />
-  )
 }
 
 /**
@@ -112,6 +100,7 @@ function ItemCell({ options, data }: { options: string[]; data: LoadedDataset })
     )
     if (!info) return inner
     return (
+      <Link to="/items/$itemId" params={{ itemId: itemIdForName(name) } as never} className="min-w-0">
       <InfoTip
         tip={
           <div className="flex items-start gap-2">
@@ -125,6 +114,7 @@ function ItemCell({ options, data }: { options: string[]; data: LoadedDataset })
       >
         {inner}
       </InfoTip>
+      </Link>
     )
   }
   return (
