@@ -7,12 +7,15 @@ import { Badge, LinkedTypeBadge, TypeBadge, TYPE_CHIP } from "@/components/ui/ba
 import { HelpTip } from "@/components/ui/helptip"
 import { calcBST, cn } from "@/lib/utils"
 import type { Form } from "@/lib/domain/types"
+import { formMatchesSelectedTypes } from "@/lib/domain/dexFilter"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import type { DexSearch } from "@/App"
 import { SpriteThumb } from "@/components/ui/sprite"
 import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
+import { StarButton } from "@/components/ui/star"
+import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
 
 type SortKey = "name" | "bst" | "hp" | "atk" | "def" | "spa" | "spd" | "spe" | "tier"
 
@@ -25,6 +28,7 @@ export function DexPage() {
   const navigate = useNavigate({ from: "/" })
   const search = useSearch({ from: "/" }) as DexSearch
   const { t, typeName } = useI18n()
+  const { has, toggle } = useBookmarks()
   const { openInNewTab, openLinkMenu } = useWorkspace()
 
   const query = search.q ?? ""
@@ -165,8 +169,7 @@ export function DexPage() {
       })
     }
     if (selectedTypes.size > 0) {
-      // OR: show Forms that have at least one of the selected types
-      out = out.filter((f) => (f.types as string[]).some((tt) => selectedTypes.has(tt)))
+      out = out.filter((f) => formMatchesSelectedTypes(f.types as string[], selectedTypes))
     }
     if (grouped && sortBy !== "name") {
       const bySpecies = new Map<number, Form[]>()
@@ -260,6 +263,30 @@ export function DexPage() {
       return next
     })
   }, [])
+
+  const selectedForms = React.useMemo(() => {
+    const byId = new Map(forms.map((f) => [f.id, f] as const))
+    return [...selected].flatMap((id) => {
+      const f = byId.get(id)
+      return f ? [f] : []
+    })
+  }, [forms, selected])
+
+  const goCompare = React.useCallback(
+    (e?: React.MouseEvent) => {
+      if (selected.size < 2) return
+      saveScroll()
+      const ids = [...selected].join(",")
+      const loc = { pathname: "/compare", search: `?ids=${ids}` }
+      if (e && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        openInNewTab(loc)
+        return
+      }
+      navigate({ to: "/compare", search: { ids } as never })
+    },
+    [selected, saveScroll, openInNewTab, navigate],
+  )
 
   if (loading) {
     return (
@@ -416,41 +443,8 @@ export function DexPage() {
         </div>
       </div>
 
-      {selCount > 0 && (
-        <div className="shrink-0 flex items-center gap-2 px-4 py-2 bg-[var(--ds-blue-700)] text-white text-sm">
-          <span>{selCount} {t("dex.selected")}</span>
-          <div className="ml-auto flex gap-2">
-            <Button size="sm" variant="outline" className="bg-white text-black hover:bg-gray-100" onClick={() => setSelected(new Set())}>
-              {t("dex.clear")}
-            </Button>
-            <Button
-              size="sm"
-              className="bg-white text-black hover:bg-gray-100"
-              disabled={selCount < 2}
-              onClick={(e) => {
-                saveScroll()
-                const ids = [...selected].join(",")
-                const loc = { pathname: "/compare", search: `?ids=${ids}` }
-                if (e.ctrlKey || e.metaKey) {
-                  e.preventDefault()
-                  openInNewTab(loc)
-                  return
-                }
-                navigate({ to: "/compare", search: { ids } as never })
-              }}
-              onContextMenu={(e) => {
-                if (selCount < 2) return
-                e.preventDefault()
-                openLinkMenu(e.clientX, e.clientY, { pathname: "/compare", search: `?ids=${[...selected].join(",")}` })
-              }}
-            >
-              {t("dex.compare")}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div className="shrink-0 grid grid-cols-[28px_36px_28px_1fr_140px_54px_54px_54px_54px_54px_54px_64px_84px] gap-2 px-4 py-2 text-xs font-medium text-[var(--ds-gray-900)] border-b border-[var(--ds-gray-400)] bg-[var(--ds-gray-100)]">
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="shrink-0 grid grid-cols-[28px_36px_28px_1fr_140px_54px_54px_54px_54px_54px_54px_64px_84px] gap-2 px-4 py-2 text-xs font-medium text-[var(--ds-gray-900)] border-b border-[var(--ds-gray-400)] bg-[var(--ds-gray-100)]">
         <span />
         <span className="text-center tnum">#</span>
         <span className="text-center">SPR</span>
@@ -487,7 +481,7 @@ export function DexPage() {
         </button>
       </div>
 
-      <div ref={parentRef} className="flex-1 overflow-auto">
+      <div ref={parentRef} className={cn("flex-1 overflow-auto", selCount > 0 && "pb-[4.75rem]")}>
         <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
           {virtualizer.getVirtualItems().map((row) => {
             const f = filtered[row.index]!
@@ -502,16 +496,24 @@ export function DexPage() {
                 <input type="checkbox" checked={isSel} onChange={() => toggleSelect(f.id)} className="rounded" />
                 <span className="text-center tnum text-xs text-[var(--ds-gray-700)] tabular-nums">{row.index + 1}</span>
                 <SpriteThumb form={f} />
-                <Link
-                  to="/form/$formId"
-                  params={{ formId: f.id } as never}
-                  className="text-left truncate hover:underline font-medium"
-                  onClick={() => saveScroll()}
-                  title={f.id}
-                >
-                  {f.name}
-                  {f.traits.length > 0 && <span className="ml-1 text-xs text-[var(--ds-gray-700)]">[{f.traits.join(",")}]</span>}
-                </Link>
+                <span className="flex items-center gap-1 min-w-0">
+                  <StarButton
+                    className="h-6 w-6"
+                    active={has({ kind: "form", formId: f.id })}
+                    onToggle={() => toggle({ kind: "form", formId: f.id })}
+                    label={has({ kind: "form", formId: f.id }) ? t("bookmarks.remove") : t("bookmarks.add")}
+                  />
+                  <Link
+                    to="/form/$formId"
+                    params={{ formId: f.id } as never}
+                    className="text-left truncate hover:underline font-medium"
+                    onClick={() => saveScroll()}
+                    title={f.id}
+                  >
+                    {f.name}
+                    {f.traits.length > 0 && <span className="ml-1 text-xs text-[var(--ds-gray-700)]">[{f.traits.join(",")}]</span>}
+                  </Link>
+                </span>
                 <span className="flex gap-1">
                   {f.types.map((tt) => (
                     <LinkedTypeBadge key={tt} type={tt} />
@@ -540,6 +542,64 @@ export function DexPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {selCount > 0 && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center px-4 pb-3">
+          <div
+            role="status"
+            className="pointer-events-auto flex max-w-full items-center gap-3 rounded-lg border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)]/95 px-3 py-2 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-sm"
+          >
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: 4 }, (_, i) => {
+                const f = selectedForms[i]
+                if (!f) {
+                  return (
+                    <span
+                      key={`empty-${i}`}
+                      aria-hidden
+                      className="h-8 w-8 rounded-md border border-dashed border-[var(--ds-gray-400)] bg-[var(--ds-background-200)]"
+                    />
+                  )
+                }
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    title={t("dex.removeSelection")}
+                    onClick={() => toggleSelect(f.id)}
+                    className="relative h-8 w-8 overflow-hidden rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-gray-100)] hover:border-[var(--ds-red-700)]"
+                  >
+                    <SpriteThumb form={f} size={32} expandable={false} />
+                  </button>
+                )
+              })}
+            </div>
+            <span className="whitespace-nowrap text-xs text-[var(--ds-gray-900)]">
+              <span className="tnum font-medium text-[var(--ds-gray-1000)]">{selCount}</span>
+              {" "}{t("dex.selectedOf")} {t("dex.selected")}
+            </span>
+            <div className="flex items-center gap-1.5 border-l border-[var(--ds-gray-400)] pl-3">
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                {t("dex.clear")}
+              </Button>
+              <Button
+                size="sm"
+                disabled={selCount < 2}
+                title={selCount < 2 ? t("dex.compareNeedTwo") : t("dex.compare")}
+                onClick={(e) => goCompare(e)}
+                onContextMenu={(e) => {
+                  if (selCount < 2) return
+                  e.preventDefault()
+                  openLinkMenu(e.clientX, e.clientY, { pathname: "/compare", search: `?ids=${[...selected].join(",")}` })
+                }}
+              >
+                {t("dex.compare")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   )
