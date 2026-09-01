@@ -10,6 +10,8 @@ import { moveIdForName, type LoadedDataset } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
 import type { Form, MoveInfo } from "@/lib/domain/types"
 import { useI18n } from "@/lib/i18n"
+import { StarButton } from "@/components/ui/star"
+import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
 
 const CATEGORY_ICON: Record<string, string> = {
   Physical: "/sprites/category-physical.png",
@@ -81,6 +83,7 @@ export function MoveDetailPage() {
   const { back } = useWorkspace()
   const { data, loading } = useDataset()
   const { t } = useI18n()
+  const { has, toggle } = useBookmarks()
   const [showAllLearners, setShowAllLearners] = React.useState(false)
 
   const resolved = React.useMemo(() => (data ? resolveMove(data, moveId) : null), [data, moveId])
@@ -112,6 +115,11 @@ export function MoveDetailPage() {
             <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-3">
               {resolved.displayName}
               {info && <img src={CATEGORY_ICON[info.category]} alt={info.category} className="h-4 w-auto opacity-80" />}
+              <StarButton
+                active={has({ kind: "move", moveId })}
+                onToggle={() => toggle({ kind: "move", moveId })}
+                label={has({ kind: "move", moveId }) ? t("bookmarks.remove") : t("bookmarks.add")}
+              />
             </h1>
             <div className="mt-2 flex flex-wrap gap-2 items-center">
               {info && <LinkedTypeBadge type={info.type} />}

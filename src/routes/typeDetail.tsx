@@ -11,6 +11,8 @@ import type { TypeName } from "@/lib/domain/types"
 import { moveIdForName } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n } from "@/lib/i18n"
+import { StarButton } from "@/components/ui/star"
+import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
 
 const CATEGORY_ICON: Record<string, string> = {
   Physical: "/sprites/category-physical.png",
@@ -23,6 +25,7 @@ export function TypeDetailPage() {
   const { back } = useWorkspace()
   const { data, loading } = useDataset()
   const { t, typeName } = useI18n()
+  const { has, toggle } = useBookmarks()
 
   const valid = TYPE_NAMES.includes(typeId as TypeName)
   const tt = typeId as TypeName
@@ -72,6 +75,11 @@ export function TypeDetailPage() {
         </Button>
         <div className="flex items-center gap-4 flex-wrap">
           <span className={cn("inline-flex items-center justify-center rounded-md border h-11 px-5 text-lg font-bold tracking-wide uppercase", chip.solid)}>{typeName(tt)}</span>
+          <StarButton
+            active={has({ kind: "type", typeId: tt })}
+            onToggle={() => toggle({ kind: "type", typeId: tt })}
+            label={has({ kind: "type", typeId: tt }) ? t("bookmarks.remove") : t("bookmarks.add")}
+          />
           <div className="min-w-0">
             <h1 className="text-xl font-semibold tracking-tight">{t("typeDetail.title")}</h1>
             <p className="text-xs text-[var(--ds-gray-700)] mt-0.5">

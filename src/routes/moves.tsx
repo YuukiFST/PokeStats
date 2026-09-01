@@ -11,6 +11,8 @@ import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { moveIdForName } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
+import { StarButton } from "@/components/ui/star"
+import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
 
 export type MovesSearch = {
   q?: string
@@ -140,6 +142,7 @@ export function MovesPage() {
   const navigate = useNavigate({ from: "/moves" })
   const search = useSearch({ from: "/moves" }) as MovesSearch
   const { t, typeName } = useI18n()
+  const { has, toggle } = useBookmarks()
 
   const query = search.q ?? ""
   const sortBy = (search.sort as SortKey) ?? "power"
@@ -330,7 +333,8 @@ export function MovesPage() {
         </div>
       </div>
 
-      <div className="shrink-0 grid grid-cols-[minmax(180px,1fr)_92px_96px_64px_64px_48px_64px_96px_minmax(160px,1.4fr)] gap-2 px-4 py-2 text-xs font-medium text-[var(--ds-gray-900)] border-b border-[var(--ds-gray-400)] bg-[var(--ds-gray-100)]">
+      <div className="shrink-0 grid grid-cols-[28px_minmax(180px,1fr)_92px_96px_64px_64px_48px_64px_96px_minmax(160px,1.4fr)] gap-2 px-4 py-2 text-xs font-medium text-[var(--ds-gray-900)] border-b border-[var(--ds-gray-400)] bg-[var(--ds-gray-100)]">
+        <span />
         <button onClick={() => handleSort("name")} className="text-left hover:text-[var(--ds-gray-1000)] flex items-center">
           {t("dex.header.name")} <SortIndicator col="name" />
         </button>
@@ -362,28 +366,40 @@ export function MovesPage() {
           {virtualizer.getVirtualItems().map((row) => {
             const m = filtered[row.index]!
             const learners = extrasReady && learnsets ? (learnsets[moveIdForName(m.name)]?.length ?? 0) : 0
+            const moveId = moveIdForName(m.name)
+            const starred = has({ kind: "move", moveId })
             return (
-              <Link
+              <div
                 key={m.name}
-                to="/moves/$moveId"
-                params={{ moveId: moveIdForName(m.name) } as never}
-                onClick={() => saveScroll()}
                 style={{ position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${row.start}px)` }}
-                className="w-full text-left grid grid-cols-[minmax(180px,1fr)_92px_96px_64px_64px_48px_64px_96px_minmax(160px,1.4fr)] gap-2 px-4 py-1.5 items-center text-sm border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)]"
+                className="w-full grid grid-cols-[28px_minmax(180px,1fr)_92px_96px_64px_64px_48px_64px_96px_minmax(160px,1.4fr)] gap-2 px-4 py-1.5 items-center text-sm border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)]"
               >
-                <span className="font-medium truncate hover:underline">{m.name}</span>
-                <TypeBadge type={m.type} className="h-[20px]" />
-                <span className="flex items-center gap-1.5 text-xs text-[var(--ds-gray-700)]">
-                  <img src={CATEGORY_ICON[m.category]} alt="" className="h-2.5 w-auto opacity-80 shrink-0" />
-                  {m.category}
-                </span>
-                <span className="text-right tnum">{m.power ?? "—"}</span>
-                <span className="text-right tnum">{m.accuracy !== null ? `${m.accuracy}%` : "—"}</span>
-                <span className="text-right tnum">{m.pp ?? "—"}</span>
-                <span className="text-right tnum">{m.priority !== 0 ? (m.priority > 0 ? `+${m.priority}` : m.priority) : "—"}</span>
-                <span className="text-right tnum text-[var(--ds-gray-700)]">{extrasReady && learners > 0 ? learners : "—"}</span>
-                <span className="truncate text-xs text-[var(--ds-gray-700)]" title={m.shortDesc}>{m.shortDesc}</span>
-              </Link>
+                <StarButton
+                  className="h-6 w-6"
+                  active={starred}
+                  onToggle={() => toggle({ kind: "move", moveId })}
+                  label={starred ? t("bookmarks.remove") : t("bookmarks.add")}
+                />
+                <Link
+                  to="/moves/$moveId"
+                  params={{ moveId } as never}
+                  onClick={() => saveScroll()}
+                  className="contents text-left"
+                >
+                  <span className="font-medium truncate hover:underline">{m.name}</span>
+                  <TypeBadge type={m.type} className="h-[20px]" />
+                  <span className="flex items-center gap-1.5 text-xs text-[var(--ds-gray-700)]">
+                    <img src={CATEGORY_ICON[m.category]} alt="" className="h-2.5 w-auto opacity-80 shrink-0" />
+                    {m.category}
+                  </span>
+                  <span className="text-right tnum">{m.power ?? "—"}</span>
+                  <span className="text-right tnum">{m.accuracy !== null ? `${m.accuracy}%` : "—"}</span>
+                  <span className="text-right tnum">{m.pp ?? "—"}</span>
+                  <span className="text-right tnum">{m.priority !== 0 ? (m.priority > 0 ? `+${m.priority}` : m.priority) : "—"}</span>
+                  <span className="text-right tnum text-[var(--ds-gray-700)]">{extrasReady && learners > 0 ? learners : "—"}</span>
+                  <span className="truncate text-xs text-[var(--ds-gray-700)]" title={m.shortDesc}>{m.shortDesc}</span>
+                </Link>
+              </div>
             )
           })}
         </div>

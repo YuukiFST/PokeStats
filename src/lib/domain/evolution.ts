@@ -8,6 +8,21 @@
 import type { Form, FormId, Species } from "@/lib/domain/types"
 
 /**
+ * Alternate Forms of the Species that owns `formId` (Mega, Gmax, regional…).
+ * The Base Form is omitted: it lives on the evolution line, not in Formas.
+ * Includes the open Form when it is itself an alternate. Unknown formId → [].
+ */
+export function speciesForms(formId: FormId, formsById: Map<string, Form>, speciesById: Map<number, Species>): Form[] {
+  const form = formsById.get(formId)
+  if (!form) return []
+  const sp = speciesById.get(form.speciesId)
+  if (!sp) return []
+  return sp.formIds
+    .map((id) => formsById.get(id))
+    .filter((f): f is Form => f != null && !f.isBaseForm)
+}
+
+/**
  * Stages of the evolution line containing `startId`, root first. Each stage holds
  * the branch Forms evolving at that distance (e.g. Eevee's 8 in one stage).
  * Returns [] only when startId is not in the map; any known Form yields >= 1 stage.
