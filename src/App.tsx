@@ -13,9 +13,12 @@ import { FormDetailPage } from "@/routes/formDetail"
 import { ComparePage } from "@/routes/compare"
 import { TeamsPage } from "@/routes/teams"
 import { SettingsPage } from "@/routes/settings"
+import { FavoritesPage } from "@/routes/favorites"
 import { CommandPalette } from "@/hooks/usePalette"
 import { I18nProvider } from "@/lib/i18n"
 import { WorkspaceProvider } from "@/lib/workspace/WorkspaceProvider"
+import { BookmarksProvider } from "@/lib/bookmarks/BookmarksProvider"
+import { CobblemonEggProvider } from "@/lib/cobblemon/CobblemonEggProvider"
 
 export type DexSearch = {
   q?: string
@@ -32,10 +35,14 @@ export type DexSearch = {
 const rootRoute = createRootRoute({
   component: () => (
     <WorkspaceProvider>
-      <Shell>
-        <Outlet />
-      </Shell>
-      <CommandPalette />
+      <BookmarksProvider>
+        <CobblemonEggProvider>
+          <Shell>
+            <Outlet />
+          </Shell>
+          <CommandPalette />
+        </CobblemonEggProvider>
+      </BookmarksProvider>
     </WorkspaceProvider>
   ),
 })
@@ -122,6 +129,7 @@ const teamsRoute = createRoute({
   component: TeamsPage,
 })
 const settingsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/settings", component: SettingsPage })
+const favoritesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/favorites", component: FavoritesPage })
 const formRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/form/$formId",
@@ -144,6 +152,7 @@ const routeTree = rootRoute.addChildren([
   naturesRoute,
   teamsRoute,
   settingsRoute,
+  favoritesRoute,
   formRoute,
 ])
 // Router restores window scroll everywhere except the virtualized lists (Dex

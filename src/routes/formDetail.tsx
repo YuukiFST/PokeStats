@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { HelpTip } from "@/components/ui/helptip"
 import { calcBST } from "@/lib/utils"
 import { useI18n } from "@/lib/i18n"
+import { StarButton } from "@/components/ui/star"
+import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
 import { defensiveProfile as calcDef, weaknesses, resistances, immunities } from "@/lib/domain/typeChart"
 import { Sprite } from "@/components/ui/sprite"
 import { SetCard } from "@/components/sets/SetCard"
@@ -17,11 +19,74 @@ function fmtMult(v: number, pt: boolean): string {
   return `${pt ? s.replace(".", ",") : s}×`
 }
 
+function MatchupChip({ type, mult, pt, showMult }: { type: string; mult: number; pt: boolean; showMult: boolean }) {
+  const hot = mult > 1
+  const cold = mult > 0 && mult < 1
+  const none = mult === 0
+  const label =
+    none
+      ? "text-[var(--ds-gray-700)]"
+      : hot
+        ? mult >= 4
+          ? "text-red-300"
+          : "text-red-400"
+        : cold
+          ? "text-emerald-400"
+          : "text-[var(--ds-gray-700)]"
+  return (
+    <span className="inline-flex items-center gap-1">
+      <LinkedTypeBadge type={type} />
+      {showMult && (
+        <span className={`tnum text-[11px] font-semibold tabular-nums ${label}`}>{fmtMult(mult, pt)}</span>
+      )}
+    </span>
+  )
+}
+
+function MatchupPanel({
+  title,
+  count,
+  empty,
+  tone,
+  children,
+}: {
+  title: string
+  count: number
+  empty: string
+  tone: "weak" | "resist" | "immune"
+  children: React.ReactNode
+}) {
+  const shell =
+    tone === "weak"
+      ? "border-red-900/50 bg-red-950/20"
+      : tone === "resist"
+        ? "border-emerald-900/50 bg-emerald-950/20"
+        : "border-[var(--ds-gray-400)] bg-[var(--ds-background-100)]"
+  const heading =
+    tone === "weak" ? "text-red-400" : tone === "resist" ? "text-emerald-400" : "text-[var(--ds-gray-800)]"
+  const pill =
+    tone === "weak"
+      ? "bg-red-950/60 text-red-300"
+      : tone === "resist"
+        ? "bg-emerald-950/60 text-emerald-300"
+        : "bg-[var(--ds-gray-100)] text-[var(--ds-gray-800)]"
+  return (
+    <div className={`rounded-md border p-3 ${shell}`}>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className={`text-sm font-semibold ${heading}`}>{title}</h3>
+        <span className={`tnum min-w-[1.5rem] rounded-full px-1.5 py-0.5 text-center text-[11px] font-semibold ${pill}`}>{count}</span>
+      </div>
+      {count === 0 ? <p className="text-xs text-[var(--ds-gray-700)]">{empty}</p> : <div className="flex flex-wrap gap-x-2 gap-y-1.5">{children}</div>}
+    </div>
+  )
+}
+
 export function FormDetailPage() {
   const { formId } = useParams({ strict: false }) as { formId: string }
   const router = useRouter()
   const { back } = useWorkspace()
   const { t, lang, typeName } = useI18n()
+  const { has, toggle } = useBookmarks()
   const { data, loading } = useDataset()
   const search = useSearch({ from: "/form/$formId" })
   const activeTab: "stats" | "sets" = search.tab === "sets" ? "sets" : "stats"
@@ -90,7 +155,14 @@ export function FormDetailPage() {
             <div className="text-xs text-[var(--ds-gray-700)]">
               #{String(form.speciesId).padStart(4, "0")} • {species?.name ?? "—"} {form.isBaseForm ? "" : "• Form"}
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">{form.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight">{form.name}</h1>
+              <StarButton
+                active={has({ kind: "form", formId: form.id })}
+                onToggle={() => toggle({ kind: "form", formId: form.id })}
+                label={has({ kind: "form", formId: form.id }) ? t("bookmarks.remove") : t("bookmarks.add")}
+              />
+            </div>
             <div className="mt-2 flex flex-wrap gap-1.5 items-center">
               {form.types.map((tt) => (
                 <LinkedTypeBadge key={tt} type={tt} />
@@ -146,25 +218,26 @@ export function FormDetailPage() {
 
           <section className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-4">
             <h2 className="text-sm font-semibold mb-3">{t("detail.defensiveProfile")}</h2>
-            <div className="grid md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <div className="font-medium text-[var(--ds-red-700)] mb-1">{t("detail.weaknesses")} {weaks.length}</div>
-                <div className="flex flex-wrap gap-1">
-                  {weaks.length ? weaks.map((tt) => <LinkedTypeBadge key={tt} type={tt} />) : <span className="text-[var(--ds-gray-700)]">—</span>}
-                </div>
-              </div>
-              <div>
-                <div className="font-medium text-[var(--ds-green-700)] mb-1">{t("detail.resistances")} {resists.length}</div>
-                <div className="flex flex-wrap gap-1">
-                  {resists.length ? resists.map((tt) => <LinkedTypeBadge key={tt} type={tt} />) : <span className="text-[var(--ds-gray-700)]">—</span>}
-                </div>
-              </div>
-              <div>
-                <div className="font-medium text-[var(--ds-gray-700)] mb-1">{t("detail.immunities")} {immuns.length}</div>
-                <div className="flex flex-wrap gap-1">
-                  {immuns.length ? immuns.map((tt) => <LinkedTypeBadge key={tt} type={tt} />) : <span className="text-[var(--ds-gray-700)]">—</span>}
-                </div>
-              </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <MatchupPanel title={t("detail.weaknesses")} count={weaks.length} empty={t("detail.matchupNone")} tone="weak">
+                {[...weaks]
+                  .sort((a, b) => def[b]! - def[a]!)
+                  .map((tt) => (
+                    <MatchupChip key={tt} type={tt} mult={def[tt]!} pt={lang === "pt-BR"} showMult />
+                  ))}
+              </MatchupPanel>
+              <MatchupPanel title={t("detail.resistances")} count={resists.length} empty={t("detail.matchupNone")} tone="resist">
+                {[...resists]
+                  .sort((a, b) => def[a]! - def[b]!)
+                  .map((tt) => (
+                    <MatchupChip key={tt} type={tt} mult={def[tt]!} pt={lang === "pt-BR"} showMult />
+                  ))}
+              </MatchupPanel>
+              <MatchupPanel title={t("detail.immunities")} count={immuns.length} empty={t("detail.matchupNone")} tone="immune">
+                {immuns.map((tt) => (
+                  <MatchupChip key={tt} type={tt} mult={0} pt={lang === "pt-BR"} showMult={false} />
+                ))}
+              </MatchupPanel>
             </div>
             <div className="mt-4 text-xs text-[var(--ds-gray-700)] mb-2">{t("detail.gridCaption")}</div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5">
