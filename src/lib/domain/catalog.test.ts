@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { itemIdForName, itemKindFromShowdown, setsUsingItem } from "./items"
+import { countSetsByHeldItem, itemIdForName, itemKindFromShowdown, setsUsingItem } from "./items"
 import { natureAt, natureCellStats, natureFactor, NATURES } from "./natures"
 import { matchupBands, offensiveBands } from "./typeChart"
 
@@ -41,6 +41,23 @@ describe("setsUsingItem", () => {
       { formId: "c", dexGen: "sv" as const, formatId: "gen9ou", name: "C", moves: [], item: "Life Orb" },
     ]
     expect(setsUsingItem(sets, "Leftovers").map((s) => s.name)).toEqual(["A", "B"])
+  })
+
+  it("counts a Set once when the primary item is also listed in options", () => {
+    const sets = [
+      {
+        formId: "a",
+        dexGen: "sv" as const,
+        formatId: "gen9ou",
+        name: "A",
+        moves: [],
+        item: "Leftovers",
+        itemOptions: ["Leftovers", "Heavy-Duty Boots"],
+      },
+    ]
+    const counts = countSetsByHeldItem(sets)
+    expect(counts.get("Leftovers")).toBe(1)
+    expect(counts.get("Heavy-Duty Boots")).toBe(1)
   })
 })
 

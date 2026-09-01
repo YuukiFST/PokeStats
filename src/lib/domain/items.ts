@@ -47,3 +47,15 @@ export function itemIdForName(name: string): string {
 export function setsUsingItem(sets: Set[], name: string): Set[] {
   return sets.filter((s) => s.item === name || s.itemOptions?.includes(name))
 }
+
+/** One increment per Set that holds the item in any slot. Primary is often duplicated in `itemOptions`. */
+export function countSetsByHeldItem(sets: Set[]): Map<string, number> {
+  const counts = new Map<string, number>()
+  for (const s of sets) {
+    const names = new Set<string>()
+    if (s.item) names.add(s.item)
+    if (s.itemOptions) for (const n of s.itemOptions) names.add(n)
+    for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1)
+  }
+  return counts
+}

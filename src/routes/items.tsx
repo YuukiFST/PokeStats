@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { ItemIcon } from "@/components/ui/itemIcon"
 import { HelpTip } from "@/components/ui/helptip"
 import { cn } from "@/lib/utils"
-import { ITEM_KINDS, itemIdForName } from "@/lib/domain/items"
+import { countSetsByHeldItem, ITEM_KINDS, itemIdForName } from "@/lib/domain/items"
 import type { ItemKind } from "@/lib/domain/types"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
@@ -57,13 +57,7 @@ export function ItemsPage() {
 
   const usedCounts = React.useMemo(() => {
     if (!data || !extrasReady) return null
-    const counts = new Map<string, number>()
-    const bump = (name: string) => counts.set(name, (counts.get(name) ?? 0) + 1)
-    for (const s of data.sets.sets) {
-      if (s.item) bump(s.item)
-      if (s.itemOptions) for (const n of s.itemOptions) bump(n)
-    }
-    return counts
+    return countSetsByHeldItem(data.sets.sets)
   }, [data, extrasReady])
 
   const kind = ITEM_KINDS.includes(search.kind as ItemKind) ? (search.kind as ItemKind) : null
