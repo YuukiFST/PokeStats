@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { itemIdForName, itemKindFromShowdown, setsUsingItem } from "./items"
-import { natureAt, natureCellStats, NATURES } from "./natures"
+import { natureAt, natureCellStats, natureFactor, NATURES } from "./natures"
 import { matchupBands, offensiveBands } from "./typeChart"
 
 describe("itemKindFromShowdown", () => {
@@ -56,6 +56,22 @@ describe("natureAt", () => {
       const cell = natureCellStats(n)
       expect(cell).not.toBeNull()
       expect(natureAt(cell!.plus, cell!.minus)?.name).toBe(n.name)
+    }
+  })
+})
+
+describe("natureFactor", () => {
+  it("Timid is +Spe −Atk", () => {
+    const timid = NATURES.find((n) => n.name === "Timid")!
+    expect(natureFactor(timid, "spe")).toBe(1.1)
+    expect(natureFactor(timid, "atk")).toBe(0.9)
+    expect(natureFactor(timid, "spa")).toBe(1)
+    expect(natureFactor(timid, "hp")).toBe(1)
+  })
+  it("Hardy is 1.0 on every stat", () => {
+    const hardy = NATURES.find((n) => n.name === "Hardy")!
+    for (const stat of ["hp", "atk", "def", "spa", "spd", "spe"] as const) {
+      expect(natureFactor(hardy, stat)).toBe(1)
     }
   })
 })

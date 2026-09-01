@@ -180,6 +180,17 @@ export function ItemsPage() {
         </div>
       </div>
 
+      <div className="shrink-0 grid grid-cols-[32px_minmax(0,200px)_88px_1fr_96px] gap-2 items-center px-4 py-1.5 border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] text-[10px] uppercase tracking-wide font-semibold text-[var(--ds-gray-700)]">
+        <span />
+        <span>{t("items.colItem")}</span>
+        <span>{t("items.colKind")}</span>
+        <span>{t("items.colEffect")}</span>
+        <span className="text-right inline-flex items-center justify-end gap-1 normal-case tracking-normal">
+          {t("items.colSets")}
+          <HelpTip text={t("items.setsHelp")} />
+        </span>
+      </div>
+
       {filtered.length === 0 ? (
         <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("items.noMatch")}</div>
       ) : (
@@ -187,21 +198,28 @@ export function ItemsPage() {
           <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
             {virtualizer.getVirtualItems().map((row) => {
               const it = filtered[row.index]!
-              const usedCount = usedCounts?.get(it.name) ?? null
+              const usedCount = usedCounts?.get(it.name) ?? 0
               return (
                 <Link
                   key={it.name}
                   to="/items/$itemId"
                   params={{ itemId: itemIdForName(it.name) } as never}
                   style={{ position: "absolute", top: 0, left: 0, width: "100%", height: row.size, transform: `translateY(${row.start}px)` }}
-                  className="grid grid-cols-[32px_minmax(0,220px)_88px_1fr_72px] gap-2 items-center px-4 border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)]"
+                  className="grid grid-cols-[32px_minmax(0,200px)_88px_1fr_96px] gap-2 items-center px-4 border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)]"
                 >
                   <ItemIcon item={it} />
                   <span className="truncate font-medium text-sm">{it.name}</span>
                   <Badge className="justify-center text-[10px]">{t(KIND_KEY[it.kind])}</Badge>
                   <span className="truncate text-xs text-[var(--ds-gray-700)]">{it.shortDesc}</span>
                   <span className="text-right tnum text-xs text-[var(--ds-gray-700)]">
-                    {usedCount === null ? "…" : usedCount > 0 ? usedCount : "—"}
+                    {usedCount > 0 ? (
+                      <>
+                        <span className="font-medium text-[var(--ds-gray-1000)]">{usedCount}</span>
+                        <span className="ml-1">{t("items.setsUnit")}</span>
+                      </>
+                    ) : (
+                      <span className="text-[var(--ds-gray-500)]">—</span>
+                    )}
                   </span>
                 </Link>
               )

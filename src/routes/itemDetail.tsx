@@ -65,6 +65,11 @@ export function ItemDetailPage() {
               <Badge>{t(KIND_KEY[item.kind])}</Badge>
               {item.gen !== null && <Badge>Gen {item.gen}</Badge>}
               {item.isNonstandard && <Badge>{item.isNonstandard}</Badge>}
+              {extrasReady ? (
+                <span className="text-xs text-[var(--ds-gray-700)] tnum">
+                  {uses.length} {t("items.setsUnit")}
+                </span>
+              ) : null}
               <span className="text-xs text-[var(--ds-gray-700)] font-mono">{itemIdForName(item.name)}</span>
             </div>
             <p className="mt-3 max-w-[760px] text-sm text-[var(--ds-gray-900)]">{item.desc}</p>
@@ -75,7 +80,9 @@ export function ItemDetailPage() {
         <section className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--ds-gray-300)] flex items-center justify-between">
             <h2 className="text-sm font-semibold">{t("items.usedBy")}</h2>
-            <span className="text-xs text-[var(--ds-gray-700)] tnum">{extrasReady ? uses.length : "…"}</span>
+            <span className="text-xs text-[var(--ds-gray-700)] tnum">
+              {extrasReady ? `${uses.length} ${t("items.setsUnit")}` : t("detail.loading")}
+            </span>
           </div>
           <SetUseList sets={uses} extrasReady={extrasReady} empty={t("items.noSets")} />
         </section>

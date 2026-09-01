@@ -15,6 +15,27 @@ export function Badge({ className, ...props }: React.HTMLAttributes<HTMLSpanElem
 }
 
 /** Solid chip look per type — single source shared by TypeBadge and the Dex filter chips. */
+export const TYPE_HEX: Record<string, string> = {
+  Normal: "#9aa0a6",
+  Fire: "#e85d26",
+  Water: "#4a90e2",
+  Electric: "#f5c518",
+  Grass: "#4caf50",
+  Ice: "#7ec8c0",
+  Fighting: "#c03028",
+  Poison: "#9c27b0",
+  Ground: "#c19a6b",
+  Flying: "#90a4ae",
+  Psychic: "#f06292",
+  Bug: "#8bc34a",
+  Rock: "#b0a082",
+  Ghost: "#6756a5",
+  Dragon: "#5865d6",
+  Dark: "#5d4037",
+  Steel: "#78909c",
+  Fairy: "#ffb6d9",
+}
+
 export const TYPE_CHIP: Record<string, { solid: string; soft: string }> = {
   Normal: { solid: "bg-[#9aa0a6] text-white border-[#9aa0a6]", soft: "bg-[#9aa0a6]/15 text-[#9aa0a6] border-[#9aa0a6]/50" },
   Fire: { solid: "bg-[#e85d26] text-white border-[#e85d26]", soft: "bg-[#e85d26]/15 text-[#e85d26] border-[#e85d26]/50" },

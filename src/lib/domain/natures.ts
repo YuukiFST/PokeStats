@@ -62,3 +62,11 @@ export function natureCellStats(n: NatureInfo): { plus: StatKey; minus: StatKey 
 export function setsUsingNature(sets: Set[], name: string): Set[] {
   return sets.filter((s) => s.nature === name)
 }
+
+/** Nature modifier on a combat stat. HP is always 1. */
+export function natureFactor(n: NatureInfo, stat: StatKey): 1 | 1.1 | 0.9 {
+  if (stat === "hp") return 1
+  if (n.plus === stat) return 1.1
+  if (n.minus === stat) return 0.9
+  return 1
+}
