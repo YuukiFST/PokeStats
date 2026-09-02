@@ -12,6 +12,7 @@ import { WorkspaceProvider } from "@/lib/workspace/WorkspaceProvider"
 import { BookmarksProvider } from "@/lib/bookmarks/BookmarksProvider"
 import { CobblemonEggProvider } from "@/lib/cobblemon/CobblemonEggProvider"
 import { signalWhenPainted } from "@/lib/boot/shellReady"
+import { loadDataset } from "@/lib/dataset/load"
 
 export type { DexSearch }
 
@@ -28,6 +29,30 @@ const SettingsPage = React.lazy(() => import("@/routes/settings").then((m) => ({
 const FavoritesPage = React.lazy(() => import("@/routes/favorites").then((m) => ({ default: m.FavoritesPage })))
 const FormDetailPage = React.lazy(() => import("@/routes/formDetail").then((m) => ({ default: m.FormDetailPage })))
 const CommandPalette = React.lazy(() => import("@/hooks/usePalette").then((m) => ({ default: m.CommandPalette })))
+
+const ROUTE_CHUNKS: Array<() => Promise<unknown>> = [
+  () => import("@/routes/moves"),
+  () => import("@/routes/types"),
+  () => import("@/routes/items"),
+  () => import("@/routes/natures"),
+  () => import("@/routes/formDetail"),
+  () => import("@/routes/moveDetail"),
+  () => import("@/routes/typeDetail"),
+  () => import("@/routes/itemDetail"),
+  () => import("@/routes/compare"),
+  () => import("@/routes/teams"),
+  () => import("@/routes/favorites"),
+  () => import("@/routes/settings"),
+]
+
+function prewarmRouteChunks(): void {
+  const run = () => {
+    for (const load of ROUTE_CHUNKS) void load().catch(() => {})
+  }
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }
+  if (typeof w.requestIdleCallback === "function") w.requestIdleCallback(run, { timeout: 4000 })
+  else window.setTimeout(run, 1500)
+}
 
 function DeferredPalette() {
   const [ready, setReady] = React.useState(false)
@@ -193,9 +218,11 @@ export function App() {
     document.documentElement.classList.toggle("dark", saved === "dark")
     console.log(`[perf] first paint ${performance.now().toFixed(1)}ms`)
     signalWhenPainted("[data-boot-content]")
+    void loadDataset().then(prewarmRouteChunks)
     const unsub = router.subscribe("onResolved", (e) => {
       const to = (e as unknown as { toLocation?: { pathname?: string } }).toLocation?.pathname ?? "unknown"
       console.log(`[perf] route -> ${to} @ ${performance.now().toFixed(1)}ms`)
+      requestAnimationFrame(() => console.log(`[perf] route painted ${to} @ ${performance.now().toFixed(1)}ms`))
     })
     return () => unsub()
   }, [])

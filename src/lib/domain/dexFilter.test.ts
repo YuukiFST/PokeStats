@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { collapseSpecies, formMatchesSelectedTypes, sortForms } from "./dexFilter"
+import { collapseSpecies, formMatchesSelectedTypes, sortForms, sortFormsCached } from "./dexFilter"
 import type { Form } from "./types"
 
 describe("formMatchesSelectedTypes", () => {
@@ -77,5 +77,30 @@ describe("collapseSpecies", () => {
 
   it("keeps a single-Form Species and preserves input order", () => {
     expect(collapseSpecies([other, base]).map((f) => f.id)).toEqual(["pikachu", "base"])
+  })
+})
+
+describe("sortFormsCached", () => {
+  const a = form({ id: "a", speciesId: 1, name: "Abra", baseStats: { hp: 1, atk: 1, def: 1, spa: 1, spd: 1, spe: 10 } })
+  const z = form({ id: "z", speciesId: 2, name: "Zapdos", baseStats: { hp: 10, atk: 10, def: 10, spa: 10, spd: 10, spe: 90 } })
+  const forms = [z, a]
+
+  it("returns the same array reference for the same forms array and key", () => {
+    const first = sortFormsCached(forms, "name", "asc")
+    const second = sortFormsCached(forms, "name", "asc")
+    expect(second).toBe(first)
+  })
+
+  it("returns a different array for a different sort key", () => {
+    const byName = sortFormsCached(forms, "name", "asc")
+    const bySpe = sortFormsCached(forms, "spe", "desc")
+    expect(bySpe).not.toBe(byName)
+  })
+
+  it("does not share cache across a copied forms array", () => {
+    const copy = [...forms]
+    const orig = sortFormsCached(forms, "name", "asc")
+    const fromCopy = sortFormsCached(copy, "name", "asc")
+    expect(fromCopy).not.toBe(orig)
   })
 })

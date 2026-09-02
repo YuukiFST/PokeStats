@@ -33,7 +33,11 @@ export interface LoadedDataset {
   itemsById: Map<string, ItemInfo>
   abilitiesByName: Map<string, AbilityInfo>
   naturesByName: Map<string, NatureInfo>
+  /** Built with extras; empty until sets.json is applied. */
+  setsByFormId: Map<string, DatasetSets["sets"][number][]>
 }
+
+type IndexedDataset = Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady" | "setsByFormId">
 
 type EarlyWindow = Window & {
   __POKESTATS_DEX__?: Promise<DatasetDex>
@@ -66,7 +70,7 @@ function emptyMaps(): Pick<
 }
 
 /** Forms + species maps only — Dex first paint. Catalog maps stay empty. */
-export function indexDex(dex: DatasetDex): Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady"> {
+export function indexDex(dex: DatasetDex): IndexedDataset {
   const formsById = new Map(dex.forms.map((f) => [f.id, f] as const))
   const speciesById = new Map(dex.species.map((s) => [s.id, s] as const))
   return {
@@ -80,9 +84,9 @@ export function indexDex(dex: DatasetDex): Omit<LoadedDataset, "sets" | "learnse
 
 /** Merge moves/items/… into a dex-indexed dataset. Reuses formsById / speciesById. */
 export function applyCatalog(
-  indexed: Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady">,
+  indexed: IndexedDataset,
   catalog: DatasetCatalog,
-): Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady"> {
+): IndexedDataset {
   return {
     ...indexed,
     core: { ...indexed.core, ...catalog },
@@ -96,17 +100,23 @@ export function applyCatalog(
   }
 }
 
-export function indexCore(core: DatasetCore): Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady"> {
+export function indexCore(core: DatasetCore): IndexedDataset {
   return applyCatalog(indexDex(core), core)
 }
 
 export function withExtras(
-  indexed: Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady">,
+  indexed: IndexedDataset,
   sets: DatasetSets,
   learnsets: LearnsetsArtifact,
   extrasReady: boolean,
 ): LoadedDataset {
-  return { ...indexed, sets, learnsets, extrasReady }
+  const setsByFormId = new Map<string, DatasetSets["sets"][number][]>()
+  for (const s of sets.sets) {
+    const arr = setsByFormId.get(s.formId)
+    if (arr) arr.push(s)
+    else setsByFormId.set(s.formId, [s])
+  }
+  return { ...indexed, sets, learnsets, extrasReady, setsByFormId }
 }
 
 let cache: LoadedDataset | null = null

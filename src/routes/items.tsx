@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { countSetsByHeldItem, ITEM_KINDS, itemIdForName } from "@/lib/domain/items"
 import type { ItemKind } from "@/lib/domain/types"
 import { useDataset } from "@/hooks/useDataset"
+import { useRestoredScroll } from "@/hooks/useRestoredScroll"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 
 export type ItemsSearch = {
@@ -81,29 +82,14 @@ export function ItemsPage() {
   }, [data, search.q, deferredQuery, kind, usedOnly, usedCounts])
 
   const parentRef = React.useRef<HTMLDivElement>(null)
+  const { initialOffset } = useRestoredScroll(parentRef, SCROLL_KEY, !loading && catalogReady)
   const virtualizer = useVirtualizer({
     count: filtered.length,
     getScrollElement: () => parentRef.current,
     estimateSize: React.useCallback(() => 44, []),
     overscan: 12,
+    initialOffset,
   })
-
-  const restoredRef = React.useRef(false)
-  React.useEffect(() => {
-    const el = parentRef.current
-    if (!el) return
-    if (!restoredRef.current && !loading && catalogReady) {
-      restoredRef.current = true
-      const raw = sessionStorage.getItem(SCROLL_KEY)
-      const top = raw === null ? NaN : Number(raw)
-      if (!Number.isNaN(top)) {
-        requestAnimationFrame(() => requestAnimationFrame(() => { el.scrollTop = top }))
-      }
-    }
-    const onScroll = () => sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
-    el.addEventListener("scroll", onScroll, { passive: true })
-    return () => el.removeEventListener("scroll", onScroll)
-  }, [loading, catalogReady])
 
   if (loading || !catalogReady) {
     return (

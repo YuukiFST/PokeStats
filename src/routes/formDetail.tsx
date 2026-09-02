@@ -111,9 +111,17 @@ export function FormDetailPage() {
     back()
   }, [back])
 
+  const form = data?.formsById.get(formId)
+  const sets = React.useMemo(() => data?.setsByFormId.get(form?.id ?? "") ?? [], [data, form?.id])
+  const gens = React.useMemo(() => [...new Set(sets.map((s) => s.dexGen))].sort(), [sets])
+  const fmts = React.useMemo(() => [...new Set(sets.map((s) => s.formatId))].sort(), [sets])
+  const filteredSets = React.useMemo(
+    () => sets.filter((s) => (filterGen === "all" || s.dexGen === filterGen) && (filterFmt === "all" || s.formatId === filterFmt)),
+    [sets, filterGen, filterFmt],
+  )
+
   if (loading || !data) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
 
-  const form = data.formsById.get(formId)
   if (!form) {
     return (
       <div className="p-8 space-y-3">
@@ -134,15 +142,6 @@ export function FormDetailPage() {
   const weaks = weaknesses(def as never)
   const resists = resistances(def as never)
   const immuns = immunities(def as never)
-
-  const sets = data.sets.sets.filter((s) => s.formId === form.id)
-  const gens = [...new Set(sets.map((s) => s.dexGen))].sort()
-  const fmts = [...new Set(sets.map((s) => s.formatId))].sort()
-  const filteredSets = sets.filter((s) => {
-    if (filterGen !== "all" && s.dexGen !== filterGen) return false
-    if (filterFmt !== "all" && s.formatId !== filterFmt) return false
-    return true
-  })
 
   return (
     <div className="flex flex-col">

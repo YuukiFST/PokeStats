@@ -10,6 +10,7 @@ import type { MoveCategory, MoveInfo } from "@/lib/domain/types"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { moveIdForName } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
+import { useRestoredScroll } from "@/hooks/useRestoredScroll"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { StarButton } from "@/components/ui/star"
 import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
@@ -228,6 +229,7 @@ export function MovesPage() {
   }, [deferredQuery, query, navigate])
 
   const moves = React.useMemo(() => data?.core.moves ?? [], [data?.core.moves])
+  const moveIdOf = React.useMemo(() => new Map(moves.map((m) => [m.name, moveIdForName(m.name)] as const)), [moves])
   const learnsets = data?.learnsets
   const extrasReady = data?.extrasReady ?? false
 
@@ -256,7 +258,7 @@ export function MovesPage() {
     if (selectedType) out = out.filter((m) => m.type === selectedType)
     if (selectedCategory) out = out.filter((m) => m.category === selectedCategory)
     const dir = sortDir === "asc" ? 1 : -1
-    const learnersOf = (name: string): number => learnsets?.[moveIdForName(name)]?.length ?? 0
+    const learnersOf = (name: string): number => learnsets?.[moveIdOf.get(name)!]?.length ?? 0
     out = [...out].sort((a, b) => {
       let av: number | string | null
       let bv: number | string | null
@@ -279,36 +281,17 @@ export function MovesPage() {
       return (av - (bv as number)) * dir
     })
     return out
-  }, [moves, search.q, deferredQuery, selectedType, selectedCategory, sortBy, sortDir, learnsets, extrasReady])
+  }, [moves, search.q, deferredQuery, selectedType, selectedCategory, sortBy, sortDir, learnsets, extrasReady, moveIdOf])
 
   const parentRef = React.useRef<HTMLDivElement>(null)
+  const { initialOffset } = useRestoredScroll(parentRef, SCROLL_KEY, !loading && catalogReady)
   const virtualizer = useVirtualizer({
     count: filtered.length,
     getScrollElement: () => parentRef.current,
     estimateSize: React.useCallback(() => 36, []),
     overscan: 10,
+    initialOffset,
   })
-
-  // Virtualized inner scroller owns its own save/restore; the router's window
-  // restoration is disabled for "/moves" (App.tsx). Keyed on `loading` because
-  // the skeleton swaps the element out — refs are null until data renders.
-  const restoredRef = React.useRef(false)
-  React.useEffect(() => {
-    const el = parentRef.current
-    if (!el) return
-    if (!restoredRef.current && !loading && catalogReady) {
-      restoredRef.current = true
-      const raw = sessionStorage.getItem(SCROLL_KEY)
-      const top = raw === null ? NaN : Number(raw)
-      if (!Number.isNaN(top)) {
-        // double rAF: let the virtualizer lay out rows before jumping
-        requestAnimationFrame(() => requestAnimationFrame(() => { el.scrollTop = top }))
-      }
-    }
-    const onScroll = () => sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
-    el.addEventListener("scroll", onScroll, { passive: true })
-    return () => el.removeEventListener("scroll", onScroll)
-  }, [loading, catalogReady])
 
   if (loading || !catalogReady) {
     return (
@@ -407,7 +390,7 @@ export function MovesPage() {
         <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
           {virtualizer.getVirtualItems().map((row) => {
             const m = filtered[row.index]!
-            const moveId = moveIdForName(m.name)
+            const moveId = moveIdOf.get(m.name)!
             const learners = extrasReady && learnsets ? (learnsets[moveId]?.length ?? 0) : null
             return (
               <MoveRow

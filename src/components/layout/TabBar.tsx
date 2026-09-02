@@ -1,6 +1,5 @@
 import * as React from "react"
 import { useDataset } from "@/hooks/useDataset"
-import { moveIdForName } from "@/lib/dataset/load"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { CloseIcon, PlusIcon } from "@/components/ui/icons"
@@ -32,7 +31,7 @@ function useTabMeta(loc: LocationSnapshot): { label: string; glyph: React.ReactN
   const moveMatch = loc.pathname.match(/^\/moves\/([^/]+)$/)
   if (moveMatch) {
     const id = decodeURIComponent(moveMatch[1]!)
-    const found = data?.core.moves.find((m) => moveIdForName(m.name) === id)
+    const found = data?.movesById.get(id)
     return { label: found?.name ?? fallback, glyph: <span className="text-[13px] leading-none opacity-80">✦</span> }
   }
   const itemMatch = loc.pathname.match(/^\/items\/([^/]+)$/)
