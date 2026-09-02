@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { buildSmartCounterIndex, representativeSet, suggestSmartCounters } from "./smartCounters"
+import { buildSmartCounterIndex, getSmartCounterIndex, scoreSmartCounters, representativeSet, suggestSmartCounters } from "./smartCounters"
 import { BULKWORM, BULKWORM_SET, FRAILBIRD, GOLDEN_MOVES, NATURES, OPP, OPP_SET, makeForm } from "./testFixtures"
+import { windowByBst } from "./recommend"
 import type { Form, Set } from "./types"
 
 function index(): ReturnType<typeof buildSmartCounterIndex> {
@@ -89,5 +90,28 @@ describe("suggestSmartCounters (golden: frail bird must not top a Ground+Rock co
     const result = suggestSmartCounters(OPP, idx, forms, new Set(["sandlord"]))
     const byId = new Map(result.map((r) => [r.form.id, r.score]))
     expect(byId.get("ouworm")! - byId.get("puworm")!).toBeCloseTo(0.3, 6)
+  })
+})
+
+describe("scoreSmartCounters / getSmartCounterIndex", () => {
+  it("scoreSmartCounters plus windowByBst matches suggestSmartCounters", () => {
+    const forms = [FRAILBIRD, BULKWORM, OPP] as Form[]
+    const idx = index()
+    const exclude = new Set(["sandlord"])
+    const opts = { limit: 1, offset: 1 }
+    expect(windowByBst(scoreSmartCounters(OPP, idx, forms, exclude), opts)).toEqual(
+      suggestSmartCounters(OPP, idx, forms, exclude, opts),
+    )
+  })
+
+  it("caches the index on the Sets array identity", () => {
+    const forms = [OPP, FRAILBIRD, BULKWORM] as Form[]
+    const sets = [OPP_SET, BULKWORM_SET] as Set[]
+    const moves = new Map(Object.entries(GOLDEN_MOVES))
+    const natures = new Map(Object.entries(NATURES))
+    const first = getSmartCounterIndex(forms, sets, moves, natures)
+    const second = getSmartCounterIndex(forms, sets, moves, natures)
+    expect(second).toBe(first)
+    expect(getSmartCounterIndex(forms, [...sets], moves, natures)).not.toBe(first)
   })
 })

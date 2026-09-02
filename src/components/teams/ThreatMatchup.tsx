@@ -7,8 +7,8 @@ import { Sprite, SpriteThumb } from "@/components/ui/sprite"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { calcBST, cn } from "@/lib/utils"
 import { recommendAttackTypes, memberMatchup } from "@/lib/domain/matchup"
-import { suggestCounters } from "@/lib/domain/recommend"
-import { buildSmartCounterIndex, suggestSmartCounters, type SmartFormSuggestion } from "@/lib/domain/smartCounters"
+import { scoreCounters, windowByBst } from "@/lib/domain/recommend"
+import { getSmartCounterIndex, scoreSmartCounters, type SmartCounterIndex, type SmartFormSuggestion } from "@/lib/domain/smartCounters"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import type { LoadedDataset } from "@/lib/dataset/load"
 import type { Form, Team, TypeName } from "@/lib/domain/types"
@@ -103,6 +103,190 @@ function CounterCard({
   )
 }
 
+interface OpponentCardProps {
+  opp: Form
+  members: Form[]
+  excludeIds: ReadonlySet<string>
+  forms: Form[]
+  counterMode: CounterMode
+  extrasReady: boolean
+  smartIndex: SmartCounterIndex | null
+  pins: ReadonlySet<string> | undefined
+  offset: number
+  extraTypes: ReadonlySet<TypeName>
+  ptBR: boolean
+  onRemove: (oppId: string) => void
+  onPin: (oppId: string, formId: string) => void
+  onRotate: (oppId: string) => void
+}
+
+const OpponentCard = React.memo(function OpponentCard(p: OpponentCardProps) {
+  const { t, typeName } = useI18n()
+  const oppTypes = p.opp.types as unknown as TypeName[]
+  const { recommended, avoid } = React.useMemo(() => recommendAttackTypes(oppTypes), [oppTypes])
+  const matchups = React.useMemo(
+    () => p.members.map((m) => memberMatchup(m.types as unknown as TypeName[], oppTypes, m.id)),
+    [p.members, oppTypes],
+  )
+  const edgeCount = matchups.filter((mm) => mm.bestStabMult >= 2).length
+
+  const datasetScored = React.useMemo(
+    () => (p.counterMode === "dataset" ? scoreCounters(oppTypes, p.forms, p.excludeIds) : null),
+    [p.counterMode, oppTypes, p.forms, p.excludeIds],
+  )
+  const smartScored = React.useMemo(
+    () => (p.counterMode === "smart" && p.smartIndex ? scoreSmartCounters(p.opp, p.smartIndex, p.forms, p.excludeIds) : null),
+    [p.counterMode, p.opp, p.smartIndex, p.forms, p.excludeIds],
+  )
+  const windowOpts = React.useMemo(() => ({ offset: p.offset, pinnedIds: p.pins }), [p.offset, p.pins])
+  const datasetCounters = React.useMemo(() => (datasetScored ? windowByBst(datasetScored, windowOpts) : null), [datasetScored, windowOpts])
+  const smartCounters = React.useMemo(() => (smartScored ? windowByBst(smartScored, windowOpts) : null), [smartScored, windowOpts])
+
+  return (
+    <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-4 space-y-4">
+      <div className="flex items-center gap-3">
+        <Sprite form={p.opp} size="sm" />
+        <div className="min-w-0">
+          <Link to="/form/$formId" params={{ formId: p.opp.id } as never} className="font-semibold text-sm hover:underline block truncate">
+            {p.opp.name}
+          </Link>
+          <div className="flex gap-1 mt-0.5">
+            {(p.opp.types as string[]).map((tt) => (
+              <LinkedTypeBadge key={tt} type={tt} />
+            ))}
+          </div>
+        </div>
+        <button onClick={() => p.onRemove(p.opp.id)} className="ml-auto text-xs text-[var(--ds-gray-700)] hover:text-[var(--ds-red-700)]" aria-label={t("teams.remove")}>
+          ✕
+        </button>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <div className="text-xs font-medium mb-1.5 text-green-500">{t("matchup.recommended")}</div>
+          <div className="flex flex-wrap gap-1">
+            {recommended.map((r) => (
+              <span
+                key={r.type}
+                title={`${typeName(r.type)}: ${fmtMult(r.mult, p.ptBR)}`}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold",
+                  TYPE_CHIP[r.type]?.soft,
+                  p.extraTypes.has(r.type) && "ring-2 ring-offset-1 ring-offset-[var(--ds-background-200)] ring-[var(--ds-gray-1000)]",
+                )}
+              >
+                <span className="uppercase tracking-wide">{typeName(r.type)}</span>
+                <span className="tnum font-normal opacity-80">{fmtMult(r.mult, p.ptBR)}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs font-medium mb-1.5 text-red-400">{t("matchup.avoid")}</div>
+          <div className="flex flex-wrap gap-1 opacity-70">
+            {avoid.map((r) => (
+              <span
+                key={r.type}
+                title={`${typeName(r.type)}: ${fmtMult(r.mult, p.ptBR)}`}
+                className={cn("inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold", TYPE_CHIP[r.type]?.soft)}
+              >
+                <span className="uppercase tracking-wide line-through decoration-1">{typeName(r.type)}</span>
+                <span className="tnum font-normal opacity-80">{fmtMult(r.mult, p.ptBR)}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div className="text-xs font-medium mb-1">
+          {t("matchup.membersVs")} · <span className="font-normal text-[var(--ds-gray-700)]">{t("matchup.edge")}: {edgeCount}/{p.members.length}</span>
+        </div>
+        <div className="grid gap-1">
+          {matchups.map((mm) => {
+            const member = p.members.find((m) => m.id === mm.formId)!
+            return (
+              <div key={mm.formId} className="grid grid-cols-[24px_1fr_auto_auto] sm:grid-cols-[24px_140px_92px_1fr] items-center gap-2 rounded border border-[var(--ds-gray-300)] bg-[var(--ds-background-100)] px-2 py-1">
+                <SpriteThumb form={member} expandable={false} />
+                <Link to="/form/$formId" params={{ formId: member.id } as never} className="text-sm truncate hover:underline hidden sm:block">
+                  {member.name}
+                </Link>
+                <span className={`justify-self-start inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-semibold w-max ${VERDICT_CHIP[mm.verdict]}`}>
+                  {t(`verdict.${mm.verdict}` as TranslationKey)} <span className="tnum ml-1 opacity-75 font-normal">{fmtMult(mm.bestStabMult, p.ptBR)}</span>
+                </span>
+                <span className="justify-self-end text-right text-[11px] text-[var(--ds-gray-700)] truncate max-w-[220px]" title={mm.threats.map((th) => `${fmtMult(th.mult, p.ptBR)} ${th.types.map(typeName).join("/")}`).join(" • ")}>
+                  {mm.threats.length
+                    ? `${t("matchup.incoming")} ${mm.threats.map((th) => `${fmtMult(th.mult, p.ptBR)} ${th.types.map(typeName).join("/")}`).join(", ")}`
+                    : ""}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+        <div className="mt-1 text-[11px] text-[var(--ds-gray-700)]">{t("matchup.proxyNote")}</div>
+      </div>
+
+      {p.counterMode === "smart" && !p.extrasReady ? (
+        <p className="text-xs text-[var(--ds-gray-700)]">{t("detail.loading")}</p>
+      ) : (datasetCounters?.length ?? smartCounters?.length ?? 0) > 0 && (
+        <div>
+          <div className="text-xs font-medium mb-1 flex items-center gap-1.5">
+            <span>
+              {p.counterMode === "smart" ? t("matchup.countersSmart") : t("matchup.counters")}
+            </span>
+            {p.counterMode === "smart" && (
+              <span className="rounded-sm bg-amber-500/15 px-1 py-px text-[9px] font-bold tracking-wider text-amber-500 border border-amber-600/50">
+                {t("matchup.betaBadge")}
+              </span>
+            )}
+            <span className="font-normal text-[var(--ds-gray-700)]">{t("matchup.countersBstNote")}</span>
+            <button
+              onClick={() => p.onRotate(p.opp.id)}
+              aria-label={t("matchup.rotateCounters")}
+              title={t("matchup.rotateCounters")}
+              className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-md border border-transparent text-[var(--ds-gray-700)] transition-colors hover:bg-[var(--ds-gray-100)] hover:text-[var(--ds-gray-900)]"
+            >
+              <RotateIcon />
+            </button>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-1.5">
+            {smartCounters?.map(({ form, reasons, noSets }) => (
+              <CounterCard
+                key={form.id}
+                form={form}
+                caption={smartChipLabels(reasons, typeName).join(" · ")}
+                bst={calcBST(form.baseStats)}
+                pinned={p.pins?.has(form.id) ?? false}
+                onPin={(formId) => p.onPin(p.opp.id, formId)}
+              >
+                {noSets && (
+                  <span className="block truncate text-[10px] text-[var(--ds-gray-700)] opacity-70">
+                    {t("matchup.noSetsFallback")}
+                  </span>
+                )}
+              </CounterCard>
+            ))}
+            {datasetCounters?.map(({ form, reasons }) => (
+              <CounterCard
+                key={form.id}
+                form={form}
+                caption={reasons
+                  .filter((r) => r.kind !== "risk")
+                  .slice(0, 2)
+                  .map((r) => `${r.kind === "cover" ? "→" : "←"} ${typeName(r.type)}`)
+                  .join(" · ")}
+                bst={calcBST(form.baseStats)}
+                pinned={p.pins?.has(form.id) ?? false}
+                onPin={(formId) => p.onPin(p.opp.id, formId)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+})
+
 /**
  * Threat Matchup simulator: pick opposing Forms and see, per member,
  * who hits hard (STAB proxy), which attack Types are recommended or wasted,
@@ -117,7 +301,7 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
   /** Ranked-window index per opponent ("rotate" button cycles other candidates in). */
   const [counterOffset, setCounterOffset] = React.useState<Map<string, number>>(new Map())
 
-  const togglePin = (oppId: string, formId: string) => {
+  const togglePin = React.useCallback((oppId: string, formId: string) => {
     setPinnedCounters((prev) => {
       const next = new Map(prev)
       const set = new Set(next.get(oppId) ?? [])
@@ -126,22 +310,22 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
       next.set(oppId, set)
       return next
     })
-  }
+  }, [])
 
-  const rotateCounters = (oppId: string) => {
+  const rotateCounters = React.useCallback((oppId: string) => {
     setCounterOffset((prev) => {
       const next = new Map(prev)
       next.set(oppId, (next.get(oppId) ?? 0) + 1)
       return next
     })
-  }
+  }, [])
 
   const smartIndex = React.useMemo(
     () =>
-      data.extrasReady
-        ? buildSmartCounterIndex(data.core.forms as Form[], data.sets.sets, data.movesByName, data.naturesByName)
-        : { profiles: new Map(), battle: new Map(), setCount: new Map() },
-    [data],
+      counterMode === "smart" && data.extrasReady
+        ? getSmartCounterIndex(data.core.forms as Form[], data.sets.sets, data.movesByName, data.naturesByName)
+        : null,
+    [counterMode, data],
   )
 
   const opponents = React.useMemo(
@@ -164,7 +348,14 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
     setQuery("")
   }
 
-  const removeOpponent = (id: string) => onChange((team.opponents ?? []).filter((o) => o !== id))
+  const removeOpponent = React.useCallback((id: string) => {
+    onChange((team.opponents ?? []).filter((o) => o !== id))
+  }, [onChange, team.opponents])
+
+  const excludeIds = React.useMemo(
+    () => new Set([...members.map((m) => m.id), ...opponents.map((o) => o.id)]),
+    [members, opponents],
+  )
 
   const toggleExtra = (tt: TypeName) => {
     const next = new Set(extraTypes)
@@ -253,166 +444,25 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
       )}
 
       {/* per-opponent breakdown */}
-      {opponents.map((opp) => {
-        const { recommended, avoid } = recommendAttackTypes(opp.types as unknown as TypeName[])
-        const matchups = members.map((m) => memberMatchup(m.types as unknown as TypeName[], opp.types as unknown as TypeName[], m.id))
-        const edgeCount = matchups.filter((mm) => mm.bestStabMult >= 2).length
-        const excludeIds = new Set([...members.map((m) => m.id), ...opponents.map((o) => o.id)])
-        const pins = pinnedCounters.get(opp.id)
-        const windowOpts = { offset: counterOffset.get(opp.id) ?? 0, pinnedIds: pins }
-        const datasetCounters =
-          counterMode === "dataset"
-            ? suggestCounters(opp.types as unknown as TypeName[], data.core.forms as Form[], excludeIds, windowOpts)
-            : null
-        const smartCounters =
-          counterMode === "smart" && data.extrasReady
-            ? suggestSmartCounters(opp, smartIndex, data.core.forms as Form[], excludeIds, windowOpts)
-            : null
-        return (
-          <div key={opp.id} className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <Sprite form={opp} size="sm" />
-              <div className="min-w-0">
-                <Link to="/form/$formId" params={{ formId: opp.id } as never} className="font-semibold text-sm hover:underline block truncate">
-                  {opp.name}
-                </Link>
-                <div className="flex gap-1 mt-0.5">
-                  {(opp.types as string[]).map((tt) => (
-                    <LinkedTypeBadge key={tt} type={tt} />
-                  ))}
-                </div>
-              </div>
-              <button onClick={() => removeOpponent(opp.id)} className="ml-auto text-xs text-[var(--ds-gray-700)] hover:text-[var(--ds-red-700)]" aria-label={t("teams.remove")}>
-                ✕
-              </button>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs font-medium mb-1.5 text-green-500">{t("matchup.recommended")}</div>
-                <div className="flex flex-wrap gap-1">
-                  {recommended.map((r) => (
-                    <span
-                      key={r.type}
-                      title={`${typeName(r.type)}: ${fmtMult(r.mult, ptBR)}`}
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold",
-                        TYPE_CHIP[r.type]?.soft,
-                        extraTypes.has(r.type) && "ring-2 ring-offset-1 ring-offset-[var(--ds-background-200)] ring-[var(--ds-gray-1000)]",
-                      )}
-                    >
-                      <span className="uppercase tracking-wide">{typeName(r.type)}</span>
-                      <span className="tnum font-normal opacity-80">{fmtMult(r.mult, ptBR)}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-medium mb-1.5 text-red-400">{t("matchup.avoid")}</div>
-                <div className="flex flex-wrap gap-1 opacity-70">
-                  {avoid.map((r) => (
-                    <span
-                      key={r.type}
-                      title={`${typeName(r.type)}: ${fmtMult(r.mult, ptBR)}`}
-                      className={cn("inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold", TYPE_CHIP[r.type]?.soft)}
-                    >
-                      <span className="uppercase tracking-wide line-through decoration-1">{typeName(r.type)}</span>
-                      <span className="tnum font-normal opacity-80">{fmtMult(r.mult, ptBR)}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <div className="text-xs font-medium mb-1">
-                {t("matchup.membersVs")} · <span className="font-normal text-[var(--ds-gray-700)]">{t("matchup.edge")}: {edgeCount}/{members.length}</span>
-              </div>
-              <div className="grid gap-1">
-                {matchups.map((mm) => {
-                  const member = members.find((m) => m.id === mm.formId)!
-                  return (
-                    <div key={mm.formId} className="grid grid-cols-[24px_1fr_auto_auto] sm:grid-cols-[24px_140px_92px_1fr] items-center gap-2 rounded border border-[var(--ds-gray-300)] bg-[var(--ds-background-100)] px-2 py-1">
-                      <SpriteThumb form={member} expandable={false} />
-                      <Link to="/form/$formId" params={{ formId: member.id } as never} className="text-sm truncate hover:underline hidden sm:block">
-                        {member.name}
-                      </Link>
-                      <span className={`justify-self-start inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-semibold w-max ${VERDICT_CHIP[mm.verdict]}`}>
-                        {t(`verdict.${mm.verdict}` as TranslationKey)} <span className="tnum ml-1 opacity-75 font-normal">{fmtMult(mm.bestStabMult, ptBR)}</span>
-                      </span>
-                      <span className="justify-self-end text-right text-[11px] text-[var(--ds-gray-700)] truncate max-w-[220px]" title={mm.threats.map((th) => `${fmtMult(th.mult, ptBR)} ${th.types.map(typeName).join("/")}`).join(" • ")}>
-                        {mm.threats.length
-                          ? `${t("matchup.incoming")} ${mm.threats.map((th) => `${fmtMult(th.mult, ptBR)} ${th.types.map(typeName).join("/")}`).join(", ")}`
-                          : ""}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="mt-1 text-[11px] text-[var(--ds-gray-700)]">{t("matchup.proxyNote")}</div>
-            </div>
-
-            {/* suggested counters: Dataset (type math) or Smart (Sets, beta) */}
-            {counterMode === "smart" && !data.extrasReady ? (
-              <p className="text-xs text-[var(--ds-gray-700)]">{t("detail.loading")}</p>
-            ) : (datasetCounters?.length ?? smartCounters?.length ?? 0) > 0 && (
-              <div>
-                <div className="text-xs font-medium mb-1 flex items-center gap-1.5">
-                  <span>
-                    {counterMode === "smart" ? t("matchup.countersSmart") : t("matchup.counters")}
-                  </span>
-                  {counterMode === "smart" && (
-                    <span className="rounded-sm bg-amber-500/15 px-1 py-px text-[9px] font-bold tracking-wider text-amber-500 border border-amber-600/50">
-                      {t("matchup.betaBadge")}
-                    </span>
-                  )}
-                  <span className="font-normal text-[var(--ds-gray-700)]">{t("matchup.countersBstNote")}</span>
-                  <button
-                    onClick={() => rotateCounters(opp.id)}
-                    aria-label={t("matchup.rotateCounters")}
-                    title={t("matchup.rotateCounters")}
-                    className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-md border border-transparent text-[var(--ds-gray-700)] transition-colors hover:bg-[var(--ds-gray-100)] hover:text-[var(--ds-gray-900)]"
-                  >
-                    <RotateIcon />
-                  </button>
-                </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-1.5">
-                  {smartCounters?.map(({ form, reasons, noSets }) => (
-                    <CounterCard
-                      key={form.id}
-                      form={form}
-                      caption={smartChipLabels(reasons, typeName).join(" · ")}
-                      bst={calcBST(form.baseStats)}
-                      pinned={pins?.has(form.id) ?? false}
-                      onPin={(formId) => togglePin(opp.id, formId)}
-                    >
-                      {noSets && (
-                        <span className="block truncate text-[10px] text-[var(--ds-gray-700)] opacity-70">
-                          {t("matchup.noSetsFallback")}
-                        </span>
-                      )}
-                    </CounterCard>
-                  ))}
-                  {datasetCounters?.map(({ form, reasons }) => (
-                    <CounterCard
-                      key={form.id}
-                      form={form}
-                      caption={reasons
-                        .filter((r) => r.kind !== "risk")
-                        .slice(0, 2)
-                        .map((r) => `${r.kind === "cover" ? "→" : "←"} ${typeName(r.type)}`)
-                        .join(" · ")}
-                      bst={calcBST(form.baseStats)}
-                      pinned={pins?.has(form.id) ?? false}
-                      onPin={(formId) => togglePin(opp.id, formId)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )
-      })}
+      {opponents.map((opp) => (
+        <OpponentCard
+          key={opp.id}
+          opp={opp}
+          members={members}
+          excludeIds={excludeIds}
+          forms={data.core.forms as Form[]}
+          counterMode={counterMode}
+          extrasReady={data.extrasReady}
+          smartIndex={smartIndex}
+          pins={pinnedCounters.get(opp.id)}
+          offset={counterOffset.get(opp.id) ?? 0}
+          extraTypes={extraTypes}
+          ptBR={ptBR}
+          onRemove={removeOpponent}
+          onPin={togglePin}
+          onRotate={rotateCounters}
+        />
+      ))}
 
       {/* optional extra attacker types */}
       {opponents.length > 0 && (

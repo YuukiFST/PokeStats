@@ -57,6 +57,22 @@ export function buildSmartCounterIndex(
   return { profiles, battle, setCount }
 }
 
+const indexCache = new WeakMap<Set[], SmartCounterIndex>()
+
+/** One SmartCounterIndex per Sets array identity — the dataset loads Sets once, so this is once per app run. */
+export function getSmartCounterIndex(
+  forms: Form[],
+  sets: Set[],
+  movesByName: Map<string, MoveInfo>,
+  naturesByName: Map<string, NatureInfo>,
+): SmartCounterIndex {
+  const hit = indexCache.get(sets)
+  if (hit) return hit
+  const built = buildSmartCounterIndex(forms, sets, movesByName, naturesByName)
+  indexCache.set(sets, built)
+  return built
+}
+
 export type SmartReasonKind = "walls" | "carries" | "outspeed" | "frail"
 
 export type SmartSuggestionReason =
@@ -157,17 +173,16 @@ function pushUnique(reasons: SmartSuggestionReason[], reason: SmartSuggestionRea
  * window displays highest-BST first (see windowByBst). Requires
  * buildSmartCounterIndex (memoize per Dataset, not per opponent).
  */
-export function suggestSmartCounters(
+export function scoreSmartCounters(
   opp: Form,
   index: SmartCounterIndex,
   allForms: Form[],
   excludeIds: ReadonlySet<string>,
-  opts: CounterWindowOptions = {},
 ): SmartFormSuggestion[] {
   const oppProfile = index.profiles.get(opp.id) ?? emptyMovesetProfile()
   const oppBattle = index.battle.get(opp.id)!
   const oppTypes = opp.types as unknown as TypeName[]
-  const scored = allForms
+  return allForms
     .filter((f) => !excludeIds.has(f.id))
     .map((form) => {
       const profile = index.profiles.get(form.id) ?? emptyMovesetProfile()
@@ -230,5 +245,14 @@ export function suggestSmartCounters(
       )
       return { form, score, reasons, noSets }
     })
-  return windowByBst(scored, opts)
+}
+
+export function suggestSmartCounters(
+  opp: Form,
+  index: SmartCounterIndex,
+  allForms: Form[],
+  excludeIds: ReadonlySet<string>,
+  opts: CounterWindowOptions = {},
+): SmartFormSuggestion[] {
+  return windowByBst(scoreSmartCounters(opp, index, allForms, excludeIds), opts)
 }
