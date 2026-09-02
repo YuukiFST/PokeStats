@@ -23,7 +23,7 @@ const CATEGORY_ICON: Record<string, string> = {
 export function TypeDetailPage() {
   const { typeId } = useParams({ strict: false }) as { typeId: string }
   const { back } = useWorkspace()
-  const { data, loading } = useDataset()
+  const { data, loading, catalogReady } = useDataset()
   const { t, typeName } = useI18n()
   const { has, toggle } = useBookmarks()
 
@@ -49,7 +49,7 @@ export function TypeDetailPage() {
       .slice(0, 8)
   }, [data, valid, tt])
 
-  if (loading || !data) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
+  if (loading || !data || !catalogReady) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
 
   if (!valid) {
     return (

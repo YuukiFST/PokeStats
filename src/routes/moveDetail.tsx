@@ -81,7 +81,7 @@ function LearnerRow({ form }: { form: Form }) {
 export function MoveDetailPage() {
   const { moveId } = useParams({ strict: false }) as { moveId: string }
   const { back } = useWorkspace()
-  const { data, loading } = useDataset()
+  const { data, loading, catalogReady } = useDataset()
   const { t } = useI18n()
   const { has, toggle } = useBookmarks()
   const [showAllLearners, setShowAllLearners] = React.useState(false)
@@ -98,7 +98,7 @@ export function MoveDetailPage() {
       .filter(Boolean) as Form[]
   }, [data, resolved, moveId])
 
-  if (loading || !data || !resolved) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
+  if (loading || !data || !catalogReady || !resolved) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
 
   const info = resolved.info
   const shownLearners = showAllLearners ? learnerForms : learnerForms.slice(0, 60)

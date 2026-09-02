@@ -43,12 +43,27 @@ export function getSpriteManifestSync(): SpriteManifest | null {
   return manifestCache
 }
 
+type EarlyWindow = Window & {
+  __POKESTATS_SPRITES__?: Promise<SpriteManifest>
+}
+
 export async function loadSpriteManifest(): Promise<SpriteManifest> {
   if (manifestCache) return manifestCache
   if (manifestInflight) return manifestInflight
 
   manifestInflight = (async () => {
     try {
+      const early = typeof window !== "undefined" ? (window as EarlyWindow).__POKESTATS_SPRITES__ : undefined
+      if (early) {
+        delete (window as EarlyWindow).__POKESTATS_SPRITES__
+        const json = await early
+        if (!json || typeof json !== "object" || typeof json.forms !== "object" || json.forms === null) {
+          manifestCache = EMPTY_MANIFEST
+          return manifestCache
+        }
+        manifestCache = { version: json.version ?? 1, forms: json.forms }
+        return manifestCache
+      }
       const res = await fetch("/sprites/manifest.json")
       if (!res.ok) {
         manifestCache = EMPTY_MANIFEST

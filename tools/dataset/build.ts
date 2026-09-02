@@ -568,11 +568,33 @@ function main() {
   const { core, sets, learnsets } = buildDataset()
   mkdirSync(OUT_DIR, { recursive: true })
   writeFileSync(resolve(OUT_DIR, "core.json"), JSON.stringify(core))
+  const dex = {
+    schemaVersion: core.schemaVersion,
+    datasetVersion: core.datasetVersion,
+    generatedAt: core.generatedAt,
+    sourceRevisions: core.sourceRevisions,
+    species: core.species,
+    forms: core.forms,
+  }
+  const catalog = {
+    tierOverrides: core.tierOverrides,
+    baseStatOverrides: core.baseStatOverrides,
+    typeOverrides: core.typeOverrides,
+    formats: core.formats,
+    moves: core.moves,
+    items: core.items,
+    abilities: core.abilities,
+    natures: core.natures,
+  }
+  writeFileSync(resolve(OUT_DIR, "dex.json"), JSON.stringify(dex))
+  writeFileSync(resolve(OUT_DIR, "catalog.json"), JSON.stringify(catalog))
   writeFileSync(resolve(OUT_DIR, "sets.json"), JSON.stringify(sets))
   writeFileSync(resolve(OUT_DIR, "learnsets.json"), JSON.stringify(learnsets))
   writeFileSync(resolve(OUT_DIR, "core.pretty.json"), JSON.stringify(core, null, 2))
   console.log(`[dataset:build] wrote ${core.forms.length} forms, ${sets.sets.length} sets -> ${OUT_DIR}`)
-  console.log(`[dataset:build] core.json ${JSON.stringify(core).length} bytes, sets.json ${JSON.stringify(sets).length} bytes, learnsets.json ${JSON.stringify(learnsets).length} bytes`)
+  console.log(
+    `[dataset:build] dex.json ${JSON.stringify(dex).length} bytes, catalog.json ${JSON.stringify(catalog).length} bytes, core.json ${JSON.stringify(core).length} bytes, sets.json ${JSON.stringify(sets).length} bytes, learnsets.json ${JSON.stringify(learnsets).length} bytes`,
+  )
 }
 
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])

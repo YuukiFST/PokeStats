@@ -18,8 +18,10 @@ if (!existsSync(DIST)) {
   process.exit(1)
 }
 
-const pretty = resolve(DIST, "dataset/core.pretty.json")
-if (existsSync(pretty)) {
-  rmSync(pretty, { force: true })
-  console.log("[prune-dist] removed dist/dataset/core.pretty.json (debug artifact)")
+for (const name of ["core.pretty.json", "core.json"]) {
+  const p = resolve(DIST, "dataset", name)
+  if (existsSync(p)) {
+    rmSync(p, { force: true })
+    console.log(`[prune-dist] removed dist/dataset/${name}`)
+  }
 }

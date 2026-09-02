@@ -1,35 +1,45 @@
 import * as React from "react"
 import { createRouter, RouterProvider, createRootRoute, createRoute, Outlet } from "@tanstack/react-router"
 import { Shell } from "@/components/layout/Shell"
-import { DexPage } from "@/routes/dex"
-import { MovesPage, type MovesSearch } from "@/routes/moves"
-import { MoveDetailPage } from "@/routes/moveDetail"
-import { TypesPage, type TypesSearch } from "@/routes/types"
-import { TypeDetailPage } from "@/routes/typeDetail"
-import { ItemsPage, type ItemsSearch } from "@/routes/items"
-import { ItemDetailPage } from "@/routes/itemDetail"
-import { NaturesPage, type NaturesSearch } from "@/routes/natures"
-import { FormDetailPage } from "@/routes/formDetail"
-import { ComparePage } from "@/routes/compare"
-import { TeamsPage } from "@/routes/teams"
-import { SettingsPage } from "@/routes/settings"
-import { FavoritesPage } from "@/routes/favorites"
-import { CommandPalette } from "@/hooks/usePalette"
+import { PageFallback } from "@/components/layout/PageFallback"
+import { DexPage, type DexSearch } from "@/routes/dex"
+import type { MovesSearch } from "@/routes/moves"
+import type { TypesSearch } from "@/routes/types"
+import type { ItemsSearch } from "@/routes/items"
+import type { NaturesSearch } from "@/routes/natures"
 import { I18nProvider } from "@/lib/i18n"
 import { WorkspaceProvider } from "@/lib/workspace/WorkspaceProvider"
 import { BookmarksProvider } from "@/lib/bookmarks/BookmarksProvider"
 import { CobblemonEggProvider } from "@/lib/cobblemon/CobblemonEggProvider"
 
-export type DexSearch = {
-  q?: string
-  trait?: string
-  traits?: string
-  type?: string
-  types?: string
-  mode?: string
-  grouped?: string
-  sort?: string
-  dir?: string
+export type { DexSearch }
+
+const ComparePage = React.lazy(() => import("@/routes/compare").then((m) => ({ default: m.ComparePage })))
+const MovesPage = React.lazy(() => import("@/routes/moves").then((m) => ({ default: m.MovesPage })))
+const MoveDetailPage = React.lazy(() => import("@/routes/moveDetail").then((m) => ({ default: m.MoveDetailPage })))
+const TypesPage = React.lazy(() => import("@/routes/types").then((m) => ({ default: m.TypesPage })))
+const TypeDetailPage = React.lazy(() => import("@/routes/typeDetail").then((m) => ({ default: m.TypeDetailPage })))
+const ItemsPage = React.lazy(() => import("@/routes/items").then((m) => ({ default: m.ItemsPage })))
+const ItemDetailPage = React.lazy(() => import("@/routes/itemDetail").then((m) => ({ default: m.ItemDetailPage })))
+const NaturesPage = React.lazy(() => import("@/routes/natures").then((m) => ({ default: m.NaturesPage })))
+const TeamsPage = React.lazy(() => import("@/routes/teams").then((m) => ({ default: m.TeamsPage })))
+const SettingsPage = React.lazy(() => import("@/routes/settings").then((m) => ({ default: m.SettingsPage })))
+const FavoritesPage = React.lazy(() => import("@/routes/favorites").then((m) => ({ default: m.FavoritesPage })))
+const FormDetailPage = React.lazy(() => import("@/routes/formDetail").then((m) => ({ default: m.FormDetailPage })))
+const CommandPalette = React.lazy(() => import("@/hooks/usePalette").then((m) => ({ default: m.CommandPalette })))
+
+function DeferredPalette() {
+  const [ready, setReady] = React.useState(false)
+  React.useEffect(() => {
+    const id = window.setTimeout(() => setReady(true), 0)
+    return () => window.clearTimeout(id)
+  }, [])
+  if (!ready) return null
+  return (
+    <React.Suspense fallback={null}>
+      <CommandPalette />
+    </React.Suspense>
+  )
 }
 
 const rootRoute = createRootRoute({
@@ -38,9 +48,11 @@ const rootRoute = createRootRoute({
       <BookmarksProvider>
         <CobblemonEggProvider>
           <Shell>
-            <Outlet />
+            <React.Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </React.Suspense>
           </Shell>
-          <CommandPalette />
+          <DeferredPalette />
         </CobblemonEggProvider>
       </BookmarksProvider>
     </WorkspaceProvider>

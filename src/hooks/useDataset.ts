@@ -14,5 +14,11 @@ export function useDataset() {
     return unsub
   }, [])
 
-  return { data, loading: !data && !error, error, extrasReady: data?.extrasReady ?? false }
+  return {
+    data,
+    loading: !data && !error,
+    error,
+    extrasReady: data?.extrasReady ?? false,
+    catalogReady: data?.catalogReady ?? false,
+  }
 }
