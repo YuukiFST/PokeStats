@@ -417,14 +417,17 @@ export function windowByBst<T extends { form: Form; score: number }>(
 }
 
 /** Counter suggestions vs one opponent: resist its STABs and hit back SE. */
+export function scoreCounters(oppTypes: TypeName[], allForms: Form[], excludeIds: ReadonlySet<string>): FormSuggestion[] {
+  return allForms
+    .filter((f) => !excludeIds.has(f.id))
+    .map((form) => ({ form, ...typeMathCounterScore(form, oppTypes) }))
+}
+
 export function suggestCounters(
   oppTypes: TypeName[],
   allForms: Form[],
   excludeIds: Set<string>,
   opts: CounterWindowOptions = {},
 ): FormSuggestion[] {
-  const scored = allForms
-    .filter((f) => !excludeIds.has(f.id))
-    .map((form) => ({ form, ...typeMathCounterScore(form, oppTypes) }))
-  return windowByBst(scored, opts)
+  return windowByBst(scoreCounters(oppTypes, allForms, excludeIds), opts)
 }

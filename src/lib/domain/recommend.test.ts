@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { bestSwapTargets, suggestCounters, suggestImprovementPlan, typeMathCounterScore } from "./recommend"
+import { bestSwapTargets, scoreCounters, suggestCounters, suggestImprovementPlan, typeMathCounterScore, windowByBst } from "./recommend"
 import { BULKWORM, FRAILBIRD, OPP, makeForm } from "./testFixtures"
 import type { BaseStatSpread } from "./types"
 
@@ -44,6 +44,15 @@ describe("suggestCounters (v1 type math — scores unchanged, display windowed B
       pinnedIds: new Set(["frailbird"]),
     })
     expect(stale.map((r) => r.form.id)).toEqual(["bulkworm"])
+  })
+
+  it("scoreCounters plus windowByBst matches suggestCounters", () => {
+    const forms = [FRAILBIRD, BULKWORM, OPP]
+    const exclude = new Set(["sandlord"])
+    const opts = { limit: 1, offset: 1 }
+    expect(windowByBst(scoreCounters(["Ground"], forms, exclude), opts)).toEqual(
+      suggestCounters(["Ground"], forms, exclude, opts),
+    )
   })
 })
 
