@@ -3,9 +3,50 @@ use tauri::webview::PageLoadEvent;
 use tauri::Manager;
 
 static WEBVIEW_READY: AtomicBool = AtomicBool::new(false);
+static PAGE_FINISHED: AtomicBool = AtomicBool::new(false);
+static BOOT_START: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
+
+fn boot_log(msg: &str) {
+  if std::env::var_os("POKESTATS_BOOT_LOG").is_none() {
+    return;
+  }
+  use std::io::Write;
+  let ms = BOOT_START.get().map(|s| s.elapsed().as_millis()).unwrap_or(0);
+  if let Ok(mut f) = std::fs::OpenOptions::new()
+    .create(true)
+    .append(true)
+    .open(std::env::temp_dir().join("pokestats-boot.log"))
+  {
+    let _ = writeln!(f, "{ms:>6} ms  {msg}");
+  }
+}
+
+fn reveal_webview(app: &tauri::AppHandle, reason: &'static str) {
+  if WEBVIEW_READY.swap(true, Ordering::SeqCst) {
+    return;
+  }
+  boot_log(&format!("reveal webview ({reason})"));
+  let app = app.clone();
+  let _ = app.clone().run_on_main_thread(move || {
+    #[cfg(target_os = "windows")]
+    if let Some(win) = app.get_window("main") {
+      if let Ok(hwnd) = win.hwnd() {
+        winpaint::finish(hwnd.0 as isize);
+      }
+    }
+    #[cfg(not(target_os = "windows"))]
+    let _ = &app;
+  });
+}
+
+#[tauri::command]
+fn shell_ready(app: tauri::AppHandle) {
+  reveal_webview(&app, "js");
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+  BOOT_START.get_or_init(std::time::Instant::now);
   tauri::Builder::default()
     .setup(|app| {
       if cfg!(debug_assertions) {
@@ -15,18 +56,28 @@ pub fn run() {
             .build(),
         )?;
       }
-      if let Some(win) = app.get_webview_window("main") {
-        apply_caption(&win);
-        let _ = win.show();
-        let _ = win.set_focus();
-        #[cfg(target_os = "windows")]
-        if let Ok(hwnd) = win.hwnd() {
-          let hwnd = hwnd.0 as isize;
-          hide_child_windows(hwnd);
-          paint_shell(hwnd);
-          start_paint_timer(hwnd);
-        }
+      let window = tauri::window::WindowBuilder::new(app, "main")
+        .title("PokeStats")
+        .inner_size(1280.0, 800.0)
+        .min_inner_size(1024.0, 640.0)
+        .resizable(true)
+        .theme(Some(tauri::Theme::Dark))
+        .background_color(tauri::window::Color(0x0a, 0x0a, 0x0a, 0xff))
+        .visible(true)
+        .build()?;
+      apply_caption(&window);
+      #[cfg(target_os = "windows")]
+      if let Ok(hwnd) = window.hwnd() {
+        winpaint::install(hwnd.0 as isize);
       }
+      boot_log("window shown, shell installed");
+      let size = window.inner_size()?;
+      let _webview = window.add_child(
+        tauri::webview::WebviewBuilder::new("main", tauri::WebviewUrl::default()).auto_resize(),
+        tauri::LogicalPosition::new(0.0, 0.0),
+        size,
+      )?;
+      boot_log("webview attached");
       Ok(())
     })
     .on_page_load(|webview, payload| {
@@ -36,10 +87,7 @@ pub fn run() {
       }
       #[cfg(target_os = "windows")]
       {
-        let Some(win) = webview.app_handle().get_webview_window("main") else {
-          return;
-        };
-        let Ok(hwnd) = win.hwnd() else {
+        let Ok(hwnd) = webview.window().hwnd() else {
           return;
         };
         let hwnd = hwnd.0 as isize;
@@ -47,12 +95,13 @@ pub fn run() {
           PageLoadEvent::Started => {
             if !WEBVIEW_READY.load(Ordering::SeqCst) {
               hide_child_windows(hwnd);
-              paint_shell(hwnd);
+              winpaint::request_repaint(hwnd);
             }
           }
           PageLoadEvent::Finished => {
-            WEBVIEW_READY.store(true, Ordering::SeqCst);
-            show_child_windows(hwnd);
+            PAGE_FINISHED.store(true, Ordering::SeqCst);
+            boot_log("page finished");
+            winpaint::start_fallback_timer(hwnd);
           }
         }
       }
@@ -61,11 +110,12 @@ pub fn run() {
         let _ = (webview, payload);
       }
     })
+    .invoke_handler(tauri::generate_handler![shell_ready])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
-fn apply_caption(win: &tauri::WebviewWindow) {
+fn apply_caption(win: &tauri::Window) {
   #[cfg(target_os = "windows")]
   {
     const DWMWA_USE_IMMERSIVE_DARK_MODE: u32 = 20;
@@ -104,17 +154,44 @@ mod winpaint {
     bottom: i32,
   }
 
+  #[repr(C)]
+  struct PaintStruct {
+    hdc: isize,
+    erase: i32,
+    paint: Rect,
+    restore: i32,
+    inc_update: i32,
+    reserved: [u8; 32],
+  }
+
   const SW_HIDE: i32 = 0;
   const SW_SHOW: i32 = 5;
   const TRANSPARENT: i32 = 1;
   const DT_SINGLELINE: u32 = 0x20;
   const DT_VCENTER: u32 = 0x04;
   const DT_NOPREFIX: u32 = 0x100;
+  const WM_PAINT: u32 = 0x000F;
+  const WM_ERASEBKGND: u32 = 0x0014;
+  const WM_PARENTNOTIFY: u32 = 0x0210;
+  const WM_CREATE: u32 = 0x0001;
+  const RDW_INVALIDATE: u32 = 0x0001;
+  const RDW_ERASE: u32 = 0x0004;
+  const RDW_UPDATENOW: u32 = 0x0100;
+  const SUBCLASS_ID: usize = 0x504B;
+  const TIMER_HIDE: usize = 1;
+  const TIMER_FALLBACK: usize = 2;
+
+  type SubclassProc = unsafe extern "system" fn(isize, u32, usize, isize, usize, usize) -> isize;
+
+  #[link(name = "comctl32")]
+  extern "system" {
+    fn SetWindowSubclass(hwnd: isize, proc_: SubclassProc, id: usize, refdata: usize) -> i32;
+    fn RemoveWindowSubclass(hwnd: isize, proc_: SubclassProc, id: usize) -> i32;
+    fn DefSubclassProc(hwnd: isize, msg: u32, wparam: usize, lparam: isize) -> isize;
+  }
 
   #[link(name = "user32")]
   extern "system" {
-    fn GetDC(hwnd: isize) -> isize;
-    fn ReleaseDC(hwnd: isize, hdc: isize) -> i32;
     fn GetClientRect(hwnd: isize, rc: *mut Rect) -> i32;
     fn FillRect(hdc: isize, rc: *const Rect, brush: isize) -> i32;
     fn DrawTextW(hdc: isize, text: *const u16, count: i32, rc: *mut Rect, format: u32) -> i32;
@@ -125,6 +202,10 @@ mod winpaint {
     fn GetDpiForWindow(hwnd: isize) -> u32;
     fn SetTextColor(hdc: isize, color: u32) -> u32;
     fn SetBkMode(hdc: isize, mode: i32) -> i32;
+    fn BeginPaint(hwnd: isize, ps: *mut PaintStruct) -> isize;
+    fn EndPaint(hwnd: isize, ps: *const PaintStruct) -> i32;
+    fn InvalidateRect(hwnd: isize, rc: *const Rect, erase: i32) -> i32;
+    fn RedrawWindow(hwnd: isize, rc: *const Rect, rgn: isize, flags: u32) -> i32;
   }
 
   #[link(name = "gdi32")]
@@ -172,17 +253,77 @@ mod winpaint {
     }
   }
 
-  unsafe extern "system" fn on_paint_timer(hwnd: isize, _: u32, id: usize, _: u32) {
+  unsafe extern "system" fn shell_proc(hwnd: isize, msg: u32, wparam: usize, lparam: isize, _id: usize, _ref: usize) -> isize {
+    if WEBVIEW_READY.load(Ordering::SeqCst) {
+      return DefSubclassProc(hwnd, msg, wparam, lparam);
+    }
+    match msg {
+      WM_ERASEBKGND => {
+        paint_shell_to(hwnd, wparam as isize);
+        1
+      }
+      WM_PAINT => {
+        let mut ps: PaintStruct = std::mem::zeroed();
+        let hdc = BeginPaint(hwnd, &mut ps);
+        if hdc != 0 {
+          paint_shell_to(hwnd, hdc);
+        }
+        EndPaint(hwnd, &ps);
+        DefSubclassProc(hwnd, msg, wparam, lparam)
+      }
+      WM_PARENTNOTIFY if (wparam & 0xFFFF) as u32 == WM_CREATE => {
+        ShowWindow(lparam, SW_HIDE);
+        DefSubclassProc(hwnd, msg, wparam, lparam)
+      }
+      _ => DefSubclassProc(hwnd, msg, wparam, lparam),
+    }
+  }
+
+  unsafe extern "system" fn on_hide_timer(hwnd: isize, _: u32, id: usize, _: u32) {
     if WEBVIEW_READY.load(Ordering::SeqCst) {
       KillTimer(hwnd, id);
       return;
     }
-    paint_shell(hwnd);
+    EnumChildWindows(hwnd, Some(each_child_hide), 0);
   }
 
-  pub fn start_paint_timer(hwnd: isize) {
+  unsafe extern "system" fn on_fallback_timer(hwnd: isize, _: u32, id: usize, _: u32) {
+    KillTimer(hwnd, id);
+    if !WEBVIEW_READY.load(Ordering::SeqCst) {
+      super::boot_log("reveal webview (fallback)");
+      WEBVIEW_READY.store(true, Ordering::SeqCst);
+      finish(hwnd);
+    }
+  }
+
+  pub fn install(hwnd: isize) {
     unsafe {
-      SetTimer(hwnd, 1, 16, Some(on_paint_timer));
+      SetWindowSubclass(hwnd, shell_proc, SUBCLASS_ID, 0);
+      EnumChildWindows(hwnd, Some(each_child_hide), 0);
+      SetTimer(hwnd, TIMER_HIDE, 50, Some(on_hide_timer));
+      RedrawWindow(hwnd, std::ptr::null(), 0, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW);
+    }
+  }
+
+  pub fn request_repaint(hwnd: isize) {
+    unsafe {
+      InvalidateRect(hwnd, std::ptr::null(), 1);
+    }
+  }
+
+  pub fn start_fallback_timer(hwnd: isize) {
+    unsafe {
+      SetTimer(hwnd, TIMER_FALLBACK, 2500, Some(on_fallback_timer));
+    }
+  }
+
+  pub fn finish(hwnd: isize) {
+    unsafe {
+      KillTimer(hwnd, TIMER_HIDE);
+      KillTimer(hwnd, TIMER_FALLBACK);
+      RemoveWindowSubclass(hwnd, shell_proc, SUBCLASS_ID);
+      show_child_windows(hwnd);
+      InvalidateRect(hwnd, std::ptr::null(), 1);
     }
   }
 
@@ -208,9 +349,8 @@ mod winpaint {
     }
   }
 
-  pub fn paint_shell(hwnd: isize) {
+  fn paint_shell_to(hwnd: isize, hdc: isize) {
     unsafe {
-      let hdc = GetDC(hwnd);
       if hdc == 0 {
         return;
       }
@@ -277,10 +417,9 @@ mod winpaint {
 
       SelectObject(hdc, old);
       DeleteObject(font);
-      ReleaseDC(hwnd, hdc);
     }
   }
 }
 
 #[cfg(target_os = "windows")]
-use winpaint::{hide_child_windows, paint_shell, show_child_windows, start_paint_timer};
+use winpaint::hide_child_windows;

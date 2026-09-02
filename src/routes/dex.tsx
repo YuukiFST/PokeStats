@@ -492,7 +492,7 @@ export function DexPage() {
         </button>
       </div>
 
-      <div ref={parentRef} className={cn("flex-1 overflow-auto", selCount > 0 && "pb-[4.75rem]")}>
+      <div ref={parentRef} data-boot-content="" className={cn("flex-1 overflow-auto", selCount > 0 && "pb-[4.75rem]")}>
         <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
           {virtualizer.getVirtualItems().map((row) => {
             const f = filtered[row.index]!

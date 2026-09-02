@@ -11,6 +11,7 @@ import { I18nProvider } from "@/lib/i18n"
 import { WorkspaceProvider } from "@/lib/workspace/WorkspaceProvider"
 import { BookmarksProvider } from "@/lib/bookmarks/BookmarksProvider"
 import { CobblemonEggProvider } from "@/lib/cobblemon/CobblemonEggProvider"
+import { signalWhenPainted } from "@/lib/boot/shellReady"
 
 export type { DexSearch }
 
@@ -191,6 +192,7 @@ export function App() {
     document.documentElement.dataset.theme = saved
     document.documentElement.classList.toggle("dark", saved === "dark")
     console.log(`[perf] first paint ${performance.now().toFixed(1)}ms`)
+    signalWhenPainted("[data-boot-content]")
     const unsub = router.subscribe("onResolved", (e) => {
       const to = (e as unknown as { toLocation?: { pathname?: string } }).toLocation?.pathname ?? "unknown"
       console.log(`[perf] route -> ${to} @ ${performance.now().toFixed(1)}ms`)
