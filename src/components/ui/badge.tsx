@@ -91,3 +91,17 @@ export function LinkedTypeBadge({ type, className }: { type: string; className?:
     </Link>
   )
 }
+
+/** Hook-free variant of LinkedTypeBadge for virtualized rows: a plain anchor that WorkspaceProvider routes in-app via data-nav. */
+export function TypeBadgeAnchor({ type, title, className }: { type: string; title?: string; className?: string }) {
+  return (
+    <a
+      data-nav
+      href={`/types/${encodeURIComponent(type)}`}
+      title={title}
+      className="shrink-0 rounded-md transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ds-blue-700)]"
+    >
+      <TypeBadge type={type} className={className} />
+    </a>
+  )
+}

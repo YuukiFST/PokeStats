@@ -82,6 +82,10 @@ export function serializeBookmarks(items: Bookmark[]): string {
   return JSON.stringify({ v: 1, items })
 }
 
+export function bookmarkKeySet(items: Bookmark[]): Set<string> {
+  return new Set(items.map(bookmarkKey))
+}
+
 export function hasBookmark(items: Bookmark[], ref: BookmarkRef): boolean {
   const k = bookmarkKey(ref)
   return items.some((b) => bookmarkKey(b) === k)

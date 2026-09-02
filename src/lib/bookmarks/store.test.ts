@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { bookmarkKey, hasBookmark, parseBookmarks, serializeBookmarks, toggleBookmark, type Bookmark } from "./store"
+import { bookmarkKey, bookmarkKeySet, hasBookmark, parseBookmarks, serializeBookmarks, toggleBookmark, type Bookmark } from "./store"
 
 const form = { kind: "form" as const, formId: "slaking" }
 const move = { kind: "move" as const, moveId: "earthquake" }
@@ -51,6 +51,20 @@ describe("toggleBookmark", () => {
     items = toggleBookmark(items, form, 3)
     expect(hasBookmark(items, form)).toBe(false)
     expect(items).toHaveLength(1)
+  })
+})
+
+describe("bookmarkKeySet", () => {
+  it("returns a set whose size equals distinct keys and contains each item's bookmarkKey", () => {
+    const items: Bookmark[] = [
+      { kind: "form", formId: "slaking", savedAt: 1 },
+      { kind: "move", moveId: "earthquake", savedAt: 2 },
+      { kind: "form", formId: "slaking", savedAt: 3 },
+    ]
+    const keys = bookmarkKeySet(items)
+    expect(keys.size).toBe(2)
+    expect(keys.has(bookmarkKey(items[0]!))).toBe(true)
+    expect(keys.has(bookmarkKey(items[1]!))).toBe(true)
   })
 })
 
