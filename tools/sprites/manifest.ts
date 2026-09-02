@@ -78,6 +78,6 @@ export function writeSpriteManifest(limited: { id: string }[] | null): SpriteMan
   }
   const out: SpriteManifestFile = { version: 1, forms }
   mkdirSync(dirname(SPRITE_MANIFEST_PATH), { recursive: true })
-  writeFileSync(SPRITE_MANIFEST_PATH, `${JSON.stringify(out, null, 2)}\n`)
+  writeFileSync(SPRITE_MANIFEST_PATH, `${JSON.stringify(out)}\n`)
   return out
 }

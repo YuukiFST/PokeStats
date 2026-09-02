@@ -6,7 +6,7 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs"
 import { resolve, dirname } from "node:path"
 import { fileURLToPath } from "node:url"
-import type { DatasetCore, DatasetSets, Form, Species, TierEntry, FormatMeta, BaseStatOverride, TypeOverride, FormTrait, TypeName, MoveInfo, ItemInfo, AbilityInfo, LearnsetsArtifact } from "../../src/lib/domain/types.js"
+import type { DatasetCatalog, DatasetCore, DatasetSets, Form, Species, TierEntry, FormatMeta, BaseStatOverride, TypeOverride, FormTrait, TypeName, MoveInfo, ItemInfo, AbilityInfo, LearnsetsArtifact } from "../../src/lib/domain/types.js"
 import { itemKindFromShowdown } from "../../src/lib/domain/items.js"
 import { NATURES } from "../../src/lib/domain/natures.js"
 
@@ -65,7 +65,8 @@ function getTraits(entry: any): FormTrait[] {
   return traits
 }
 
-type BuildResult = { core: DatasetCore; sets: DatasetSets; learnsets: LearnsetsArtifact }
+type DatasetCoreFile = DatasetCore & { tierOverrides: TierEntry[]; formats: FormatMeta[] }
+type BuildResult = { core: DatasetCoreFile; sets: DatasetSets; learnsets: LearnsetsArtifact }
 
 function buildFromFixtures(): BuildResult {
   const pokedexPath = resolve(FIXTURES_DIR, "pokedex.ts")
@@ -232,7 +233,7 @@ function buildFromFixtures(): BuildResult {
     assert(f.types.length >= 1 && f.types.length <= 2, `Form ${f.id} types length`)
   }
 
-  const core: DatasetCore = {
+  const core: DatasetCoreFile = {
     schemaVersion: "0.3.0",
     datasetVersion: new Date().toISOString().slice(0, 10) + ".full",
     generatedAt: new Date().toISOString(),
@@ -576,11 +577,9 @@ function main() {
     species: core.species,
     forms: core.forms,
   }
-  const catalog = {
-    tierOverrides: core.tierOverrides,
+  const catalog: DatasetCatalog = {
     baseStatOverrides: core.baseStatOverrides,
     typeOverrides: core.typeOverrides,
-    formats: core.formats,
     moves: core.moves,
     items: core.items,
     abilities: core.abilities,
