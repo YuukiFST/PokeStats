@@ -16,7 +16,7 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 | 002  | Serve still PNGs in lists; keep ani GIFs for Form detail | P1 | M | 001 | DONE |
 | 003  | Unblock the Dex after `core.json`; load sets and learnsets in the background | P1 | M | - | DONE |
 | 004  | Show the native shell within ~60 ms; never show a black WebView frame | P0 | L | - | DONE — probe n=5: shell median 47 ms (41–76; baseline ~350–549), ui median 456 ms, blackFrames=0 all runs; boot log `window shown` ~19–23 ms, `reveal webview (js)` no fallback |
-| 005  | Boot critical-path diet: defer catalog, drop dead boot work, one JS wave, release profile | P1 | M | - (see notes) | TODO |
+| 005  | Boot critical-path diet: defer catalog, drop dead boot work, one JS wave, release profile | P1 | M | - (see notes) | DONE — catalog 475→416 KB; ui median 429 ms (004: 456); blackFrames 0 in 4/5 warm runs; exe 120.9→116.8 MB (strip) |
 | 006  | Dex/Moves rows: memo, plain anchors, slim thumbs, O(1) bookmarks, presort | P1 | M | - | TODO |
 | 007  | Tab switch: prewarmed chunks, jump-free scroll restore, no per-frame storage writes | P1 | M | 006 (Step 3 only) | TODO |
 | 008  | Threat Matchup: cache Smart index, split score/window, memoize per opponent | P2 | M | - | TODO |
@@ -47,6 +47,7 @@ Re-measure with the same tools after each plan; record the numbers in the
 status column or a short note under this table.
 
 **004 after (n=5, release exe):** shell median **47 ms**, ui median **456 ms**, blackFrames **0**.
+**005 after (n=5 warm, release exe):** ui median **429 ms**; catalog.json 416 KB (−59 KB); `modulePreload: false`; `[profile.release]` thin LTO + strip.
 
 ### Recommended order and dependencies
 

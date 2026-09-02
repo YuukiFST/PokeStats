@@ -215,10 +215,8 @@ export interface DatasetDex {
 
 /** Moves/items/abilities and the rest of core, loaded after the Dex is on screen. */
 export interface DatasetCatalog {
-  tierOverrides: TierEntry[]
   baseStatOverrides: BaseStatOverride[]
   typeOverrides: TypeOverride[]
-  formats: FormatMeta[]
   /** Moves: legal + Set-referenced. Items: full Showdown held-item table. Abilities: Set-referenced. */
   moves: MoveInfo[]
   items: ItemInfo[]

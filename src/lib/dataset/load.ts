@@ -12,7 +12,7 @@ import type {
   Species,
   TypeName,
 } from "@/lib/domain/types"
-import { defensiveProfile, TYPE_NAMES } from "@/lib/domain/typeChart"
+import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { toSlug } from "@/lib/utils"
 
 export interface LoadedDataset {
@@ -26,8 +26,6 @@ export interface LoadedDataset {
   catalogReady: boolean
   formsById: Map<string, Form>
   speciesById: Map<number, Species>
-  enrichment: Map<string, { bst: number; defensive: Record<string, number> }>
-  nameIndex: { slug: string; name: string; formId: string }[]
   movesByName: Map<string, MoveInfo>
   /** Canonical moveId (slug) -> MoveInfo, for route params like /moves/$moveId. */
   movesById: Map<string, MoveInfo>
@@ -39,16 +37,13 @@ export interface LoadedDataset {
 
 type EarlyWindow = Window & {
   __POKESTATS_DEX__?: Promise<DatasetDex>
-  __POKESTATS_CATALOG__?: Promise<DatasetCatalog>
 }
 
 function emptyCore(dex: DatasetDex): DatasetCore {
   return {
     ...dex,
-    tierOverrides: [],
     baseStatOverrides: [],
     typeOverrides: [],
-    formats: [],
     moves: [],
     items: [],
     abilities: [],
@@ -78,27 +73,9 @@ export function indexDex(dex: DatasetDex): Omit<LoadedDataset, "sets" | "learnse
     core: emptyCore(dex),
     formsById,
     speciesById,
-    enrichment: new Map(),
-    nameIndex: [],
     catalogReady: false,
     ...emptyMaps(),
   }
-}
-
-function fillEnrichment(forms: Form[]): {
-  enrichment: LoadedDataset["enrichment"]
-  nameIndex: LoadedDataset["nameIndex"]
-} {
-  const enrichment = new Map<string, { bst: number; defensive: Record<string, number> }>()
-  const nameIndex: LoadedDataset["nameIndex"] = []
-  for (const f of forms) {
-    const bst = f.baseStats.hp + f.baseStats.atk + f.baseStats.def + f.baseStats.spa + f.baseStats.spd + f.baseStats.spe
-    const defensive = defensiveProfile(f.types as unknown as string[] as never) as Record<string, number>
-    enrichment.set(f.id, { bst, defensive })
-    nameIndex.push({ slug: f.id, name: f.name, formId: f.id })
-  }
-  nameIndex.sort((a, b) => a.name.localeCompare(b.name))
-  return { enrichment, nameIndex }
 }
 
 /** Merge moves/items/… into a dex-indexed dataset. Reuses formsById / speciesById. */
@@ -106,13 +83,10 @@ export function applyCatalog(
   indexed: Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady">,
   catalog: DatasetCatalog,
 ): Omit<LoadedDataset, "sets" | "learnsets" | "extrasReady"> {
-  const { enrichment, nameIndex } = fillEnrichment(indexed.core.forms)
   return {
     ...indexed,
     core: { ...indexed.core, ...catalog },
     catalogReady: true,
-    enrichment,
-    nameIndex,
     movesByName: new Map(catalog.moves.map((m) => [m.name, m] as const)),
     movesById: new Map(catalog.moves.map((m) => [toSlug(m.name), m] as const)),
     itemsByName: new Map(catalog.items.map((i) => [i.name, i] as const)),
@@ -206,7 +180,7 @@ export async function ensureExtras(): Promise<void> {
   }
 }
 
-function takeEarly<T>(key: "__POKESTATS_DEX__" | "__POKESTATS_CATALOG__"): Promise<T> | null {
+function takeEarly<T>(key: "__POKESTATS_DEX__"): Promise<T> | null {
   if (typeof window === "undefined") return null
   const w = window as EarlyWindow
   const p = w[key] as Promise<T> | undefined
@@ -244,27 +218,7 @@ async function loadDexPayload(): Promise<{ dex: DatasetDex; coreFallback: Datase
 }
 
 async function loadCatalogPayload(coreFallback: DatasetCore | null): Promise<DatasetCatalog | null> {
-  if (coreFallback) return coreFallback
-  const early = takeEarly<DatasetCatalog>("__POKESTATS_CATALOG__")
-  if (early) {
-    try {
-      const catalog = await early
-      if (catalog?.moves) return catalog
-    } catch {
-      // fall through
-    }
-  }
-  return fetchJson<DatasetCatalog>("/dataset/catalog.json")
-}
-
-function scheduleAfterPaint(fn: () => void): void {
-  if (typeof requestAnimationFrame === "function") {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(fn)
-    })
-  } else {
-    setTimeout(fn, 0)
-  }
+  return coreFallback ?? fetchJson<DatasetCatalog>("/dataset/catalog.json")
 }
 
 export async function loadDataset(): Promise<LoadedDataset> {
@@ -273,9 +227,6 @@ export async function loadDataset(): Promise<LoadedDataset> {
 
   coreInflight = (async () => {
     const started = performance.now()
-    // Kick catalog in parallel with dex (HTML may already have it in flight).
-    const catalogP = loadCatalogPayload(null)
-
     const { dex, coreFallback } = await loadDexPayload()
     cache = withExtras(indexDex(dex), { sets: [] }, {}, false)
     console.log(`[dataset] dex ${dex.forms.length} forms in ${(performance.now() - started).toFixed(1)}ms`)
@@ -288,13 +239,24 @@ export async function loadDataset(): Promise<LoadedDataset> {
       notifyDataset()
     }
 
+    const scheduleIdle = (fn: () => void) => {
+      const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback
+      if (typeof ric === "function") ric(fn, { timeout: 1500 })
+      else setTimeout(fn, 300)
+    }
+
     if (coreFallback) mergeCatalog(coreFallback)
-    else void catalogP.then(mergeCatalog).catch((e) => console.warn("[dataset] catalog", e))
 
     await yieldToPaint()
-    scheduleAfterPaint(() => {
-      void ensureExtras()
-    })
+    if (coreFallback) {
+      scheduleIdle(() => { void ensureExtras() })
+    } else {
+      const catalogP = loadCatalogPayload(null)
+      void catalogP
+        .then(mergeCatalog)
+        .catch((e) => console.warn("[dataset] catalog", e))
+        .finally(() => scheduleIdle(() => { void ensureExtras() }))
+    }
     return cache
   })()
 
