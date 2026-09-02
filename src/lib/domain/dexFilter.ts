@@ -17,6 +17,23 @@ export type DexSortKey = "name" | "bst" | "hp" | "atk" | "def" | "spa" | "spd" |
 
 const collator = new Intl.Collator(undefined)
 
+const sortCache = new WeakMap<Form[], Map<string, Form[]>>()
+
+/** sortForms with a per-forms-array memo: a remount with the same sort key returns the same array. */
+export function sortFormsCached(forms: Form[], sortBy: DexSortKey, dir: "asc" | "desc"): Form[] {
+  let byKey = sortCache.get(forms)
+  if (!byKey) {
+    byKey = new Map()
+    sortCache.set(forms, byKey)
+  }
+  const key = `${sortBy}:${dir}`
+  const hit = byKey.get(key)
+  if (hit) return hit
+  const out = sortForms(forms, sortBy, dir)
+  byKey.set(key, out)
+  return out
+}
+
 export function sortForms(forms: Form[], sortBy: DexSortKey, dir: "asc" | "desc"): Form[] {
   const sign = dir === "asc" ? 1 : -1
   return [...forms].sort((a, b) => {

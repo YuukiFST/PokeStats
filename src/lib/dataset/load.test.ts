@@ -86,6 +86,7 @@ describe("indexCore / withExtras", () => {
     expect(staged.extrasReady).toBe(false)
     expect(staged.sets.sets).toEqual([])
     expect(staged.learnsets).toEqual({})
+    expect(staged.setsByFormId.size).toBe(0)
   })
 
   it("indexes items by slug id", () => {
@@ -104,5 +105,6 @@ describe("indexCore / withExtras", () => {
     expect(full.extrasReady).toBe(true)
     expect(full.formsById).toBe(indexed.formsById)
     expect(full.sets.sets).toHaveLength(1)
+    expect(full.setsByFormId.get("charizard")).toHaveLength(1)
   })
 })

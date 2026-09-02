@@ -7,9 +7,10 @@ import { Badge, TypeBadge, TYPE_CHIP, TypeBadgeAnchor } from "@/components/ui/ba
 import { HelpTip } from "@/components/ui/helptip"
 import { calcBST, cn } from "@/lib/utils"
 import type { Form } from "@/lib/domain/types"
-import { formMatchesSelectedTypes, sortForms, collapseSpecies, type DexSortKey } from "@/lib/domain/dexFilter"
+import { formMatchesSelectedTypes, sortFormsCached, collapseSpecies, type DexSortKey } from "@/lib/domain/dexFilter"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { useDataset } from "@/hooks/useDataset"
+import { useRestoredScroll } from "@/hooks/useRestoredScroll"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { ListSprite, useSpriteManifest, baseFormOf, SpriteLightbox } from "@/components/ui/sprite"
 import { spriteUrls, type SpriteManifest, type SpriteBase } from "@/lib/sprites"
@@ -228,7 +229,7 @@ export function DexPage() {
 
   const activeCount = selectedTypes.size + selectedTraits.size + (grouped ? 1 : 0)
 
-  const sorted = React.useMemo(() => sortForms(forms, sortBy, sortDir), [forms, sortBy, sortDir])
+  const sorted = React.useMemo(() => sortFormsCached(forms, sortBy, sortDir), [forms, sortBy, sortDir])
   const filtered = React.useMemo(() => {
     let out = sorted
     const q = (search.q ?? deferredQuery).trim().toLowerCase()
@@ -252,38 +253,14 @@ export function DexPage() {
   }, [sorted, search.q, deferredQuery, selectedTraits, selectedTypes, grouped, sortBy])
 
   const parentRef = React.useRef<HTMLDivElement>(null)
+  const { initialOffset, saveNow } = useRestoredScroll(parentRef, SCROLL_KEY, !loading)
   const virtualizer = useVirtualizer({
     count: filtered.length,
     getScrollElement: () => parentRef.current,
     estimateSize: React.useCallback(() => 36, []),
     overscan: 10,
+    initialOffset,
   })
-
-  // The list scrolls in its own virtualized container and the router's window
-  // restoration is disabled for "/" (App.tsx), so this effect owns save/restore.
-  // Keyed on `loading` because the skeleton swaps the element out — refs are
-  // null until data renders, so a mount-only effect never attaches.
-  const restoredRef = React.useRef(false)
-  React.useEffect(() => {
-    const el = parentRef.current
-    if (!el) return
-    if (!restoredRef.current && !loading) {
-      restoredRef.current = true
-      const raw = sessionStorage.getItem(SCROLL_KEY)
-      const top = raw === null ? NaN : Number(raw)
-      if (!Number.isNaN(top)) {
-        // double rAF: let the virtualizer lay out rows before jumping
-        requestAnimationFrame(() => requestAnimationFrame(() => { el.scrollTop = top }))
-      }
-    }
-    const onScroll = () => sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
-    el.addEventListener("scroll", onScroll, { passive: true })
-    return () => el.removeEventListener("scroll", onScroll)
-  }, [loading])
-  const saveScroll = React.useCallback(() => {
-    const el = parentRef.current
-    if (el) sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
-  }, [])
 
   const toggleSelect = React.useCallback((id: string) => {
     setSelected((prev) => {
@@ -308,7 +285,7 @@ export function DexPage() {
   const goCompare = React.useCallback(
     (e?: React.MouseEvent) => {
       if (selected.size < 2) return
-      saveScroll()
+      saveNow()
       const ids = [...selected].join(",")
       const loc = { pathname: "/compare", search: `?ids=${ids}` }
       if (e && (e.ctrlKey || e.metaKey)) {
@@ -318,7 +295,7 @@ export function DexPage() {
       }
       navigate({ to: "/compare", search: { ids } as never })
     },
-    [selected, saveScroll, openInNewTab, navigate],
+    [selected, saveNow, openInNewTab, navigate],
   )
 
   if (loading) {

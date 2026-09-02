@@ -18,7 +18,7 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 | 004  | Show the native shell within ~60 ms; never show a black WebView frame | P0 | L | - | DONE — probe n=5: shell median 47 ms (41–76; baseline ~350–549), ui median 456 ms, blackFrames=0 all runs; boot log `window shown` ~19–23 ms, `reveal webview (js)` no fallback |
 | 005  | Boot critical-path diet: defer catalog, drop dead boot work, one JS wave, release profile | P1 | M | - (see notes) | DONE — catalog 475→416 KB; ui median 429 ms (004: 456); blackFrames 0 in 4/5 warm runs; exe 120.9→116.8 MB (strip) |
 | 006  | Dex/Moves rows: memo, plain anchors, slim thumbs, O(1) bookmarks, presort | P1 | M | - | DONE — DexRow/MoveRow memo + data-nav + ListSprite; bookmarkKeySet O(1); sortForms/collapseSpecies; tests 107→114 |
-| 007  | Tab switch: prewarmed chunks, jump-free scroll restore, no per-frame storage writes | P1 | M | 006 (Step 3 only) | TODO |
+| 007  | Tab switch: prewarmed chunks, jump-free scroll restore, no per-frame storage writes | P1 | M | 006 (Step 3 only) | DONE — prewarm after dex; useRestoredScroll + initialOffset; sortFormsCached; setsByFormId; movesById tab labels; tests 114→117 |
 | 008  | Threat Matchup: cache Smart index, split score/window, memoize per opponent | P2 | M | - | TODO |
 
 ## Batch 2 — 2026-09-01 — "half a bounce" (perf focus)
