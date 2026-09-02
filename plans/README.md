@@ -15,7 +15,7 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 | 001  | Resolve sprites only from a local manifest (no CDN waterfall) | P1 | M | - | DONE |
 | 002  | Serve still PNGs in lists; keep ani GIFs for Form detail | P1 | M | 001 | DONE |
 | 003  | Unblock the Dex after `core.json`; load sets and learnsets in the background | P1 | M | - | DONE |
-| 004  | Show the native shell within ~60 ms; never show a black WebView frame | P0 | L | - | TODO |
+| 004  | Show the native shell within ~60 ms; never show a black WebView frame | P0 | L | - | DONE — probe n=5: shell median 47 ms (41–76; baseline ~350–549), ui median 456 ms, blackFrames=0 all runs; boot log `window shown` ~19–23 ms, `reveal webview (js)` no fallback |
 | 005  | Boot critical-path diet: defer catalog, drop dead boot work, one JS wave, release profile | P1 | M | - (see notes) | TODO |
 | 006  | Dex/Moves rows: memo, plain anchors, slim thumbs, O(1) bookmarks, presort | P1 | M | - | TODO |
 | 007  | Tab switch: prewarmed chunks, jump-free scroll restore, no per-frame storage writes | P1 | M | 006 (Step 3 only) | TODO |
@@ -45,6 +45,8 @@ frame on the way there may be black or empty.
 
 Re-measure with the same tools after each plan; record the numbers in the
 status column or a short note under this table.
+
+**004 after (n=5, release exe):** shell median **47 ms**, ui median **456 ms**, blackFrames **0**.
 
 ### Recommended order and dependencies
 
