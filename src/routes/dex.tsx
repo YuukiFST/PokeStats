@@ -11,8 +11,19 @@ import { formMatchesSelectedTypes } from "@/lib/domain/dexFilter"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
-import type { DexSearch } from "@/App"
 import { SpriteThumb } from "@/components/ui/sprite"
+
+export type DexSearch = {
+  q?: string
+  trait?: string
+  traits?: string
+  type?: string
+  types?: string
+  mode?: string
+  grouped?: string
+  sort?: string
+  dir?: string
+}
 import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { StarButton } from "@/components/ui/star"
 import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"

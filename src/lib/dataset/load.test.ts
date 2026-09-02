@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { indexCore, withExtras } from "./load"
+import { applyCatalog, indexCore, indexDex, withExtras } from "./load"
 import type { DatasetCore } from "@/lib/domain/types"
 
 const core: DatasetCore = {
@@ -55,10 +55,28 @@ const core: DatasetCore = {
 }
 
 describe("indexCore / withExtras", () => {
+  it("indexDex is enough for the Dex: forms maps, no catalog", () => {
+    const dex = indexDex(core)
+    expect(dex.formsById.get("charizard")?.name).toBe("Charizard")
+    expect(dex.catalogReady).toBe(false)
+    expect(dex.movesById.size).toBe(0)
+    expect(dex.enrichment.size).toBe(0)
+  })
+
+  it("applyCatalog fills move/item maps without replacing formsById", () => {
+    const dex = indexDex(core)
+    const full = applyCatalog(dex, core)
+    expect(full.formsById).toBe(dex.formsById)
+    expect(full.catalogReady).toBe(true)
+    expect(full.movesByName.get("Flamethrower")?.power).toBe(90)
+    expect(full.itemsById.get("leftovers")?.name).toBe("Leftovers")
+  })
+
   it("builds formsById and enrichment BST as the sum of six stats", () => {
     const indexed = indexCore(core)
     expect(indexed.formsById.get("charizard")?.name).toBe("Charizard")
     expect(indexed.formsById.get("charizardmegax")?.isBaseForm).toBe(false)
+    expect(indexed.catalogReady).toBe(true)
     expect(indexed.enrichment.get("charizard")?.bst).toBe(78 + 84 + 78 + 109 + 85 + 100)
   })
 

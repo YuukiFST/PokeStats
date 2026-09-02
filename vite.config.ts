@@ -16,6 +16,16 @@ export default defineConfig({
     target: process.env.TAURI_ENV_PLATFORM ? 'chrome105' : 'esnext',
     minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom')) return 'react-dom'
+          if (id.includes('node_modules/react/')) return 'react'
+          if (id.includes('node_modules/@tanstack/react-router')) return 'router'
+          if (id.includes('node_modules/@tanstack/react-virtual')) return 'virtual'
+        },
+      },
+    },
   },
   resolve: {
     alias: {

@@ -5,10 +5,111 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pokestats</title>
+    <title>PokeStats</title>
+    <style>
+      html, body, #root { height: 100%; margin: 0; overflow: hidden; }
+      html { background: #0a0a0a; color: #ededed; font-family: Segoe UI, system-ui, sans-serif; }
+      html[data-theme="light"] { background: #ffffff; color: #171717; }
+      .boot { display: flex; height: 100%; }
+      .boot-aside {
+        width: 200px;
+        flex-shrink: 0;
+        background: #000;
+        border-right: 1px solid #2e2e2e;
+        display: flex;
+        flex-direction: column;
+      }
+      html[data-theme="light"] .boot-aside {
+        background: #fafafa;
+        border-right-color: #eaeaea;
+      }
+      .boot-head {
+        height: 48px;
+        border-bottom: 1px solid #2e2e2e;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      html[data-theme="light"] .boot-head { border-bottom-color: #eaeaea; }
+      .boot-head span { margin-left: auto; font-size: 12px; color: #8f8f8f; font-weight: 400; }
+      .boot-nav { padding: 8px; font-size: 14px; color: #a0a0a0; line-height: 2; }
+      .boot-nav b { color: #ededed; font-weight: 500; }
+      html[data-theme="light"] .boot-nav { color: #666; }
+      html[data-theme="light"] .boot-nav b { color: #171717; }
+      .boot-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+      .boot-tabs {
+        height: 36px;
+        border-bottom: 1px solid #2e2e2e;
+        background: #000;
+        display: flex;
+        align-items: flex-end;
+        padding: 0 8px;
+        font-size: 12px;
+        color: #ededed;
+      }
+      html[data-theme="light"] .boot-tabs { background: #fafafa; border-bottom-color: #eaeaea; color: #171717; }
+      .boot-tab {
+        height: 30px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #2e2e2e;
+        border-bottom: 1px solid #0a0a0a;
+        border-radius: 6px 6px 0 0;
+        background: #0a0a0a;
+      }
+      .boot-search {
+        margin: 12px 16px 0;
+        height: 36px;
+        border: 1px solid #2e2e2e;
+        border-radius: 6px;
+        background: #1a1a1a;
+      }
+    </style>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("pokestats:theme") || "dark"
+          document.documentElement.dataset.theme = t
+          document.documentElement.classList.toggle("dark", t === "dark")
+        } catch (e) {}
+        function getJson(url) {
+          return fetch(url).then(function (r) {
+            if (!r.ok) throw new Error(url + " " + r.status)
+            return r.json()
+          })
+        }
+        window.__POKESTATS_DEX__ = getJson("/dataset/dex.json")
+        window.__POKESTATS_CATALOG__ = getJson("/dataset/catalog.json")
+        window.__POKESTATS_SPRITES__ = getJson("/sprites/manifest.json")
+      })()
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot">
+        <aside class="boot-aside">
+          <div class="boot-head">PokeStats <span>v2</span></div>
+          <nav class="boot-nav">
+            <div><b>Dex</b></div>
+            <div>Moves</div>
+            <div>Types</div>
+            <div>Items</div>
+            <div>Natures</div>
+            <div>Compare</div>
+            <div>Teams</div>
+            <div>Favorites</div>
+            <div>Settings</div>
+          </nav>
+        </aside>
+        <div class="boot-main">
+          <div class="boot-tabs"><div class="boot-tab">Dex</div></div>
+          <div class="boot-search"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

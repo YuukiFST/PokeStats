@@ -24,7 +24,7 @@ const KIND_KEY: Record<ItemKind, TranslationKey> = {
 export function ItemDetailPage() {
   const { itemId } = useParams({ strict: false }) as { itemId: string }
   const { back } = useWorkspace()
-  const { data, loading, extrasReady } = useDataset()
+  const { data, loading, extrasReady, catalogReady } = useDataset()
   const { t } = useI18n()
 
   const item = data?.itemsById.get(itemId) ?? null
@@ -33,7 +33,7 @@ export function ItemDetailPage() {
     return setsUsingItem(data.sets.sets, item.name)
   }, [data, item])
 
-  if (loading || !data) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
+  if (loading || !data || !catalogReady) return <div className="p-8 text-sm text-[var(--ds-gray-700)]">{t("detail.loading")}</div>
 
   if (!item) {
     return (

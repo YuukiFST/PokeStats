@@ -138,7 +138,7 @@ function TypeCombobox({ value, onChange }: { value: string | null; onChange: (ty
 }
 
 export function MovesPage() {
-  const { data, loading, error } = useDataset()
+  const { data, loading, error, catalogReady } = useDataset()
   const navigate = useNavigate({ from: "/moves" })
   const search = useSearch({ from: "/moves" }) as MovesSearch
   const { t, typeName } = useI18n()
@@ -250,7 +250,7 @@ export function MovesPage() {
   React.useEffect(() => {
     const el = parentRef.current
     if (!el) return
-    if (!restoredRef.current && !loading) {
+    if (!restoredRef.current && !loading && catalogReady) {
       restoredRef.current = true
       const raw = sessionStorage.getItem(SCROLL_KEY)
       const top = raw === null ? NaN : Number(raw)
@@ -262,13 +262,13 @@ export function MovesPage() {
     const onScroll = () => sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
     el.addEventListener("scroll", onScroll, { passive: true })
     return () => el.removeEventListener("scroll", onScroll)
-  }, [loading])
+  }, [loading, catalogReady])
   const saveScroll = React.useCallback(() => {
     const el = parentRef.current
     if (el) sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
   }, [])
 
-  if (loading) {
+  if (loading || !catalogReady) {
     return (
       <div className="p-8 space-y-4">
         <div className="h-6 w-40 bg-[var(--ds-gray-100)] animate-pulse rounded" />

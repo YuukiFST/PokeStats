@@ -4,10 +4,11 @@ import { moveIdForName } from "@/lib/dataset/load"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { CloseIcon, PlusIcon } from "@/components/ui/icons"
-import { SpriteThumb } from "@/components/ui/sprite"
 import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { tabTitle } from "@/lib/workspace/title"
 import type { LocationSnapshot } from "@/lib/workspace/state"
+
+const SpriteThumb = React.lazy(() => import("@/components/ui/sprite").then((m) => ({ default: m.SpriteThumb })))
 
 function useTabMeta(loc: LocationSnapshot): { label: string; glyph: React.ReactNode } {
   const { t, typeName } = useI18n()
@@ -19,7 +20,13 @@ function useTabMeta(loc: LocationSnapshot): { label: string; glyph: React.ReactN
     const form = data?.formsById.get(id)
     return {
       label: form?.name ?? fallback,
-      glyph: form ? <SpriteThumb form={form} size={18} expandable={false} /> : <span className="text-[13px] leading-none opacity-80">●</span>,
+      glyph: form ? (
+        <React.Suspense fallback={<span className="text-[13px] leading-none opacity-80">●</span>}>
+          <SpriteThumb form={form} size={18} expandable={false} />
+        </React.Suspense>
+      ) : (
+        <span className="text-[13px] leading-none opacity-80">●</span>
+      ),
     }
   }
   const moveMatch = loc.pathname.match(/^\/moves\/([^/]+)$/)

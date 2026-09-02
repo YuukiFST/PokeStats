@@ -33,7 +33,7 @@ const SCROLL_KEY = "items:scrollTop"
 export function ItemsPage() {
   const search = useSearch({ strict: false }) as ItemsSearch
   const navigate = useNavigate()
-  const { data, loading, error, extrasReady } = useDataset()
+  const { data, loading, error, extrasReady, catalogReady } = useDataset()
   const { t } = useI18n()
   const [inputValue, setInputValue] = React.useState(search.q ?? "")
   const deferredQuery = React.useDeferredValue(inputValue)
@@ -92,7 +92,7 @@ export function ItemsPage() {
   React.useEffect(() => {
     const el = parentRef.current
     if (!el) return
-    if (!restoredRef.current && !loading) {
+    if (!restoredRef.current && !loading && catalogReady) {
       restoredRef.current = true
       const raw = sessionStorage.getItem(SCROLL_KEY)
       const top = raw === null ? NaN : Number(raw)
@@ -103,9 +103,9 @@ export function ItemsPage() {
     const onScroll = () => sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
     el.addEventListener("scroll", onScroll, { passive: true })
     return () => el.removeEventListener("scroll", onScroll)
-  }, [loading])
+  }, [loading, catalogReady])
 
-  if (loading) {
+  if (loading || !catalogReady) {
     return (
       <div className="p-8 space-y-4">
         <div className="h-6 w-40 bg-[var(--ds-gray-100)] animate-pulse rounded" />

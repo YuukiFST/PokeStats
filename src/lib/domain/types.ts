@@ -203,13 +203,18 @@ export interface Team {
 }
 
 // ---------- dataset artifact (ticket 08: core + sets, JSON minified) ----------
-export interface DatasetCore {
+/** Forms + species only — enough for the Dex first paint. */
+export interface DatasetDex {
   schemaVersion: string
   datasetVersion: string
   generatedAt: string
   sourceRevisions: Record<string, string>
   species: Species[]
   forms: Form[]
+}
+
+/** Moves/items/abilities and the rest of core, loaded after the Dex is on screen. */
+export interface DatasetCatalog {
   tierOverrides: TierEntry[]
   baseStatOverrides: BaseStatOverride[]
   typeOverrides: TypeOverride[]
@@ -220,6 +225,8 @@ export interface DatasetCore {
   abilities: AbilityInfo[]
   natures: NatureInfo[]
 }
+
+export type DatasetCore = DatasetDex & DatasetCatalog
 
 export interface DatasetSets {
   sets: Set[]
