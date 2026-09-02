@@ -1,7 +1,8 @@
 import * as React from "react"
 import {
   BOOKMARKS_KEY,
-  hasBookmark,
+  bookmarkKey,
+  bookmarkKeySet,
   parseBookmarks,
   serializeBookmarks,
   toggleBookmark,
@@ -11,6 +12,7 @@ import {
 
 type Api = {
   items: Bookmark[]
+  keys: Set<string>
   has: (ref: BookmarkRef) => boolean
   toggle: (ref: BookmarkRef) => void
 }
@@ -32,12 +34,13 @@ export function BookmarksProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }, [items])
 
-  const has = React.useCallback((ref: BookmarkRef) => hasBookmark(items, ref), [items])
+  const keys = React.useMemo(() => bookmarkKeySet(items), [items])
+  const has = React.useCallback((ref: BookmarkRef) => keys.has(bookmarkKey(ref)), [keys])
   const toggle = React.useCallback((ref: BookmarkRef) => {
     setItems((prev) => toggleBookmark(prev, ref))
   }, [])
 
-  const value = React.useMemo(() => ({ items, has, toggle }), [items, has, toggle])
+  const value = React.useMemo(() => ({ items, keys, has, toggle }), [items, keys, has, toggle])
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 

@@ -165,6 +165,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const onClick = (e: MouseEvent) => {
       const a = internalAnchor(e.target)
       if (!a) return
+      if (a.dataset.nav !== undefined && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+        e.preventDefault()
+        e.stopPropagation()
+        const href = a.getAttribute("href")
+        if (href) router.history.replace(href)
+        return
+      }
       if (e.button === 1 || e.ctrlKey || e.metaKey) {
         e.preventDefault()
         e.stopPropagation()
@@ -194,7 +201,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       document.removeEventListener("auxclick", onAux, true)
       document.removeEventListener("contextmenu", onContext, true)
     }
-  }, [openInNewTab])
+  }, [openInNewTab, router])
 
   const value = React.useMemo<WorkspaceApi>(
     () => ({

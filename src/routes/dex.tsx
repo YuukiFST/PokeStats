@@ -1,17 +1,18 @@
 import * as React from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { Link, useNavigate, useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge, LinkedTypeBadge, TypeBadge, TYPE_CHIP } from "@/components/ui/badge"
+import { Badge, TypeBadge, TYPE_CHIP, TypeBadgeAnchor } from "@/components/ui/badge"
 import { HelpTip } from "@/components/ui/helptip"
 import { calcBST, cn } from "@/lib/utils"
 import type { Form } from "@/lib/domain/types"
-import { formMatchesSelectedTypes } from "@/lib/domain/dexFilter"
+import { formMatchesSelectedTypes, sortForms, collapseSpecies, type DexSortKey } from "@/lib/domain/dexFilter"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
-import { SpriteThumb } from "@/components/ui/sprite"
+import { ListSprite, useSpriteManifest, baseFormOf, SpriteLightbox } from "@/components/ui/sprite"
+import { spriteUrls, type SpriteManifest, type SpriteBase } from "@/lib/sprites"
 
 export type DexSearch = {
   q?: string
@@ -28,18 +29,81 @@ import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { StarButton } from "@/components/ui/star"
 import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
 
-type SortKey = "name" | "bst" | "hp" | "atk" | "def" | "spa" | "spd" | "spe" | "tier"
+type SortKey = DexSortKey
 
 const SCROLL_KEY = "dex:scrollTop"
 const FILTERS_KEY = "pokestats:filtersOpen"
 const TRAIT_OPTIONS = ["mega", "gmax", "primal", "regional", "battle-only", "none"] as const
+
+type DexRowProps = {
+  form: Form
+  index: number
+  start: number
+  selected: boolean
+  starred: boolean
+  manifest: SpriteManifest | null
+  base: SpriteBase | undefined
+  starAdd: string
+  starRemove: string
+  typeName: (type: string) => string
+  onToggleSelect: (id: string) => void
+  onToggleStar: (id: string) => void
+  onExpand: (form: Form) => void
+}
+
+const DexRow = React.memo(function DexRow(p: DexRowProps) {
+  const f = p.form
+  const bst = calcBST(f.baseStats)
+  return (
+    <div
+      style={{ position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${p.start}px)` }}
+      className={`grid grid-cols-[28px_36px_28px_1fr_140px_54px_54px_54px_54px_54px_54px_64px_84px] gap-2 px-4 py-1.5 items-center text-sm border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)] ${p.selected ? "bg-[var(--ds-gray-100)]" : ""}`}
+    >
+      <input type="checkbox" checked={p.selected} onChange={() => p.onToggleSelect(f.id)} className="rounded" />
+      <span className="text-center tnum text-xs text-[var(--ds-gray-700)] tabular-nums">{p.index + 1}</span>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); p.onExpand(f) }}
+        className="w-7 h-7 shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-blue-700)] inline-flex items-center justify-center cursor-zoom-in"
+        aria-label={`Expandir ${f.name}`}
+      >
+        <ListSprite form={f} base={p.base} manifest={p.manifest} />
+      </button>
+      <span className="flex items-center gap-1 min-w-0">
+        <StarButton className="h-6 w-6" active={p.starred} onToggle={() => p.onToggleStar(f.id)} label={p.starred ? p.starRemove : p.starAdd} />
+        <a data-nav href={`/form/${encodeURIComponent(f.id)}`} className="text-left truncate hover:underline font-medium" title={f.id}>
+          {f.name}
+          {f.traits.length > 0 && <span className="ml-1 text-xs text-[var(--ds-gray-700)]">[{f.traits.join(",")}]</span>}
+        </a>
+      </span>
+      <span className="flex gap-1">
+        {f.types.map((tt) => <TypeBadgeAnchor key={tt} type={tt} title={p.typeName(tt)} />)}
+        {f.types.length === 1 && <span className="w-[62px] shrink-0" />}
+      </span>
+      <span className="text-right tnum">{f.baseStats.hp}</span>
+      <span className="text-right tnum">{f.baseStats.atk}</span>
+      <span className="text-right tnum">{f.baseStats.def}</span>
+      <span className="text-right tnum">{f.baseStats.spa}</span>
+      <span className="text-right tnum">{f.baseStats.spd}</span>
+      <span className="text-right tnum">{f.baseStats.spe}</span>
+      <span className="text-right tnum font-semibold">{bst}</span>
+      <span className="text-right flex justify-end">{f.tier ? <Badge className="w-[64px] justify-center">{f.tier}</Badge> : <span className="text-[var(--ds-gray-700)] w-[64px] inline-flex justify-center">—</span>}</span>
+    </div>
+  )
+})
 
 export function DexPage() {
   const { data, loading, error } = useDataset()
   const navigate = useNavigate({ from: "/" })
   const search = useSearch({ from: "/" }) as DexSearch
   const { t, typeName } = useI18n()
-  const { has, toggle } = useBookmarks()
+  const { keys: starredKeys, toggle } = useBookmarks()
+  const manifest = useSpriteManifest()
+  const onToggleStar = React.useCallback((id: string) => toggle({ kind: "form", formId: id }), [toggle])
+  const [lightbox, setLightbox] = React.useState<Form | null>(null)
+  const onExpand = React.useCallback((f: Form) => setLightbox(f), [])
+  const starAdd = t("bookmarks.add")
+  const starRemove = t("bookmarks.remove")
   const { openInNewTab, openLinkMenu } = useWorkspace()
 
   const query = search.q ?? ""
@@ -164,8 +228,9 @@ export function DexPage() {
 
   const activeCount = selectedTypes.size + selectedTraits.size + (grouped ? 1 : 0)
 
+  const sorted = React.useMemo(() => sortForms(forms, sortBy, sortDir), [forms, sortBy, sortDir])
   const filtered = React.useMemo(() => {
-    let out = forms
+    let out = sorted
     const q = (search.q ?? deferredQuery).trim().toLowerCase()
     if (q) out = out.filter((f) => f.name.toLowerCase().includes(q) || f.id.includes(q))
     if (selectedTraits.size > 0) {
@@ -182,52 +247,9 @@ export function DexPage() {
     if (selectedTypes.size > 0) {
       out = out.filter((f) => formMatchesSelectedTypes(f.types as string[], selectedTypes))
     }
-    if (grouped && sortBy !== "name") {
-      const bySpecies = new Map<number, Form[]>()
-      for (const f of out) {
-        const arr = bySpecies.get(f.speciesId) ?? []
-        arr.push(f)
-        bySpecies.set(f.speciesId, arr)
-      }
-      const collapsed: Form[] = []
-      for (const group of bySpecies.values()) {
-        if (group.length <= 1) collapsed.push(group[0]!)
-        else {
-          const byBst = new Map<number, Form[]>()
-          for (const g of group) {
-            const k = calcBST(g.baseStats)
-            const arr = byBst.get(k) ?? []
-            arr.push(g)
-            byBst.set(k, arr)
-          }
-          if (byBst.size === 1) collapsed.push(group.find((g) => g.isBaseForm) ?? group[0]!)
-          else collapsed.push(...group)
-        }
-      }
-      out = collapsed
-    }
-    const dir = sortDir === "asc" ? 1 : -1
-    out = [...out].sort((a, b) => {
-      let av: number | string
-      let bv: number | string
-      if (sortBy === "name") {
-        av = a.name
-        bv = b.name
-      } else if (sortBy === "bst") {
-        av = calcBST(a.baseStats)
-        bv = calcBST(b.baseStats)
-      } else if (sortBy === "tier") {
-        av = a.tier ?? ""
-        bv = b.tier ?? ""
-      } else {
-        av = a.baseStats[sortBy as "hp" | "atk" | "def" | "spa" | "spd" | "spe"]
-        bv = b.baseStats[sortBy as "hp" | "atk" | "def" | "spa" | "spd" | "spe"]
-      }
-      if (typeof av === "string") return av.localeCompare(bv as string) * dir
-      return (av - (bv as number)) * dir
-    })
+    if (grouped && sortBy !== "name") out = collapseSpecies(out)
     return out
-  }, [forms, search.q, deferredQuery, selectedTraits, selectedTypes, grouped, sortBy, sortDir])
+  }, [sorted, search.q, deferredQuery, selectedTraits, selectedTypes, grouped, sortBy])
 
   const parentRef = React.useRef<HTMLDivElement>(null)
   const virtualizer = useVirtualizer({
@@ -496,50 +518,23 @@ export function DexPage() {
         <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
           {virtualizer.getVirtualItems().map((row) => {
             const f = filtered[row.index]!
-            const bst = calcBST(f.baseStats)
-            const isSel = selected.has(f.id)
             return (
-              <div
+              <DexRow
                 key={f.id}
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${row.start}px)` }}
-                className={`grid grid-cols-[28px_36px_28px_1fr_140px_54px_54px_54px_54px_54px_54px_64px_84px] gap-2 px-4 py-1.5 items-center text-sm border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)] ${isSel ? "bg-[var(--ds-gray-100)]" : ""}`}
-              >
-                <input type="checkbox" checked={isSel} onChange={() => toggleSelect(f.id)} className="rounded" />
-                <span className="text-center tnum text-xs text-[var(--ds-gray-700)] tabular-nums">{row.index + 1}</span>
-                <SpriteThumb form={f} />
-                <span className="flex items-center gap-1 min-w-0">
-                  <StarButton
-                    className="h-6 w-6"
-                    active={has({ kind: "form", formId: f.id })}
-                    onToggle={() => toggle({ kind: "form", formId: f.id })}
-                    label={has({ kind: "form", formId: f.id }) ? t("bookmarks.remove") : t("bookmarks.add")}
-                  />
-                  <Link
-                    to="/form/$formId"
-                    params={{ formId: f.id } as never}
-                    className="text-left truncate hover:underline font-medium"
-                    onClick={() => saveScroll()}
-                    title={f.id}
-                  >
-                    {f.name}
-                    {f.traits.length > 0 && <span className="ml-1 text-xs text-[var(--ds-gray-700)]">[{f.traits.join(",")}]</span>}
-                  </Link>
-                </span>
-                <span className="flex gap-1">
-                  {f.types.map((tt) => (
-                    <LinkedTypeBadge key={tt} type={tt} />
-                  ))}
-                  {f.types.length === 1 && <span className="w-[62px] shrink-0" />}
-                </span>
-                <span className="text-right tnum">{f.baseStats.hp}</span>
-                <span className="text-right tnum">{f.baseStats.atk}</span>
-                <span className="text-right tnum">{f.baseStats.def}</span>
-                <span className="text-right tnum">{f.baseStats.spa}</span>
-                <span className="text-right tnum">{f.baseStats.spd}</span>
-                <span className="text-right tnum">{f.baseStats.spe}</span>
-                <span className="text-right tnum font-semibold">{bst}</span>
-                <span className="text-right flex justify-end">{f.tier ? <Badge className="w-[64px] justify-center">{f.tier}</Badge> : <span className="text-[var(--ds-gray-700)] w-[64px] inline-flex justify-center">—</span>}</span>
-              </div>
+                form={f}
+                index={row.index}
+                start={row.start}
+                selected={selected.has(f.id)}
+                starred={starredKeys.has(`form:${f.id}`)}
+                manifest={manifest}
+                base={f.isBaseForm ? undefined : baseFormOf(forms, f.speciesId)}
+                starAdd={starAdd}
+                starRemove={starRemove}
+                typeName={typeName}
+                onToggleSelect={toggleSelect}
+                onToggleStar={onToggleStar}
+                onExpand={onExpand}
+              />
             )
           })}
         </div>
@@ -554,6 +549,15 @@ export function DexPage() {
           </div>
         )}
       </div>
+
+      {lightbox && manifest && (
+        <SpriteLightbox
+          form={lightbox}
+          src={spriteUrls(lightbox, "thumb", lightbox.isBaseForm ? undefined : baseFormOf(forms, lightbox.speciesId), manifest).list[0] ?? ""}
+          open
+          onClose={() => setLightbox(null)}
+        />
+      )}
 
       {selCount > 0 && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center px-4 pb-3">
@@ -581,7 +585,7 @@ export function DexPage() {
                     onClick={() => toggleSelect(f.id)}
                     className="relative h-8 w-8 overflow-hidden rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-gray-100)] hover:border-[var(--ds-red-700)]"
                   >
-                    <SpriteThumb form={f} size={32} expandable={false} />
+                    <ListSprite form={f} size={32} base={f.isBaseForm ? undefined : baseFormOf(forms, f.speciesId)} manifest={manifest} />
                   </button>
                 )
               })}

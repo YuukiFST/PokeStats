@@ -22,15 +22,14 @@ type FormLike = {
 
 // speciesId -> Base Form of that Species (dataset is immutable per app run)
 let baseFormIndex: Map<number, Form> | null = null
-function baseFormOf(forms: Form[], speciesId: number): SpriteBase | undefined {
+export function baseFormOf(forms: Form[], speciesId: number): Form | undefined {
   if (!baseFormIndex) {
     baseFormIndex = new Map()
     for (const f of forms) {
       if (f.isBaseForm && !baseFormIndex.has(f.speciesId)) baseFormIndex.set(f.speciesId, f)
     }
   }
-  const b = baseFormIndex.get(speciesId)
-  return b ? { id: b.id, name: b.name, speciesId: b.speciesId } : undefined
+  return baseFormIndex.get(speciesId)
 }
 
 function useBaseFallback(form: FormLike): SpriteBase | undefined {
@@ -41,7 +40,7 @@ function useBaseFallback(form: FormLike): SpriteBase | undefined {
   }, [data, form.speciesId, form.isBaseForm])
 }
 
-function useSpriteManifest(): SpriteManifest | null {
+export function useSpriteManifest(): SpriteManifest | null {
   const [manifest, setManifest] = React.useState<SpriteManifest | null>(getSpriteManifestSync)
   React.useEffect(() => {
     if (manifest) return
@@ -66,7 +65,7 @@ type Props = {
 }
 
 /* ---------- lightbox: only image, solid opaque bg, draggable ---------- */
-function SpriteLightbox({
+export function SpriteLightbox({
   form,
   src,
   open,
@@ -325,5 +324,37 @@ export function SpriteThumb({ form, size = 28, expandable = true }: { form: Form
       </button>
       {open && <SpriteLightbox form={form} src={src} open={open} onClose={() => setOpen(false)} />}
     </>
+  )
+}
+
+export function ListSprite({
+  form,
+  base,
+  manifest,
+  size = 28,
+  className,
+}: {
+  form: FormLike
+  base: SpriteBase | undefined
+  manifest: SpriteManifest | null
+  size?: number
+  className?: string
+}) {
+  const src = manifest ? spriteUrls(form, "thumb", base, manifest).list[0] : undefined
+  const [failed, setFailed] = React.useState<string | null>(null)
+  if (!src || failed === src) {
+    return <span className="w-7 h-7 rounded bg-[var(--ds-gray-100)] border border-[var(--ds-gray-400)] inline-flex items-center justify-center text-[9px] text-[var(--ds-gray-700)] shrink-0">—</span>
+  }
+  return (
+    <img
+      src={src}
+      alt=""
+      width={size}
+      height={size}
+      decoding="async"
+      className={`object-contain shrink-0 ${className ?? ""}`}
+      style={{ imageRendering: "auto" as never, width: size, height: size }}
+      onError={() => setFailed(src)}
+    />
   )
 }

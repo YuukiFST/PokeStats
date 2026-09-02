@@ -1,18 +1,19 @@
 import * as React from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { Link, useNavigate, useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { TypeBadge } from "@/components/ui/badge"
 import { HelpTip } from "@/components/ui/helptip"
 import { toSlug, cn } from "@/lib/utils"
-import type { MoveCategory } from "@/lib/domain/types"
+import type { MoveCategory, MoveInfo } from "@/lib/domain/types"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { moveIdForName } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { StarButton } from "@/components/ui/star"
 import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
+import { bookmarkKey } from "@/lib/bookmarks/store"
 
 export type MovesSearch = {
   q?: string
@@ -32,6 +33,48 @@ const CATEGORY_ICON: Record<string, string> = {
   Special: "/sprites/category-special.png",
   Status: "/sprites/category-status.png",
 }
+
+type MoveRowProps = {
+  move: MoveInfo
+  start: number
+  moveId: string
+  learners: number | null
+  starred: boolean
+  starAdd: string
+  starRemove: string
+  onToggleStar: (moveId: string) => void
+}
+
+const MoveRow = React.memo(function MoveRow(p: MoveRowProps) {
+  const m = p.move
+  return (
+    <div
+      style={{ position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${p.start}px)` }}
+      className="w-full grid grid-cols-[28px_minmax(180px,1fr)_92px_96px_64px_64px_48px_64px_96px_minmax(160px,1.4fr)] gap-2 px-4 py-1.5 items-center text-sm border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)]"
+    >
+      <StarButton
+        className="h-6 w-6"
+        active={p.starred}
+        onToggle={() => p.onToggleStar(p.moveId)}
+        label={p.starred ? p.starRemove : p.starAdd}
+      />
+      <a data-nav href={`/moves/${encodeURIComponent(p.moveId)}`} className="contents text-left">
+        <span className="font-medium truncate hover:underline">{m.name}</span>
+        <TypeBadge type={m.type} className="h-[20px]" />
+        <span className="flex items-center gap-1.5 text-xs text-[var(--ds-gray-700)]">
+          <img src={CATEGORY_ICON[m.category]} alt="" className="h-2.5 w-auto opacity-80 shrink-0" />
+          {m.category}
+        </span>
+        <span className="text-right tnum">{m.power ?? "—"}</span>
+        <span className="text-right tnum">{m.accuracy !== null ? `${m.accuracy}%` : "—"}</span>
+        <span className="text-right tnum">{m.pp ?? "—"}</span>
+        <span className="text-right tnum">{m.priority !== 0 ? (m.priority > 0 ? `+${m.priority}` : m.priority) : "—"}</span>
+        <span className="text-right tnum text-[var(--ds-gray-700)]">{p.learners != null && p.learners > 0 ? p.learners : "—"}</span>
+        <span className="truncate text-xs text-[var(--ds-gray-700)]" title={m.shortDesc}>{m.shortDesc}</span>
+      </a>
+    </div>
+  )
+})
 
 /**
  * Single-select type filter: type to narrow the 18 options as you go.
@@ -142,7 +185,10 @@ export function MovesPage() {
   const navigate = useNavigate({ from: "/moves" })
   const search = useSearch({ from: "/moves" }) as MovesSearch
   const { t, typeName } = useI18n()
-  const { has, toggle } = useBookmarks()
+  const { keys: starredKeys, toggle } = useBookmarks()
+  const onToggleStar = React.useCallback((moveId: string) => toggle({ kind: "move", moveId }), [toggle])
+  const starAdd = t("bookmarks.add")
+  const starRemove = t("bookmarks.remove")
 
   const query = search.q ?? ""
   const sortBy = (search.sort as SortKey) ?? "power"
@@ -263,10 +309,6 @@ export function MovesPage() {
     el.addEventListener("scroll", onScroll, { passive: true })
     return () => el.removeEventListener("scroll", onScroll)
   }, [loading, catalogReady])
-  const saveScroll = React.useCallback(() => {
-    const el = parentRef.current
-    if (el) sessionStorage.setItem(SCROLL_KEY, String(el.scrollTop))
-  }, [])
 
   if (loading || !catalogReady) {
     return (
@@ -365,41 +407,20 @@ export function MovesPage() {
         <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
           {virtualizer.getVirtualItems().map((row) => {
             const m = filtered[row.index]!
-            const learners = extrasReady && learnsets ? (learnsets[moveIdForName(m.name)]?.length ?? 0) : 0
             const moveId = moveIdForName(m.name)
-            const starred = has({ kind: "move", moveId })
+            const learners = extrasReady && learnsets ? (learnsets[moveId]?.length ?? 0) : null
             return (
-              <div
+              <MoveRow
                 key={m.name}
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${row.start}px)` }}
-                className="w-full grid grid-cols-[28px_minmax(180px,1fr)_92px_96px_64px_64px_48px_64px_96px_minmax(160px,1.4fr)] gap-2 px-4 py-1.5 items-center text-sm border-b border-[var(--ds-gray-200)] hover:bg-[var(--ds-gray-100)]"
-              >
-                <StarButton
-                  className="h-6 w-6"
-                  active={starred}
-                  onToggle={() => toggle({ kind: "move", moveId })}
-                  label={starred ? t("bookmarks.remove") : t("bookmarks.add")}
-                />
-                <Link
-                  to="/moves/$moveId"
-                  params={{ moveId } as never}
-                  onClick={() => saveScroll()}
-                  className="contents text-left"
-                >
-                  <span className="font-medium truncate hover:underline">{m.name}</span>
-                  <TypeBadge type={m.type} className="h-[20px]" />
-                  <span className="flex items-center gap-1.5 text-xs text-[var(--ds-gray-700)]">
-                    <img src={CATEGORY_ICON[m.category]} alt="" className="h-2.5 w-auto opacity-80 shrink-0" />
-                    {m.category}
-                  </span>
-                  <span className="text-right tnum">{m.power ?? "—"}</span>
-                  <span className="text-right tnum">{m.accuracy !== null ? `${m.accuracy}%` : "—"}</span>
-                  <span className="text-right tnum">{m.pp ?? "—"}</span>
-                  <span className="text-right tnum">{m.priority !== 0 ? (m.priority > 0 ? `+${m.priority}` : m.priority) : "—"}</span>
-                  <span className="text-right tnum text-[var(--ds-gray-700)]">{extrasReady && learners > 0 ? learners : "—"}</span>
-                  <span className="truncate text-xs text-[var(--ds-gray-700)]" title={m.shortDesc}>{m.shortDesc}</span>
-                </Link>
-              </div>
+                move={m}
+                start={row.start}
+                moveId={moveId}
+                learners={learners}
+                starred={starredKeys.has(bookmarkKey({ kind: "move", moveId }))}
+                starAdd={starAdd}
+                starRemove={starRemove}
+                onToggleStar={onToggleStar}
+              />
             )
           })}
         </div>
