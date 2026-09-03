@@ -28,14 +28,14 @@ fn reveal_webview(app: &tauri::AppHandle, reason: &'static str) {
   boot_log(&format!("reveal webview ({reason})"));
   let app = app.clone();
   let _ = app.clone().run_on_main_thread(move || {
-    #[cfg(target_os = "windows")]
     if let Some(win) = app.get_window("main") {
+      #[cfg(target_os = "windows")]
       if let Ok(hwnd) = win.hwnd() {
         winpaint::finish(hwnd.0 as isize);
       }
+      let _ = win.show();
+      let _ = win.set_focus();
     }
-    #[cfg(not(target_os = "windows"))]
-    let _ = &app;
   });
 }
 
@@ -63,17 +63,25 @@ pub fn run() {
         .resizable(true)
         .theme(Some(tauri::Theme::Dark))
         .background_color(tauri::window::Color(0x0a, 0x0a, 0x0a, 0xff))
-        .visible(true)
+        .visible(false)
         .build()?;
       apply_caption(&window);
       #[cfg(target_os = "windows")]
       if let Ok(hwnd) = window.hwnd() {
         winpaint::install(hwnd.0 as isize);
       }
-      boot_log("window shown, shell installed");
+      boot_log("window created hidden, shell installed");
       let size = window.inner_size()?;
+      #[cfg(windows)]
+      let webview_builder = tauri::webview::WebviewBuilder::new("main", tauri::WebviewUrl::default())
+        .auto_resize()
+        .additional_browser_args(
+          "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling",
+        );
+      #[cfg(not(windows))]
+      let webview_builder = tauri::webview::WebviewBuilder::new("main", tauri::WebviewUrl::default()).auto_resize();
       let _webview = window.add_child(
-        tauri::webview::WebviewBuilder::new("main", tauri::WebviewUrl::default()).auto_resize(),
+        webview_builder,
         tauri::LogicalPosition::new(0.0, 0.0),
         size,
       )?;
@@ -101,7 +109,6 @@ pub fn run() {
           PageLoadEvent::Finished => {
             PAGE_FINISHED.store(true, Ordering::SeqCst);
             boot_log("page finished");
-            winpaint::start_fallback_timer(hwnd);
           }
         }
       }
@@ -293,6 +300,7 @@ mod winpaint {
       super::boot_log("reveal webview (fallback)");
       WEBVIEW_READY.store(true, Ordering::SeqCst);
       finish(hwnd);
+      ShowWindow(hwnd, SW_SHOW);
     }
   }
 
@@ -301,6 +309,7 @@ mod winpaint {
       SetWindowSubclass(hwnd, shell_proc, SUBCLASS_ID, 0);
       EnumChildWindows(hwnd, Some(each_child_hide), 0);
       SetTimer(hwnd, TIMER_HIDE, 50, Some(on_hide_timer));
+      SetTimer(hwnd, TIMER_FALLBACK, 2000, Some(on_fallback_timer));
       RedrawWindow(hwnd, std::ptr::null(), 0, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW);
     }
   }
@@ -308,12 +317,6 @@ mod winpaint {
   pub fn request_repaint(hwnd: isize) {
     unsafe {
       InvalidateRect(hwnd, std::ptr::null(), 1);
-    }
-  }
-
-  pub fn start_fallback_timer(hwnd: isize) {
-    unsafe {
-      SetTimer(hwnd, TIMER_FALLBACK, 2500, Some(on_fallback_timer));
     }
   }
 

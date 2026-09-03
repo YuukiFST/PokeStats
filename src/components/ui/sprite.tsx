@@ -352,6 +352,8 @@ export function ListSprite({
       width={size}
       height={size}
       decoding="async"
+      loading="eager"
+      fetchPriority="high"
       className={`object-contain shrink-0 ${className ?? ""}`}
       style={{ imageRendering: "auto" as never, width: size, height: size }}
       onError={() => setFailed(src)}

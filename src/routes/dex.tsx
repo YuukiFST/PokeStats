@@ -324,7 +324,7 @@ export function DexPage() {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="shrink-0 border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-4 py-3 space-y-3">
-        <Input placeholder={t("dex.searchPlaceholder")} value={inputValue} onChange={(e) => setInputValue(e.target.value)} className="w-full max-w-xl" />
+        <Input autoFocus placeholder={t("dex.searchPlaceholder")} value={inputValue} onChange={(e) => setInputValue(e.target.value)} className="w-full max-w-xl" />
 
         <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] overflow-hidden">
           <div className="flex items-stretch">
