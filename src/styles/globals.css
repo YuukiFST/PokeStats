@@ -99,3 +99,11 @@
     height: 0;
   }
 }
+
+/* First commit must not animate; removed when shell_ready fires. */
+html[data-booting] *,
+html[data-booting] *::before,
+html[data-booting] *::after {
+  transition: none !important;
+  animation: none !important;
+}

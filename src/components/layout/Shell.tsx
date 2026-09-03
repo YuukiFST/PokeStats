@@ -9,16 +9,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const { location } = useRouterState()
   const { t } = useI18n()
   const { registerLogoClick, justUnlocked } = useCobblemonEgg()
-  const [logoReady, setLogoReady] = React.useState(false)
-  React.useEffect(() => {
-    const ric = window.requestIdleCallback
-    if (typeof ric === "function") {
-      const id = ric(() => setLogoReady(true))
-      return () => window.cancelIdleCallback(id)
-    }
-    const id = window.setTimeout(() => setLogoReady(true), 0)
-    return () => window.clearTimeout(id)
-  }, [])
   const PRIMARY = [
     { to: "/", label: "Dex", icon: "▦", title: t("dex.tabsHelp") },
     { to: "/moves", label: t("moves.title"), icon: "✦", title: t("moves.navDesc") },
@@ -86,20 +76,16 @@ export function Shell({ children }: { children: React.ReactNode }) {
               onClick={registerLogoClick}
               className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ds-blue-700)]"
             >
-              {logoReady ? (
               <img
                 src="/logo.png"
                 alt="PokeStats"
                 width={144}
                 height={144}
                 decoding="async"
-                fetchPriority="low"
+                fetchPriority="high"
                 className="w-36 h-36 object-contain select-none"
                 style={{ background: "transparent" }}
               />
-              ) : (
-                <div className="w-36 h-36" aria-hidden />
-              )}
             </button>
             {justUnlocked ? (
               <p className="mt-2 text-[10px] text-center text-[var(--ds-gray-700)]">{t("cobblemon.unlocked")}</p>
