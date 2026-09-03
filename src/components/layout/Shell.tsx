@@ -77,7 +77,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ds-blue-700)]"
             >
               <img
-                src="/logo.png"
+                src="/logo.webp"
                 alt="PokeStats"
                 width={144}
                 height={144}
