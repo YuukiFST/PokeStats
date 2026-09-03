@@ -1,10 +1,12 @@
 use std::sync::atomic::{AtomicBool, Ordering};
-use tauri::webview::PageLoadEvent;
 use tauri::Manager;
 
 static WEBVIEW_READY: AtomicBool = AtomicBool::new(false);
-static PAGE_FINISHED: AtomicBool = AtomicBool::new(false);
+static WINDOW_OPAQUE: AtomicBool = AtomicBool::new(false);
 static BOOT_START: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
+
+/// If JS never reports a painted frame (crash, blocked script), reveal anyway.
+const REVEAL_FALLBACK_MS: u64 = 2000;
 
 fn boot_log(msg: &str) {
   if std::env::var_os("POKESTATS_BOOT_LOG").is_none() {
@@ -21,6 +23,15 @@ fn boot_log(msg: &str) {
   }
 }
 
+/// How long after show() we wait for JS to report a presented frame before
+/// making the window opaque regardless.
+const OPAQUE_FALLBACK_MS: u64 = 150;
+
+/// Show the window at alpha 0. WebView2 only presents frames for a visible
+/// HWND, so a plain show() puts the bare window background on screen one or
+/// two vsyncs before the first webview frame lands. Transparent-then-opaque
+/// lets the webview present first; `frame_presented` (or the fallback timer)
+/// then snaps alpha to 255.
 fn reveal_webview(app: &tauri::AppHandle, reason: &'static str) {
   if WEBVIEW_READY.swap(true, Ordering::SeqCst) {
     return;
@@ -31,17 +42,58 @@ fn reveal_webview(app: &tauri::AppHandle, reason: &'static str) {
     if let Some(win) = app.get_window("main") {
       #[cfg(target_os = "windows")]
       if let Ok(hwnd) = win.hwnd() {
-        winpaint::finish(hwnd.0 as isize);
+        layered::set_alpha(hwnd.0 as isize, 0);
       }
       let _ = win.show();
       let _ = win.set_focus();
+      #[cfg(target_os = "windows")]
+      {
+        let handle = app.clone();
+        std::thread::spawn(move || {
+          std::thread::sleep(std::time::Duration::from_millis(OPAQUE_FALLBACK_MS));
+          make_opaque(&handle, "fallback");
+        });
+      }
+      #[cfg(not(target_os = "windows"))]
+      WINDOW_OPAQUE.store(true, Ordering::SeqCst);
     }
+  });
+}
+
+fn make_opaque(app: &tauri::AppHandle, reason: &'static str) {
+  if WINDOW_OPAQUE.swap(true, Ordering::SeqCst) {
+    return;
+  }
+  boot_log(&format!("window opaque ({reason})"));
+  let app = app.clone();
+  let _ = app.clone().run_on_main_thread(move || {
+    #[cfg(target_os = "windows")]
+    if let Some(win) = app.get_window("main") {
+      if let Ok(hwnd) = win.hwnd() {
+        layered::clear(hwnd.0 as isize);
+      }
+    }
+    #[cfg(not(target_os = "windows"))]
+    let _ = app;
   });
 }
 
 #[tauri::command]
 fn shell_ready(app: tauri::AppHandle) {
   reveal_webview(&app, "js");
+}
+
+/// JS calls this after the first animation frame that ran with the document
+/// visible, i.e. after WebView2 has presented at least one frame post-show.
+#[tauri::command]
+fn frame_presented(app: tauri::AppHandle) {
+  make_opaque(&app, "js");
+}
+
+/// JS-side boot marks land in the same POKESTATS_BOOT_LOG file as the native ones.
+#[tauri::command]
+fn boot_mark(name: String) {
+  boot_log(&format!("js: {name}"));
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -56,6 +108,10 @@ pub fn run() {
             .build(),
         )?;
       }
+      // Hidden until JS reports the Dex is painted (`shell_ready`), so the first
+      // visible frame is the final UI. WebView2 only presents frames for an
+      // on-screen visible window: DWM cloaking and off-screen parking were both
+      // measured and neither pre-renders the page, so a plain show() it is.
       let window = tauri::window::WindowBuilder::new(app, "main")
         .title("PokeStats")
         .inner_size(1280.0, 800.0)
@@ -66,11 +122,7 @@ pub fn run() {
         .visible(false)
         .build()?;
       apply_caption(&window);
-      #[cfg(target_os = "windows")]
-      if let Ok(hwnd) = window.hwnd() {
-        winpaint::install(hwnd.0 as isize);
-      }
-      boot_log("window created hidden, shell installed");
+      boot_log("window created hidden");
       let size = window.inner_size()?;
       #[cfg(windows)]
       let webview_builder = tauri::webview::WebviewBuilder::new("main", tauri::WebviewUrl::default())
@@ -86,40 +138,56 @@ pub fn run() {
         size,
       )?;
       boot_log("webview attached");
+      let handle = app.handle().clone();
+      std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(REVEAL_FALLBACK_MS));
+        reveal_webview(&handle, "fallback");
+      });
       Ok(())
     })
-    .on_page_load(|webview, payload| {
-      let url = payload.url().as_str();
-      if url.starts_with("about:") {
+    .on_page_load(|_webview, payload| {
+      if payload.url().as_str().starts_with("about:") {
         return;
       }
-      #[cfg(target_os = "windows")]
-      {
-        let Ok(hwnd) = webview.window().hwnd() else {
-          return;
-        };
-        let hwnd = hwnd.0 as isize;
-        match payload.event() {
-          PageLoadEvent::Started => {
-            if !WEBVIEW_READY.load(Ordering::SeqCst) {
-              hide_child_windows(hwnd);
-              winpaint::request_repaint(hwnd);
-            }
-          }
-          PageLoadEvent::Finished => {
-            PAGE_FINISHED.store(true, Ordering::SeqCst);
-            boot_log("page finished");
-          }
-        }
-      }
-      #[cfg(not(target_os = "windows"))]
-      {
-        let _ = (webview, payload);
+      if matches!(payload.event(), tauri::webview::PageLoadEvent::Finished) {
+        boot_log("page finished");
       }
     })
-    .invoke_handler(tauri::generate_handler![shell_ready])
+    .invoke_handler(tauri::generate_handler![shell_ready, frame_presented, boot_mark])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+}
+
+#[cfg(target_os = "windows")]
+mod layered {
+  const GWL_EXSTYLE: i32 = -20;
+  const WS_EX_LAYERED: isize = 0x0008_0000;
+  const LWA_ALPHA: u32 = 0x2;
+
+  #[link(name = "user32")]
+  extern "system" {
+    fn GetWindowLongPtrW(hwnd: isize, index: i32) -> isize;
+    fn SetWindowLongPtrW(hwnd: isize, index: i32, value: isize) -> isize;
+    fn SetLayeredWindowAttributes(hwnd: isize, key: u32, alpha: u8, flags: u32) -> i32;
+  }
+
+  pub fn set_alpha(hwnd: isize, alpha: u8) {
+    unsafe {
+      let ex = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+      SetWindowLongPtrW(hwnd, GWL_EXSTYLE, ex | WS_EX_LAYERED);
+      SetLayeredWindowAttributes(hwnd, 0, alpha, LWA_ALPHA);
+    }
+  }
+
+  /// Back to a normal (non-layered) window: cheaper for DWM than a layered
+  /// window at alpha 255, and identical on screen.
+  pub fn clear(hwnd: isize) {
+    unsafe {
+      SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
+      let ex = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+      SetWindowLongPtrW(hwnd, GWL_EXSTYLE, ex & !WS_EX_LAYERED);
+    }
+  }
 }
 
 fn apply_caption(win: &tauri::Window) {
@@ -134,11 +202,12 @@ fn apply_caption(win: &tauri::Window) {
     }
 
     if let Ok(hwnd) = win.hwnd() {
+      let hwnd = hwnd.0 as isize;
+      let dark_mode: i32 = 1;
+      let caption: u32 = 0x000000;
       unsafe {
-        let dark_mode: i32 = 1;
-        DwmSetWindowAttribute(hwnd.0 as isize, DWMWA_USE_IMMERSIVE_DARK_MODE, (&dark_mode as *const i32).cast(), std::mem::size_of::<i32>() as u32);
-        let caption: u32 = 0x000000;
-        DwmSetWindowAttribute(hwnd.0 as isize, DWMWA_CAPTION_COLOR, (&caption as *const u32).cast(), std::mem::size_of::<i32>() as u32);
+        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, (&dark_mode as *const i32).cast(), 4);
+        DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, (&caption as *const u32).cast(), 4);
       }
     }
   }
@@ -147,282 +216,3 @@ fn apply_caption(win: &tauri::Window) {
     let _ = win;
   }
 }
-
-#[cfg(target_os = "windows")]
-mod winpaint {
-  use super::WEBVIEW_READY;
-  use std::sync::atomic::Ordering;
-
-  #[repr(C)]
-  struct Rect {
-    left: i32,
-    top: i32,
-    right: i32,
-    bottom: i32,
-  }
-
-  #[repr(C)]
-  struct PaintStruct {
-    hdc: isize,
-    erase: i32,
-    paint: Rect,
-    restore: i32,
-    inc_update: i32,
-    reserved: [u8; 32],
-  }
-
-  const SW_HIDE: i32 = 0;
-  const SW_SHOW: i32 = 5;
-  const TRANSPARENT: i32 = 1;
-  const DT_SINGLELINE: u32 = 0x20;
-  const DT_VCENTER: u32 = 0x04;
-  const DT_NOPREFIX: u32 = 0x100;
-  const WM_PAINT: u32 = 0x000F;
-  const WM_ERASEBKGND: u32 = 0x0014;
-  const WM_PARENTNOTIFY: u32 = 0x0210;
-  const WM_CREATE: u32 = 0x0001;
-  const RDW_INVALIDATE: u32 = 0x0001;
-  const RDW_ERASE: u32 = 0x0004;
-  const RDW_UPDATENOW: u32 = 0x0100;
-  const SUBCLASS_ID: usize = 0x504B;
-  const TIMER_HIDE: usize = 1;
-  const TIMER_FALLBACK: usize = 2;
-
-  type SubclassProc = unsafe extern "system" fn(isize, u32, usize, isize, usize, usize) -> isize;
-
-  #[link(name = "comctl32")]
-  extern "system" {
-    fn SetWindowSubclass(hwnd: isize, proc_: SubclassProc, id: usize, refdata: usize) -> i32;
-    fn RemoveWindowSubclass(hwnd: isize, proc_: SubclassProc, id: usize) -> i32;
-    fn DefSubclassProc(hwnd: isize, msg: u32, wparam: usize, lparam: isize) -> isize;
-  }
-
-  #[link(name = "user32")]
-  extern "system" {
-    fn GetClientRect(hwnd: isize, rc: *mut Rect) -> i32;
-    fn FillRect(hdc: isize, rc: *const Rect, brush: isize) -> i32;
-    fn DrawTextW(hdc: isize, text: *const u16, count: i32, rc: *mut Rect, format: u32) -> i32;
-    fn EnumChildWindows(hwnd: isize, cb: Option<unsafe extern "system" fn(isize, isize) -> i32>, lparam: isize) -> i32;
-    fn ShowWindow(hwnd: isize, cmd: i32) -> i32;
-    fn SetTimer(hwnd: isize, id: usize, ms: u32, cb: Option<unsafe extern "system" fn(isize, u32, usize, u32)>) -> usize;
-    fn KillTimer(hwnd: isize, id: usize) -> i32;
-    fn GetDpiForWindow(hwnd: isize) -> u32;
-    fn SetTextColor(hdc: isize, color: u32) -> u32;
-    fn SetBkMode(hdc: isize, mode: i32) -> i32;
-    fn BeginPaint(hwnd: isize, ps: *mut PaintStruct) -> isize;
-    fn EndPaint(hwnd: isize, ps: *const PaintStruct) -> i32;
-    fn InvalidateRect(hwnd: isize, rc: *const Rect, erase: i32) -> i32;
-    fn RedrawWindow(hwnd: isize, rc: *const Rect, rgn: isize, flags: u32) -> i32;
-  }
-
-  #[link(name = "gdi32")]
-  extern "system" {
-    fn CreateSolidBrush(color: u32) -> isize;
-    fn DeleteObject(obj: isize) -> i32;
-    fn CreateFontW(
-      height: i32,
-      width: i32,
-      escapement: i32,
-      orientation: i32,
-      weight: i32,
-      italic: u32,
-      underline: u32,
-      strikeout: u32,
-      charset: u32,
-      out_precision: u32,
-      clip_precision: u32,
-      quality: u32,
-      pitch_and_family: u32,
-      face: *const u16,
-    ) -> isize;
-    fn SelectObject(hdc: isize, obj: isize) -> isize;
-  }
-
-  unsafe extern "system" fn each_child_hide(hwnd: isize, _: isize) -> i32 {
-    ShowWindow(hwnd, SW_HIDE);
-    1
-  }
-
-  unsafe extern "system" fn each_child_show(hwnd: isize, _: isize) -> i32 {
-    ShowWindow(hwnd, SW_SHOW);
-    1
-  }
-
-  pub fn hide_child_windows(hwnd: isize) {
-    unsafe {
-      EnumChildWindows(hwnd, Some(each_child_hide), 0);
-    }
-  }
-
-  pub fn show_child_windows(hwnd: isize) {
-    unsafe {
-      EnumChildWindows(hwnd, Some(each_child_show), 0);
-    }
-  }
-
-  unsafe extern "system" fn shell_proc(hwnd: isize, msg: u32, wparam: usize, lparam: isize, _id: usize, _ref: usize) -> isize {
-    if WEBVIEW_READY.load(Ordering::SeqCst) {
-      return DefSubclassProc(hwnd, msg, wparam, lparam);
-    }
-    match msg {
-      WM_ERASEBKGND => {
-        paint_shell_to(hwnd, wparam as isize);
-        1
-      }
-      WM_PAINT => {
-        let mut ps: PaintStruct = std::mem::zeroed();
-        let hdc = BeginPaint(hwnd, &mut ps);
-        if hdc != 0 {
-          paint_shell_to(hwnd, hdc);
-        }
-        EndPaint(hwnd, &ps);
-        DefSubclassProc(hwnd, msg, wparam, lparam)
-      }
-      WM_PARENTNOTIFY if (wparam & 0xFFFF) as u32 == WM_CREATE => {
-        ShowWindow(lparam, SW_HIDE);
-        DefSubclassProc(hwnd, msg, wparam, lparam)
-      }
-      _ => DefSubclassProc(hwnd, msg, wparam, lparam),
-    }
-  }
-
-  unsafe extern "system" fn on_hide_timer(hwnd: isize, _: u32, id: usize, _: u32) {
-    if WEBVIEW_READY.load(Ordering::SeqCst) {
-      KillTimer(hwnd, id);
-      return;
-    }
-    EnumChildWindows(hwnd, Some(each_child_hide), 0);
-  }
-
-  unsafe extern "system" fn on_fallback_timer(hwnd: isize, _: u32, id: usize, _: u32) {
-    KillTimer(hwnd, id);
-    if !WEBVIEW_READY.load(Ordering::SeqCst) {
-      super::boot_log("reveal webview (fallback)");
-      WEBVIEW_READY.store(true, Ordering::SeqCst);
-      finish(hwnd);
-      ShowWindow(hwnd, SW_SHOW);
-    }
-  }
-
-  pub fn install(hwnd: isize) {
-    unsafe {
-      SetWindowSubclass(hwnd, shell_proc, SUBCLASS_ID, 0);
-      EnumChildWindows(hwnd, Some(each_child_hide), 0);
-      SetTimer(hwnd, TIMER_HIDE, 50, Some(on_hide_timer));
-      SetTimer(hwnd, TIMER_FALLBACK, 2000, Some(on_fallback_timer));
-      RedrawWindow(hwnd, std::ptr::null(), 0, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW);
-    }
-  }
-
-  pub fn request_repaint(hwnd: isize) {
-    unsafe {
-      InvalidateRect(hwnd, std::ptr::null(), 1);
-    }
-  }
-
-  pub fn finish(hwnd: isize) {
-    unsafe {
-      KillTimer(hwnd, TIMER_HIDE);
-      KillTimer(hwnd, TIMER_FALLBACK);
-      RemoveWindowSubclass(hwnd, shell_proc, SUBCLASS_ID);
-      show_child_windows(hwnd);
-      InvalidateRect(hwnd, std::ptr::null(), 1);
-    }
-  }
-
-  fn rgb(r: u8, g: u8, b: u8) -> u32 {
-    u32::from(r) | (u32::from(g) << 8) | (u32::from(b) << 16)
-  }
-
-  fn fill(hdc: isize, rc: &Rect, color: u32) {
-    unsafe {
-      let brush = CreateSolidBrush(color);
-      FillRect(hdc, rc, brush);
-      DeleteObject(brush);
-    }
-  }
-
-  fn text(hdc: isize, label: &str, mut rc: Rect, color: u32) {
-    let mut wide: Vec<u16> = label.encode_utf16().collect();
-    wide.push(0);
-    unsafe {
-      SetBkMode(hdc, TRANSPARENT);
-      SetTextColor(hdc, color);
-      DrawTextW(hdc, wide.as_ptr(), -1, &mut rc, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
-    }
-  }
-
-  fn paint_shell_to(hwnd: isize, hdc: isize) {
-    unsafe {
-      if hdc == 0 {
-        return;
-      }
-      let mut client = Rect { left: 0, top: 0, right: 0, bottom: 0 };
-      GetClientRect(hwnd, &mut client);
-      let dpi = GetDpiForWindow(hwnd).max(96);
-      let s = dpi as i32;
-      let px = |logical: i32| logical * s / 96;
-
-      fill(hdc, &client, rgb(0x0a, 0x0a, 0x0a));
-      let side = px(200);
-      fill(
-        hdc,
-        &Rect { left: 0, top: 0, right: side, bottom: client.bottom },
-        rgb(0, 0, 0),
-      );
-      fill(
-        hdc,
-        &Rect { left: side, top: 0, right: side + 1, bottom: client.bottom },
-        rgb(0x2e, 0x2e, 0x2e),
-      );
-      let head = px(48);
-      fill(
-        hdc,
-        &Rect { left: 0, top: head, right: side, bottom: head + 1 },
-        rgb(0x2e, 0x2e, 0x2e),
-      );
-
-      let mut segoe: Vec<u16> = "Segoe UI".encode_utf16().collect();
-      segoe.push(0);
-      let font = CreateFontW(-px(14), 0, 0, 0, 600, 0, 0, 0, 1, 0, 0, 5, 0, segoe.as_ptr());
-      let old = SelectObject(hdc, font);
-      text(hdc, "PokeStats", Rect { left: px(16), top: 0, right: side - px(40), bottom: head }, rgb(0xed, 0xed, 0xed));
-      text(hdc, "v2", Rect { left: side - px(36), top: 0, right: side - px(12), bottom: head }, rgb(0x8f, 0x8f, 0x8f));
-
-      let nav = ["Dex", "Moves", "Types", "Items", "Natures", "Compare", "Teams", "Favorites", "Settings"];
-      let mut y = head + px(8);
-      let row = px(28);
-      for (i, label) in nav.iter().enumerate() {
-        let color = if i == 0 { rgb(0xed, 0xed, 0xed) } else { rgb(0xa0, 0xa0, 0xa0) };
-        text(hdc, label, Rect { left: px(16), top: y, right: side - px(8), bottom: y + row }, color);
-        y += row;
-      }
-
-      let tabs = px(36);
-      fill(
-        hdc,
-        &Rect { left: side, top: 0, right: client.right, bottom: tabs },
-        rgb(0, 0, 0),
-      );
-      fill(
-        hdc,
-        &Rect { left: side, top: tabs, right: client.right, bottom: tabs + 1 },
-        rgb(0x2e, 0x2e, 0x2e),
-      );
-      text(hdc, "Dex", Rect { left: side + px(12), top: px(6), right: side + px(80), bottom: tabs }, rgb(0xed, 0xed, 0xed));
-      let search = Rect {
-        left: side + px(16),
-        top: tabs + px(12),
-        right: side + px(16) + px(360),
-        bottom: tabs + px(12) + px(36),
-      };
-      fill(hdc, &search, rgb(0x1a, 0x1a, 0x1a));
-
-      SelectObject(hdc, old);
-      DeleteObject(font);
-    }
-  }
-}
-
-#[cfg(target_os = "windows")]
-use winpaint::hide_child_windows;

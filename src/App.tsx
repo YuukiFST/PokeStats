@@ -11,7 +11,7 @@ import { I18nProvider } from "@/lib/i18n"
 import { WorkspaceProvider } from "@/lib/workspace/WorkspaceProvider"
 import { BookmarksProvider } from "@/lib/bookmarks/BookmarksProvider"
 import { CobblemonEggProvider } from "@/lib/cobblemon/CobblemonEggProvider"
-import { signalWhenPainted } from "@/lib/boot/shellReady"
+import { signalWhenPainted, markFirstEffect } from "@/lib/boot/shellReady"
 import { loadDataset } from "@/lib/dataset/load"
 
 export type { DexSearch }
@@ -213,6 +213,7 @@ declare module "@tanstack/react-router" {
 
 export function App() {
   React.useEffect(() => {
+    markFirstEffect()
     const saved = localStorage.getItem("pokestats:theme") ?? "dark"
     document.documentElement.dataset.theme = saved
     document.documentElement.classList.toggle("dark", saved === "dark")
