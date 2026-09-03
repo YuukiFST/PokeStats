@@ -10,7 +10,7 @@ import type { Form } from "@/lib/domain/types"
 import { formMatchesSelectedTypes, sortFormsCached, collapseSpecies, type DexSortKey } from "@/lib/domain/dexFilter"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { useDataset } from "@/hooks/useDataset"
-import { useRestoredScroll } from "@/hooks/useRestoredScroll"
+import { INITIAL_RECT, useRestoredScroll } from "@/hooks/useRestoredScroll"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { ListSprite, useSpriteManifest, baseFormOf, SpriteLightbox } from "@/components/ui/sprite"
 import { spriteUrls, type SpriteManifest, type SpriteBase } from "@/lib/sprites"
@@ -258,8 +258,12 @@ export function DexPage() {
     count: filtered.length,
     getScrollElement: () => parentRef.current,
     estimateSize: React.useCallback(() => 36, []),
-    overscan: 10,
+    overscan: 4,
     initialOffset,
+    // The scroll element is not mounted on the first render, so without a
+    // seed the virtualizer sees a 0px viewport, renders zero rows, then
+    // re-renders after measuring. Viewport height is a safe over-estimate.
+    initialRect: INITIAL_RECT,
   })
 
   const toggleSelect = React.useCallback((id: string) => {
