@@ -1,6 +1,17 @@
 import * as React from "react"
 
 /**
+ * Seed for useVirtualizer's `initialRect`. The list scroller does not exist
+ * on the first render, so the virtualizer would otherwise measure 0px and
+ * render zero rows until a second pass. The viewport height over-estimates
+ * the list height by the header, which only costs a few extra rows.
+ */
+export const INITIAL_RECT = {
+  width: typeof window === "undefined" ? 1200 : window.innerWidth,
+  height: typeof window === "undefined" ? 800 : window.innerHeight,
+}
+
+/**
  * Saved-offset restore for virtualized lists that own their own scroller.
  * - `initialOffset` feeds useVirtualizer so the first render already lays out
  *   the rows at the saved position (no double-rAF jump).

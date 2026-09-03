@@ -10,7 +10,7 @@ import type { MoveCategory, MoveInfo } from "@/lib/domain/types"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
 import { moveIdForName } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
-import { useRestoredScroll } from "@/hooks/useRestoredScroll"
+import { INITIAL_RECT, useRestoredScroll } from "@/hooks/useRestoredScroll"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { StarButton } from "@/components/ui/star"
 import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
@@ -289,8 +289,9 @@ export function MovesPage() {
     count: filtered.length,
     getScrollElement: () => parentRef.current,
     estimateSize: React.useCallback(() => 36, []),
-    overscan: 10,
+    overscan: 4,
     initialOffset,
+    initialRect: INITIAL_RECT,
   })
 
   if (loading || !catalogReady) {
