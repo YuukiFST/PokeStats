@@ -16,7 +16,10 @@ export default defineConfig({
     target: process.env.TAURI_ENV_PLATFORM ? 'chrome105' : 'esnext',
     minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
-    modulePreload: false,
+    // Links (no polyfill; WebView2 is Chromium) so the shared chunks the entry
+    // imports statically (i18n, utils, …) fetch alongside index.js instead of
+    // after it is parsed — one request wave, not two.
+    modulePreload: { polyfill: false },
   },
   resolve: {
     alias: {
