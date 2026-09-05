@@ -121,10 +121,27 @@ function MoveChip({
 
 function DetailRow({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
-    <>
-      <span className="text-[var(--ds-gray-700)] whitespace-nowrap">{label}</span>
-      <span className="min-w-0 font-medium">{children}</span>
-    </>
+    <div className="grid min-h-[30px] grid-cols-[96px_minmax(0,1fr)] items-center gap-x-3 px-2.5 py-[5px]">
+      <span className="truncate text-[11px] font-medium uppercase leading-5 tracking-[0.06em] text-[var(--ds-gray-700)]">
+        {label}
+      </span>
+      <span className="min-w-0 text-[13px] font-medium leading-5">{children}</span>
+    </div>
+  )
+}
+
+function SpreadText({ spread }: { spread: Partial<Record<string, number>> }) {
+  const parts = Object.keys(STAT_LABEL).filter((k) => typeof spread[k] === "number")
+  return (
+    <span className="tnum inline-flex flex-wrap items-baseline">
+      {parts.map((k, i) => (
+        <span key={k} className="inline-flex items-baseline whitespace-nowrap">
+          {i > 0 && <span className="mx-1.5 font-normal text-[var(--ds-gray-600)]">/</span>}
+          <span className="font-semibold tabular-nums">{spread[k]}</span>
+          <span className="ml-1 font-normal text-[var(--ds-gray-800)]">{STAT_LABEL[k]}</span>
+        </span>
+      ))}
+    </span>
   )
 }
 
@@ -147,7 +164,7 @@ function ItemCell({
     const inner = (
       <span
         className={cn(
-          "inline-flex items-center gap-1 min-w-0 rounded-md",
+          "inline-flex min-w-0 items-center gap-1.5 rounded-md leading-5",
           muted && "opacity-60",
           pickable && "cursor-pointer",
           isSelected && pickable && "ring-1 ring-[var(--ds-blue-700)] px-1",
@@ -166,7 +183,11 @@ function ItemCell({
         aria-pressed={pickable ? isSelected : undefined}
         title={pickable ? `${t("cobblemon.pickItem")}: ${name}` : undefined}
       >
-        <ItemIcon item={info} />
+        {info && (
+          <span className="grid size-6 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)]">
+            <ItemIcon item={info} size={18} />
+          </span>
+        )}
         <span className="truncate">{name}</span>
       </span>
     )
@@ -176,7 +197,9 @@ function ItemCell({
       <InfoTip
         tip={
           <div className="flex items-start gap-2">
-            <ItemIcon item={info} />
+            <span className="grid size-6 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)]">
+              <ItemIcon item={info} size={18} />
+            </span>
             <div className="space-y-1 min-w-0">
               <div className="font-semibold">{info.name}</div>
               <p className="text-[var(--ds-gray-700)]">{info.shortDesc}</p>
@@ -190,10 +213,10 @@ function ItemCell({
     )
   }
   return (
-    <span className="inline-flex flex-wrap items-center gap-x-1">
+    <span className="inline-flex flex-wrap items-center gap-x-1.5">
       {options.map((name, i) => (
-        <span key={name} className="inline-flex items-center gap-x-1">
-          {i > 0 && <span className="text-[var(--ds-gray-700)]">{t("sets.or")}</span>}
+        <span key={name} className="inline-flex items-center gap-x-1.5">
+          {i > 0 && <span className="text-xs text-[var(--ds-gray-600)]">{t("sets.or")}</span>}
           {renderItem(name, pickable ? name !== selected : i > 0, name === selected)}
         </span>
       ))}
@@ -253,7 +276,37 @@ export function SetCard({ set, form, data }: { set: Set; form: Form; data: Loade
   }
 
   const nature = set.nature ? data.naturesByName.get(set.nature) : undefined
-  const ability = set.ability ? data.abilitiesByName.get(set.ability) : undefined
+  const abilityOptions = set.abilityOptions ?? (set.ability ? [set.ability] : [])
+  // Old datasets (and any future source gap) may omit Ability entirely — fall
+  // back to the Form's own abilities so the row never silently disappears.
+  const fallbackAbilities = !set.ability
+    ? [form.abilities.slot0, form.abilities.slot1, form.abilities.hidden ? `H: ${form.abilities.hidden}` : null].filter(
+        (a): a is string => typeof a === "string" && a.length > 0 && a !== "—",
+      )
+    : []
+  const abilityNames = abilityOptions.length > 0 ? abilityOptions : fallbackAbilities
+
+  const renderAbility = (name: string, muted: boolean) => {
+    const info = data.abilitiesByName.get(name)
+    const inner = (
+      <span className={cn("cursor-help underline decoration-dotted decoration-[var(--ds-gray-500)] underline-offset-4", muted && "opacity-60")}>
+        {name}
+      </span>
+    )
+    if (!info) return inner
+    return (
+      <InfoTip
+        tip={
+          <div className="space-y-1">
+            <div className="font-semibold">{info.name}</div>
+            <p className="text-[var(--ds-gray-700)]">{info.shortDesc}</p>
+          </div>
+        }
+      >
+        {inner}
+      </InfoTip>
+    )
+  }
 
   return (
     <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-3">
@@ -335,7 +388,7 @@ export function SetCard({ set, form, data }: { set: Set; form: Form; data: Loade
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5 items-center min-w-0 text-xs" style={{ gridTemplateColumns: "max-content minmax(0, 1fr)" }}>
+        <div className="min-w-0 self-start overflow-hidden rounded-lg border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] divide-y divide-[var(--ds-gray-200)]">
           {itemOptions.length > 0 && (
             <DetailRow label={t("detail.item")}>
               <ItemCell
@@ -347,22 +400,16 @@ export function SetCard({ set, form, data }: { set: Set; form: Form; data: Loade
               />
             </DetailRow>
           )}
-          {set.ability && (
+          {abilityNames.length > 0 && (
             <DetailRow label={t("detail.ability")}>
-              {ability ? (
-                <InfoTip
-                  tip={
-                    <div className="space-y-1">
-                      <div className="font-semibold">{ability.name}</div>
-                      <p className="text-[var(--ds-gray-700)]">{ability.shortDesc}</p>
-                    </div>
-                  }
-                >
-                  <span className="cursor-help underline decoration-dotted decoration-[var(--ds-gray-400)] underline-offset-2">{set.ability}</span>
-                </InfoTip>
-              ) : (
-                set.ability
-              )}
+              <span className="inline-flex flex-wrap items-center gap-x-1.5 leading-5">
+                {abilityNames.map((name, i) => (
+                  <span key={name} className="inline-flex items-center gap-x-1.5">
+                    {i > 0 && <span className="text-xs font-normal text-[var(--ds-gray-600)]">{t("sets.or")}</span>}
+                    {renderAbility(name, i > 0)}
+                  </span>
+                ))}
+              </span>
             </DetailRow>
           )}
           {set.nature && (
@@ -380,19 +427,23 @@ export function SetCard({ set, form, data }: { set: Set; form: Form; data: Loade
                     )
                   }
                 >
-                  <span className="cursor-help underline decoration-dotted decoration-[var(--ds-gray-400)] underline-offset-2">{set.nature}</span>
+                  <span className="cursor-help underline decoration-dotted decoration-[var(--ds-gray-500)] underline-offset-4">{set.nature}</span>
                 </InfoTip>
               ) : (
                 set.nature
               )}
             </DetailRow>
           )}
-          {formatSpread(set.evs) && <DetailRow label={t("detail.evs")}><span className="tnum">{formatSpread(set.evs)}</span></DetailRow>}
+          {set.evs && formatSpread(set.evs) && (
+            <DetailRow label={t("detail.evs")}>
+              <SpreadText spread={set.evs} />
+            </DetailRow>
+          )}
           {unlocked ? (
             <DetailRow label={t("sets.ivs")}>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-x-1.5 gap-y-1 py-0.5">
                 {STAT_KEYS.map((key) => (
-                  <label key={key} className="inline-flex items-center gap-0.5 text-[10px] text-[var(--ds-gray-700)]">
+                  <label key={key} className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--ds-gray-700)]">
                     <span>{STAT_LABEL[key]}</span>
                     <input
                       type="number"
@@ -422,13 +473,17 @@ export function SetCard({ set, form, data }: { set: Set; form: Form; data: Loade
               </div>
             </DetailRow>
           ) : (
-            formatSpread(set.ivs) && (
+            set.ivs && formatSpread(set.ivs) && (
               <DetailRow label={t("sets.ivs")}>
-                <span className="tnum">{formatSpread(set.ivs)}</span>
+                <SpreadText spread={set.ivs} />
               </DetailRow>
             )
           )}
-          {set.level && <DetailRow label={t("sets.level")}><span className="tnum">{set.level}</span></DetailRow>}
+          {set.level && (
+            <DetailRow label={t("sets.level")}>
+              <span className="tnum font-semibold tabular-nums">{set.level}</span>
+            </DetailRow>
+          )}
         </div>
       </div>
     </div>
