@@ -1,6 +1,6 @@
 [package]
 name = "pokestats"
-version = "0.2.4"
+version = "0.3.0"
 description = "PokeStats v2 - Offline competitive Pokemon data for Cobbleverse"
 authors = ["YuukiFST"]
 license = "MIT"
