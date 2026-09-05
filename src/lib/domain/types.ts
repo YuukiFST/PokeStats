@@ -175,6 +175,8 @@ export interface Set {
   /** Alternative items the Set allows, primary first. */
   itemOptions?: string[]
   ability?: string
+  /** Alternative abilities the Set allows, primary first. */
+  abilityOptions?: string[]
   nature?: string
   evs?: Partial<BaseStatSpread>
   ivs?: Partial<BaseStatSpread>

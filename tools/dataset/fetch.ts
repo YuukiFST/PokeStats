@@ -88,12 +88,17 @@ async function main() {
     console.log(`[dataset:fetch] wrote ${name}.js ${text.length} bytes`)
   }
 
-  // Sets from pkmn.cc (ticket 04) — 9 files but we fetch gen9 for now and replicate note for full
-  const setsUrl = "https://data.pkmn.cc/sets/gen9.json"
-  console.log(`[dataset:fetch] fetching gen9 sets...`)
-  const sets = await fetchJson(setsUrl)
-  writeFileSync(resolve(FIXTURES_DIR, "sets-gen9.json"), JSON.stringify(sets))
-  console.log(`[dataset:fetch] wrote sets-gen9.json`)
+  // Sets from pkmn.cc (ticket 04) — one file per generation, gen1..gen9.
+  // Older gens matter: megas barely exist in gen9 data (e.g. Ampharosite
+  // Wallbreaker only exists as a gen8/SS set), so fetching gen9 alone leaves
+  // Mega pages empty.
+  for (let gen = 1; gen <= 9; gen++) {
+    const setsUrl = `https://data.pkmn.cc/sets/gen${gen}.json`
+    console.log(`[dataset:fetch] fetching gen${gen} sets...`)
+    const sets = await fetchJson(setsUrl)
+    writeFileSync(resolve(FIXTURES_DIR, `sets-gen${gen}.json`), JSON.stringify(sets))
+    console.log(`[dataset:fetch] wrote sets-gen${gen}.json`)
+  }
 
   // Tiny UI sprite assets for the Sets tooltips (item icon sheet is positioned
   // at runtime by ItemInfo.spriteNum — same scheme the Showdown client uses).
@@ -111,7 +116,7 @@ async function main() {
   const marker = {
     fetchedAt: new Date().toISOString(),
     ua: UA,
-    sources: { pokedexUrl, formatsUrl, movesUrl, itemsUrl, abilitiesUrl, learnsetsUrl, setsUrl, itemSheetUrl },
+    sources: { pokedexUrl, formatsUrl, movesUrl, itemsUrl, abilitiesUrl, learnsetsUrl, setsUrl: "https://data.pkmn.cc/sets/gen1..gen9.json", itemSheetUrl },
     sizes: { pokedex: pokedex.length, formats: formats.length, learnsets: learnsets.length },
   }
   writeFileSync(resolve(FIXTURES_DIR, "_fetch-marker.json"), JSON.stringify(marker, null, 2))

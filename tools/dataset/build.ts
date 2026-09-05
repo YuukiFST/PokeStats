@@ -83,6 +83,8 @@ function buildFromFixtures(): BuildResult {
   const baseSpeciesKey = new Map<string, string>()
   /** pokedex key -> raw Showdown evolution edges (names). Resolved to kept slugs after the loop. */
   const evoEdgesRaw = new Map<string, { prevo?: string; evos?: string[] }>()
+  /** pokedex key -> required held item (mega stones, primal orbs). Rayquaza-Mega has none (needs a move instead). */
+  const requiredItemByForm = new Map<string, string>()
 
   let capExcluded = 0
   let numZeroExcluded = 0
@@ -102,6 +104,7 @@ function buildFromFixtures(): BuildResult {
     // Redundant cut per ticket 07 not applied here for completeness — user wants all Fairy
     const id = key // slug == key per ticket 08 A1
     baseSpeciesKey.set(key, entry.baseSpecies ? toID(entry.baseSpecies) : "")
+    if (typeof entry.requiredItem === "string" && entry.requiredItem) requiredItemByForm.set(id, entry.requiredItem)
     if (entry.prevo || entry.evos) evoEdgesRaw.set(key, { prevo: entry.prevo, evos: entry.evos })
     // Verify slug invariance where possible
     const expectedSlug = slug(entry.name)
@@ -240,7 +243,7 @@ function buildFromFixtures(): BuildResult {
     sourceRevisions: {
       pokedex: "smogon/pokemon-showdown master",
       formats: "smogon/pokemon-showdown master",
-      sets: "data.pkmn.cc gen9",
+      sets: "data.pkmn.cc gen1-gen9",
       moves: "play.pokemonshowdown.com/data/moves.js",
       items: "play.pokemonshowdown.com/data/items.js",
       abilities: "play.pokemonshowdown.com/data/abilities.js",
@@ -259,9 +262,12 @@ function buildFromFixtures(): BuildResult {
     natures: NATURES,
   }
 
-  // --- Sets from pkmn.cc gen9 (real Smogon sets) ---
+  // --- Sets from pkmn.cc gen1..gen9 (real Smogon sets) ---
+  // All generations are parsed: megas live mostly in gen6-8 data (e.g. the
+  // Ampharosite Wallbreaker only exists as a gen8/SS set), so gen9 alone
+  // leaves Mega pages empty.
+  const GEN_TO_DEXGEN = { 1: "rb", 2: "gs", 3: "rs", 4: "dp", 5: "bw", 6: "xy", 7: "sm", 8: "ss", 9: "sv" } as const
   const sets: DatasetSets = { sets: [] }
-  const setsPath = resolve(FIXTURES_DIR, "sets-gen9.json")
   const formIdsSet = new Set(forms.map((f) => f.id))
   const formByName = new Map<string, Form>()
   for (const f of forms) formByName.set(f.name, f)
@@ -302,7 +308,10 @@ function buildFromFixtures(): BuildResult {
   const referencedItems = new Set<string>()
   const referencedAbilities = new Set<string>()
 
-  if (existsSync(setsPath)) {
+  for (let gen = 1; gen <= 9; gen++) {
+    const setsPath = resolve(FIXTURES_DIR, `sets-gen${gen}.json`)
+    if (!existsSync(setsPath)) continue
+    const dexGen = GEN_TO_DEXGEN[gen as keyof typeof GEN_TO_DEXGEN]
     try {
       const rawSets = JSON.parse(readFileSync(setsPath, "utf8")) as Record<string, Record<string, Record<string, any>>>
       let parsed = 0
@@ -329,8 +338,14 @@ function buildFromFixtures(): BuildResult {
             const itemOptions = optionsArray(setData.item)?.filter((it) => it !== "No Item")
             const item = itemOptions?.[0]
             if (itemOptions) for (const it of itemOptions) referencedItems.add(it)
-            const ability = first(setData.ability)
-            if (ability) referencedAbilities.add(ability)
+            // Ability is optional in pkmn.cc (57% of sets omit it). Keep every
+            // option the Set allows, primary first; when omitted, fall back to
+            // the Form's primary ability (same rule as damage.ts) so the Sets
+            // UI always has an Ability to show and exports stay valid.
+            const abilityOptions = optionsArray(setData.ability)
+            const ability = abilityOptions?.[0] ?? (form.abilities.slot0 !== "—" ? form.abilities.slot0 : undefined)
+            if (abilityOptions) for (const ab of abilityOptions) referencedAbilities.add(ab)
+            else if (ability) referencedAbilities.add(ability)
             const nature = first(setData.nature)
             const teratypesRaw = setData.teratypes
             let teraType: TypeName | undefined
@@ -338,13 +353,14 @@ function buildFromFixtures(): BuildResult {
             else if (Array.isArray(teratypesRaw) && teratypesRaw.length > 0) teraType = (typeof teratypesRaw[0] === "string" ? (teratypesRaw[0] as TypeName) : undefined)
             const set: typeof sets.sets[number] = {
               formId: form.id,
-              dexGen: "sv",
+              dexGen,
               formatId,
               name: setName,
               moves,
               item,
               itemOptions: itemOptions && itemOptions.length > 1 ? itemOptions : undefined,
               ability,
+              abilityOptions: abilityOptions && abilityOptions.length > 1 ? abilityOptions : undefined,
               nature,
               evs: setData.evs,
               ivs: setData.ivs,
@@ -356,32 +372,72 @@ function buildFromFixtures(): BuildResult {
           }
         }
       }
-      console.log(`[dataset:build] parsed sets gen9: ${parsed} sets for ${Object.keys(rawSets).length} species, orphans ${orphans}`)
-
-      // For mega/Gmax forms that have no direct sets key, duplicate base form sets with matching mega stone logic
-      // Simpler: for any form with zero sets, try to borrow from base species
-      const setsByForm = new Map<string, number>()
-      for (const s of sets.sets) setsByForm.set(s.formId, (setsByForm.get(s.formId) ?? 0) + 1)
-      let borrowed = 0
-      for (const f of forms) {
-        if ((setsByForm.get(f.id) ?? 0) > 0) continue
-        // Find base form of same species
-        const baseName = species.find((sp) => sp.id === f.speciesId)?.name
-        if (!baseName) continue
-        const baseId = slug(baseName)
-        const baseSets = sets.sets.filter((s) => s.formId === baseId)
-        if (baseSets.length === 0) continue
-        // For mega/Gmax, only borrow if item looks like mega stone or matches trait?
-        // For now borrow first 2 sets from base as fallback so tab is not empty
-        for (const bs of baseSets.slice(0, 2)) {
-          sets.sets.push({ ...bs, formId: f.id, name: `${bs.name} (base)` })
-          borrowed++
-        }
-      }
-      if (borrowed) console.log(`[dataset:build] borrowed ${borrowed} sets for mega/alternate forms`)
+      console.log(`[dataset:build] parsed sets gen${gen} (${dexGen}): ${parsed} sets for ${Object.keys(rawSets).length} species, orphans ${orphans}`)
     } catch (e) {
-      console.warn(`[dataset:build] failed to parse sets-gen9.json`, e)
+      console.warn(`[dataset:build] failed to parse sets-gen${gen}.json`, e)
     }
+  }
+
+  // Mega sets live under the base Form in pkmn.cc (you bring base + stone
+  // and mega-evolve in battle), e.g. Tyranitar has 2 Tyranitarite sets while
+  // Tyranitar-Mega has only 1 direct set. Mirror every primary-mega-stone
+  // set onto its Mega Form so the Mega DEX page shows the full pool.
+  {
+    const itemsRaw = parseTsTable(resolve(FIXTURES_DIR, "items.js")) as Record<string, any>
+    const megaTargetByItem = new Map<string, string[]>()
+    for (const raw of Object.values(itemsRaw)) {
+      const src = raw as Record<string, any>
+      if (!src?.name || !src.megaStone || typeof src.megaStone !== "object") continue
+      const targets = [...new Set(Object.values(src.megaStone as Record<string, string>).map((n) => toID(n)))]
+        .filter((id) => formIdsSet.has(id))
+      if (targets.length > 0) megaTargetByItem.set(src.name as string, targets)
+    }
+    // Primal orbs are not megaStones in items.js — add them from the
+    // pokedex requiredItem map so base sets holding an orb mirror onto
+    // the Primal form the same way stones mirror onto Megas.
+    for (const [formId, reqItem] of requiredItemByForm) {
+      const target = formBySlug.get(formId)
+      if (!target || !target.traits.includes("primal")) continue
+      const arr = megaTargetByItem.get(reqItem) ?? []
+      if (!arr.includes(formId)) arr.push(formId)
+      megaTargetByItem.set(reqItem, arr)
+    }
+    const seen = new Set(sets.sets.map((s) => `${s.formId}|${s.dexGen}|${s.formatId}|${s.name}`))
+        let mirrored = 0
+    for (const s of [...sets.sets]) {
+      if (!s.item) continue
+      const targets = megaTargetByItem.get(s.item)
+      if (!targets) continue
+      for (const targetId of targets) {
+        if (targetId === s.formId) continue
+        const key = `${targetId}|${s.dexGen}|${s.formatId}|${s.name}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        sets.sets.push({ ...s, formId: targetId })
+        mirrored++
+      }
+    }
+    if (mirrored) console.log(`[dataset:build] mirrored ${mirrored} mega-stone/orb sets onto Mega/Primal Forms`)
+  }
+
+  // Mega/Primal pages must only show sets that can actually be that form:
+  // without its stone (or orb) the transformation never happens, so direct
+  // source sets from anything-goes formats (purehackmons, balancedhackmons…)
+  // holding Icicle Plate etc. are impossible sets on a Mega page and are
+  // dropped. Forms with no requiredItem (Rayquaza-Mega needs a move, not an
+  // item) keep everything.
+  {
+    const before = sets.sets.length
+    sets.sets = sets.sets.filter((s) => {
+      const form = formBySlug.get(s.formId)
+      if (!form || (!form.traits.includes("mega") && !form.traits.includes("primal"))) return true
+      const req = requiredItemByForm.get(s.formId)
+      if (!req) return true
+      const opts = s.itemOptions ?? (s.item ? [s.item] : [])
+      return opts.includes(req)
+    })
+    const dropped = before - sets.sets.length
+    if (dropped) console.log(`[dataset:build] dropped ${dropped} non-stone sets on Mega/Primal forms`)
   }
 
   // Fallback: if still very few sets, ensure at least 3 demo sets remain
@@ -398,15 +454,23 @@ function buildFromFixtures(): BuildResult {
     }
   }
 
-  // Synthetic fallback: ensure every form has at least 1 set so SETS tab never empty (user complaint)
+  // Synthetic fallback: ensure every standalone form has at least 1 set so
+  // SETS tab never empty (user complaint). Skips mega / primal / battle-only:
+  // those cannot stand alone (mega needs its stone, primals need their orb,
+  // battle-only transforms mid-battle), so a "Standard @ Leftovers" placeholder
+  // would be an impossible set — e.g. Ampharos-Mega holding Leftovers.
   {
     const counts = new Map<string, number>()
     for (const s of sets.sets) counts.set(s.formId, (counts.get(s.formId) ?? 0) + 1)
+    const NON_STANDALONE = new Set(["mega", "primal", "battle-only"])
     let synthetic = 0
+    let skippedNonStandalone = 0
     for (const f of forms) {
       if ((counts.get(f.id) ?? 0) > 0) continue
-      // Only synthesize for Fairy and a few others? For now all to guarantee UI, but limit to keep size reasonable
-      // Synthesize for all to avoid empty SETS — user expects every Pokemon to have at least one build
+      if (f.traits.some((t) => NON_STANDALONE.has(t))) {
+        skippedNonStandalone++
+        continue
+      }
       const stab = f.types[0]!
       const secondMove = f.types[1] ? f.types[1] : "Normal"
       sets.sets.push({
@@ -424,7 +488,7 @@ function buildFromFixtures(): BuildResult {
       if (f.abilities.slot0 && f.abilities.slot0 !== "—") referencedAbilities.add(f.abilities.slot0)
       synthetic++
     }
-    if (synthetic) console.log(`[dataset:build] synthetic sets for ${synthetic} forms without real sets`)
+    if (synthetic) console.log(`[dataset:build] synthetic sets for ${synthetic} forms without real sets, skipped ${skippedNonStandalone} mega/primal/battle-only`)
   }
 
   // --- Support tables from Showdown data ---
