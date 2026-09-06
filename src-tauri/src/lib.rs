@@ -78,6 +78,83 @@ fn make_opaque(app: &tauri::AppHandle, reason: &'static str) {
   });
 }
 
+/// Serves row/detail sprite bytes from the bundle.resources sidecar
+/// (`sprites/still/*.png`, `sprites/ani/*.gif`) over the `sprite://` scheme.
+///
+/// Why: embedding 116MB of sprites in frontendDist makes every cold launch
+/// map/scan a ~117MB exe. As sidecars, the exe stays ~10MB and only the ~26
+/// sprites in view are touched. The frontend uses this scheme only inside the
+/// packaged exe (see spriteBase() in src/lib/sprites.ts); dev/preview keep
+/// `/sprites/` from Vite. Only `<img>` uses these URLs, so custom-scheme
+/// origin/CORS rules do not apply.
+fn sprite_response(app: &tauri::AppHandle, uri: &tauri::http::Uri) -> tauri::http::Response<Vec<u8>> {
+  let bad_request = || {
+    tauri::http::Response::builder()
+      .status(tauri::http::StatusCode::BAD_REQUEST)
+      .body(Vec::new())
+      .unwrap()
+  };
+  let not_found = || {
+    tauri::http::Response::builder()
+      .status(tauri::http::StatusCode::NOT_FOUND)
+      .body(Vec::new())
+      .unwrap()
+  };
+
+  // Accept every platform rewrite: `sprite://localhost/still/x.png`,
+  // `sprite://still/x.png` (host form) and the Windows wry mapping
+  // `http://sprite.localhost/sprites/still/x.png`. The (kind, file) pair is
+  // always the last two segments; any prefix is ignored, and kind/file are
+  // strictly validated below so a prefix can never smuggle a traversal in.
+  let mut segs: Vec<&str> = uri.path().split('/').filter(|s| !s.is_empty()).collect();
+  if segs.len() == 1 {
+    if let Some(host) = uri.host() {
+      if host != "localhost" {
+        segs.insert(0, host);
+      }
+    }
+  }
+  let (kind, file) = match segs.as_slice() {
+    [.., kind, file] => (*kind, *file),
+    _ => {
+      boot_log(&format!("sprite 400 (shape): {}", uri));
+      return bad_request();
+    }
+  };
+  if kind != "still" && kind != "ani" {
+    boot_log(&format!("sprite 400 (kind): {}", uri));
+    return bad_request();
+  }
+  // Plain filename only: no traversal, no separators, expected extension.
+  let lower = file.to_ascii_lowercase();
+  let ext_ok = (kind == "still" && lower.ends_with(".png")) || (kind == "ani" && lower.ends_with(".gif"));
+  if !ext_ok || file.contains("..") || file.contains('/') || file.contains('\\') {
+    boot_log(&format!("sprite 400 (file): {}", uri));
+    return bad_request();
+  }
+
+  let root = app
+    .path()
+    .resource_dir()
+    .map(|d| d.join("sprites").join(kind))
+    .unwrap_or_default();
+  match std::fs::read(root.join(file)) {
+    Ok(bytes) => {
+      let mime = if kind == "still" { "image/png" } else { "image/gif" };
+      tauri::http::Response::builder()
+        .status(tauri::http::StatusCode::OK)
+        .header("Content-Type", mime)
+        .header("Cache-Control", "public, max-age=31536000, immutable")
+        .body(bytes)
+        .unwrap()
+    }
+    Err(e) => {
+      boot_log(&format!("sprite 404: {} ({e})", root.join(file).display()));
+      not_found()
+    }
+  }
+}
+
 #[tauri::command]
 fn shell_ready(app: tauri::AppHandle) {
   reveal_webview(&app, "js");
@@ -100,6 +177,9 @@ fn boot_mark(name: String) {
 pub fn run() {
   BOOT_START.get_or_init(std::time::Instant::now);
   tauri::Builder::default()
+    .register_uri_scheme_protocol("sprite", |ctx, request| {
+      sprite_response(ctx.app_handle(), request.uri())
+    })
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom"
 import {
   getSpriteManifestSync,
   loadSpriteManifest,
+  noteSpriteFail,
   spriteUrls,
   type SpriteBase,
   type SpriteManifest,
@@ -259,7 +260,10 @@ export function Sprite({ form, alt, size = "md", className, fallback, expandable
       onLoad={() => setLoaded(true)}
       onError={() => {
         if (index + 1 < candidates.length) setIndex((i) => i + 1)
-        else setFailed(true)
+        else {
+          noteSpriteFail()
+          setFailed(true)
+        }
       }}
     />
   )
@@ -308,7 +312,13 @@ export function SpriteThumb({ form, size = 28, expandable = true }: { form: Form
       className={`object-contain shrink-0 ${expandable ? "cursor-zoom-in hover:scale-110 transition-transform duration-200" : ""} ${thumbLoaded ? "opacity-100" : "opacity-0"}`}
       style={{ imageRendering: "auto" as never, width: size, height: size, transition: "opacity 180ms ease" }}
       onLoad={() => setThumbLoaded(true)}
-      onError={() => (idx + 1 < candidates.length ? setIdx(idx + 1) : setFail(true))}
+      onError={() => {
+        if (idx + 1 < candidates.length) setIdx(idx + 1)
+        else {
+          noteSpriteFail()
+          setFail(true)
+        }
+      }}
     />
   )
   if (!expandable) return img
@@ -356,7 +366,10 @@ export function ListSprite({
       fetchPriority="high"
       className={`object-contain shrink-0 ${className ?? ""}`}
       style={{ imageRendering: "auto" as never, width: size, height: size }}
-      onError={() => setFailed(src)}
+      onError={() => {
+        noteSpriteFail()
+        setFailed(src)
+      }}
     />
   )
 }

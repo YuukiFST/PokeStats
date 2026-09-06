@@ -51,12 +51,13 @@ function reportBootMarks(): void {
     const spriteSpan = sprites.length
       ? `${r(Math.min(...sprites.map((s) => s.startTime)))}-${r(Math.max(...sprites.map((s) => s.responseEnd)))} (n=${sprites.length})`
       : "-"
+    const spriteFails = (window as Window & { __POKESTATS_SPRITE_FAILS__?: number }).__POKESTATS_SPRITE_FAILS__ ?? 0
     const paint = performance.getEntriesByType("paint").map((p) => `${p.name.replace("first-", "")}=${r(p.startTime)}`).join(" ")
     const lines = [
       `nav resp=${nav ? r(nav.responseEnd) : "-"} domInteractive=${nav ? r(nav.domInteractive) : "-"} dcl=${nav ? r(nav.domContentLoadedEventEnd) : "-"}`,
       `index.js=${pick(/assets\/index-.*\.js/)} css=${pick(/assets\/index-.*\.css/)} i18n=${pick(/assets\/i18n-/)} logo=${pick(/logo\.webp/)}`,
       `dex.json=${pick(/dataset\/dex\.json/)} manifest=${pick(/sprites\/manifest/)} catalog=${pick(/dataset\/catalog/)}`,
-      `sprites=${spriteSpan}`,
+      `sprites=${spriteSpan} fail=${spriteFails}`,
       `paint ${paint} react-first-effect=${r(firstEffectAt)} shell-ready=${r(shellReadyAt)}`,
     ]
     for (const line of lines) void invoke("boot_mark", { name: line }).catch(() => {})
