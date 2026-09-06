@@ -5,19 +5,21 @@ import { TypeBadge } from "@/components/ui/badge"
 import { SpriteThumb } from "@/components/ui/sprite"
 import { useI18n } from "@/lib/i18n"
 import type { LoadedDataset } from "@/lib/dataset/load"
-import type { Team, Form } from "@/lib/domain/types"
+import { rankFormSets, setLabel } from "@/lib/domain/teamSets"
+import type { Team, Form, TeamSlot, DexGeneration, FormatId } from "@/lib/domain/types"
 
 interface Props {
   team: Team
   data: LoadedDataset
   onSetSlot: (index: number, formId: string | null) => void
+  onSetSlotSet: (index: number, setKey: TeamSlot["setKey"]) => void
 }
 
 /**
  * 6-slot roster editor with sprite search. Owns its query state; empty slots
  * jump focus to the search input so adding a member is one click + type.
  */
-export function TeamSlots({ team, data, onSetSlot }: Props) {
+export function TeamSlots({ team, data, onSetSlot, onSetSlotSet }: Props) {
   const { t } = useI18n()
   const [query, setQuery] = React.useState("")
   const inputRef = React.useRef<HTMLInputElement>(null)
@@ -42,6 +44,13 @@ export function TeamSlots({ team, data, onSetSlot }: Props) {
         {team.slots.map((slot, idx) => {
           const form = slot ? (data.formsById.get(slot.formId) ?? null) : null
           const isTombstone = slot && !form
+          const sets = form ? rankFormSets(data.setsByFormId.get(form.id) ?? []) : []
+          // A stale reference behaves like auto (resolution falls back to the
+          // best Set), so the picker shows auto unless the key still matches.
+          const matchedKey =
+            slot?.setKey && sets.some((s) => s.dexGen === slot.setKey!.dexGen && s.formatId === slot.setKey!.formatId && s.name === slot.setKey!.name)
+              ? `${slot.setKey.dexGen}|${slot.setKey.formatId}|${slot.setKey.name}`
+              : "auto"
           return (
             <div
               key={idx}
@@ -61,6 +70,31 @@ export function TeamSlots({ team, data, onSetSlot }: Props) {
                       <TypeBadge key={tt} type={tt} />
                     ))}
                   </div>
+                  {sets.length > 0 && (
+                    <label className="mt-1 flex items-center gap-1 text-[11px] text-[var(--ds-gray-700)]">
+                      <span className="shrink-0">{t("teams.set")}</span>
+                      <select
+                        value={matchedKey}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          if (v === "auto") {
+                            onSetSlotSet(idx, undefined)
+                            return
+                          }
+                          const [dexGen, formatId, ...nameParts] = v.split("|")
+                          onSetSlotSet(idx, { dexGen: dexGen as DexGeneration, formatId: formatId as FormatId, name: nameParts.join("|") })
+                        }}
+                        className="min-w-0 flex-1 h-7 rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] px-1 text-[11px] text-[var(--ds-gray-1000)]"
+                      >
+                        <option value="auto">{t("teams.autoSet")}</option>
+                        {sets.map((s) => (
+                          <option key={`${s.dexGen}|${s.formatId}|${s.name}`} value={`${s.dexGen}|${s.formatId}|${s.name}`}>
+                            {setLabel(s)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <Button variant="ghost" size="sm" className="mt-auto -mx-1" onClick={() => onSetSlot(idx, null)}>
                     {t("teams.remove")}
                   </Button>
