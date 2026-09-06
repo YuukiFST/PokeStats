@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n } from "@/lib/i18n"
 import type { Team } from "@/lib/domain/types"
-import { buildShowdownExport } from "@/lib/showdown"
+import { buildShowdownExport, parseShowdownTeam } from "@/lib/showdown"
+import { resolveSlotSet, validateTeam } from "@/lib/domain/teamSets"
 import { TeamSlots } from "@/components/teams/TeamSlots"
+import { TeamCheck } from "@/components/teams/TeamCheck"
 import { TeamAnalysis } from "@/components/teams/TeamAnalysis"
 import { ThreatMatchup, type CounterMode } from "@/components/teams/ThreatMatchup"
 
@@ -95,6 +97,19 @@ export function TeamsPage() {
     )
   }
 
+  const setSlotSet = (teamId: string, index: number, setKey: NonNullable<Team["slots"][number]>["setKey"]) => {
+    persist(
+      teams.map((tm) => {
+        if (tm.id !== teamId) return tm
+        const slots = [...tm.slots] as Team["slots"]
+        const cur = slots[index]
+        if (!cur) return tm
+        slots[index] = setKey ? { ...cur, setKey } : { formId: cur.formId }
+        return { ...tm, slots }
+      }),
+    )
+  }
+
   const togglePin = (formId: string) => {
     if (!active) return
     const cur = active.pinnedSuggestions ?? []
@@ -178,6 +193,35 @@ export function TeamsPage() {
       .filter(Boolean) as NonNullable<ReturnType<typeof data.formsById.get>>[]
   }, [active, data])
 
+  const resolvedMembers = React.useMemo(() => {
+    if (!active || !data) return []
+    return active.slots.flatMap((s) => {
+      if (!s) return []
+      const form = data.formsById.get(s.formId)
+      if (!form) return []
+      return [{ form, set: resolveSlotSet(s, data.setsByFormId.get(s.formId) ?? []) }]
+    })
+  }, [active, data])
+
+  const validation = React.useMemo(() => validateTeam(resolvedMembers), [resolvedMembers])
+
+  const [importOpen, setImportOpen] = React.useState(false)
+  const [importText, setImportText] = React.useState("")
+  const [importWarnings, setImportWarnings] = React.useState<string[] | null>(null)
+
+  const applyImport = () => {
+    if (!active || !data) return
+    const parsed = parseShowdownTeam(importText, data)
+    if (parsed.slots.every((s) => s === null)) {
+      setImportWarnings(parsed.warnings)
+      return
+    }
+    persist(teams.map((tm) => (tm.id === active.id ? { ...tm, slots: parsed.slots } : tm)))
+    setImportWarnings(parsed.warnings)
+    setImportText("")
+    setImportOpen(false)
+  }
+
   const tabs: { key: TabKey; label: string }[] = [
     { key: "team", label: t("teams.tabTeam") },
     { key: "analysis", label: t("teams.tabAnalysis") },
@@ -248,7 +292,49 @@ export function TeamsPage() {
 
               {tab === "team" &&
                 (data ? (
-                  <TeamSlots team={active} data={data} onSetSlot={(idx, id) => setSlot(active.id, idx, id)} />
+                  <div className="space-y-3">
+                    <TeamCheck
+                      duplicateItems={validation.duplicateItems}
+                      multiMega={validation.multiMega}
+                      missingHazardRemoval={validation.missingHazardRemoval}
+                      missingSpeedControl={validation.missingSpeedControl}
+                    />
+                    <TeamSlots
+                      team={active}
+                      data={data}
+                      onSetSlot={(idx, id) => setSlot(active.id, idx, id)}
+                      onSetSlotSet={(idx, key) => setSlotSet(active.id, idx, key)}
+                    />
+                    <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-3">
+                      <Button variant="outline" size="sm" onClick={() => setImportOpen((v) => !v)}>
+                        {t("teams.import")}
+                      </Button>
+                      {importOpen && (
+                        <div className="mt-2 space-y-2">
+                          <textarea
+                            value={importText}
+                            onChange={(e) => setImportText(e.target.value)}
+                            placeholder={t("teams.importPlaceholder")}
+                            rows={6}
+                            className="w-full rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] px-2 py-1 font-mono text-xs"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" onClick={applyImport}>
+                              {t("teams.applyImport")}
+                            </Button>
+                            {importWarnings && importWarnings.length > 0 && (
+                              <span className="text-xs text-[var(--ds-gray-700)]">
+                                {t("teams.importUnmatched")} {importWarnings.join(", ")}
+                              </span>
+                            )}
+                            {importWarnings && importWarnings.length === 0 && (
+                              <span className="text-xs text-[var(--ds-gray-700)]">{t("teams.importEmpty")}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">
                     {t("detail.loading")}
