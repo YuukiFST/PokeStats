@@ -5,7 +5,7 @@ import { useDataset } from "@/hooks/useDataset"
 import { useI18n } from "@/lib/i18n"
 import type { Team } from "@/lib/domain/types"
 import { buildShowdownExport, parseShowdownTeam } from "@/lib/showdown"
-import { resolveSlotSet, validateTeam } from "@/lib/domain/teamSets"
+import { prunePinnedCounters, resolveSlotSet, validateTeam } from "@/lib/domain/teamSets"
 import { TeamSlots } from "@/components/teams/TeamSlots"
 import { TeamCheck } from "@/components/teams/TeamCheck"
 import { BattleMode } from "@/components/teams/BattleMode"
@@ -38,10 +38,17 @@ export function TeamsPage() {
   const search = useSearch({ from: "/teams" })
   const [teams, setTeams] = React.useState<Team[]>(() => loadTeams())
   const [copied, setCopied] = React.useState(false)
+  const [lastChange, setLastChange] = React.useState<{ removed: string[]; added: string[] } | null>(null)
 
   const tab: TabKey = search.tab === "analysis" || search.tab === "matchup" || search.tab === "battle" ? search.tab : "team"
   const counterMode: CounterMode = search.mode === "smart" ? "smart" : "dataset"
   const active = teams.find((tm) => tm.id === search.team) ?? teams[0] ?? null
+
+  // The change summary belongs to one team; drop it on switch.
+  const activeId = active?.id
+  React.useEffect(() => {
+    setLastChange(null)
+  }, [activeId])
 
   const patchSearch = React.useCallback(
     (patch: { team?: string | null; tab?: TabKey; mode?: CounterMode }) => {
@@ -134,6 +141,7 @@ export function TeamsPage() {
           : tm,
       ),
     )
+    setLastChange({ removed: [], added: [formId] })
   }
 
   // Same one-persist rule: the swap writes the slot and drops the candidate's pin together.
@@ -150,6 +158,7 @@ export function TeamsPage() {
           : tm,
       ),
     )
+    setLastChange({ removed: [replaceMemberId], added: [formId] })
   }
 
   const toggleProtect = (formId: string) => {
@@ -178,6 +187,7 @@ export function TeamsPage() {
           : tm,
       ),
     )
+    setLastChange({ removed: removeIds, added: addIds })
   }
 
   const copyExport = async (team: Team) => {
@@ -185,6 +195,17 @@ export function TeamsPage() {
     await navigator.clipboard.writeText(buildShowdownExport(team, data))
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1600)
+  }
+
+  const changeOpponents = (opponents: string[]) => {
+    if (!active) return
+    // Pins only make sense for listed opponents; prune with the same write.
+    patchActive({ opponents, pinnedCounters: prunePinnedCounters(active.pinnedCounters, new Set(opponents)) })
+  }
+
+  const changePins = (pins: Record<string, string[]>) => {
+    if (!active) return
+    patchActive({ pinnedCounters: prunePinnedCounters(pins, new Set(active.opponents ?? [])) })
   }
 
   const members = React.useMemo(() => {
@@ -357,7 +378,26 @@ export function TeamsPage() {
 
               {tab === "analysis" &&
                 (members.length ? (
-                  <TeamAnalysis
+                  <>
+                    {lastChange && data && (
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-green-700/50 bg-green-700/10 px-3 py-2 text-xs">
+                        <span className="font-semibold text-green-400">{t("teams.changed")}</span>
+                        {lastChange.removed.length > 0 && (
+                          <span className="text-[var(--ds-gray-700)]">
+                            {t("teams.changeOut")} {lastChange.removed.map((id) => data.formsById.get(id)?.name ?? id).join(", ")}
+                          </span>
+                        )}
+                        {lastChange.added.length > 0 && (
+                          <span className="text-[var(--ds-gray-700)]">
+                            {t("teams.changeIn")} {lastChange.added.map((id) => data.formsById.get(id)?.name ?? id).join(", ")}
+                          </span>
+                        )}
+                        <button onClick={() => setLastChange(null)} className="ml-auto text-[var(--ds-gray-700)] hover:text-[var(--ds-gray-1000)]" aria-label={t("teams.clear")}>
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    <TeamAnalysis
                     members={members}
                     ptBR={lang === "pt-BR"}
                     data={data}
@@ -368,7 +408,8 @@ export function TeamsPage() {
                     protectedMembers={active.protectedMembers}
                     onToggleProtect={toggleProtect}
                     onApplyPlan={active.slots.every((s) => s !== null) ? applyImprovementPlan : undefined}
-                  />
+                    />
+                  </>
                 ) : (
                   <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">
                     {t("teams.noMembers")}
@@ -378,13 +419,16 @@ export function TeamsPage() {
               {tab === "matchup" &&
                 (members.length && data ? (
                   <ThreatMatchup
+                    key={active.id}
                     team={active}
                     members={members}
                     data={data}
                     ptBR={lang === "pt-BR"}
-                    onChange={(opponents) => patchActive({ opponents })}
+                    onChange={changeOpponents}
                     counterMode={counterMode}
                     onCounterModeChange={(mode) => patchSearch({ mode })}
+                    initialPins={active.pinnedCounters}
+                    onPinsChange={changePins}
                   />
                 ) : (
                   <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">
