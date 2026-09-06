@@ -13,6 +13,7 @@ import { defensiveProfile as calcDef, weaknesses, resistances, immunities } from
 import { Sprite } from "@/components/ui/sprite"
 import { SetCard } from "@/components/sets/SetCard"
 import { FormFamily } from "@/components/forms/FormFamily"
+import { StatCalculator } from "@/components/calc/StatCalculator"
 
 function fmtMult(v: number, pt: boolean): string {
   const s = v === 0 ? "0" : String(v)
@@ -214,6 +215,8 @@ export function FormDetailPage() {
             </div>
             <div className="mt-3 text-xs text-[var(--ds-gray-700)]">{t("detail.abilities")} {form.abilities.slot0}{form.abilities.slot1 ? ` / ${form.abilities.slot1}` : ""}{form.abilities.hidden ? ` (H: ${form.abilities.hidden})` : ""}</div>
           </section>
+
+          <StatCalculator key={form.id} form={form} sets={sets} data={data} />
 
           <section className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-4">
             <h2 className="text-sm font-semibold mb-3">{t("detail.defensiveProfile")}</h2>
