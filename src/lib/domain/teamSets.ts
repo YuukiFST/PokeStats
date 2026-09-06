@@ -4,12 +4,12 @@
  * (older saves) or stale (dataset changed), resolution falls back to the
  * best-ranked Set so saved Teams keep working.
  */
-import type { Form, Set, TeamSlot } from "./types"
+import type { Form, Set as PokeSet, TeamSlot } from "./types"
 
 export const GEN_RANK: Record<string, number> = { rb: 1, gs: 2, rs: 3, dp: 4, bw: 5, xy: 6, sm: 7, ss: 8, sv: 9 }
 
 /** Latest Dex Gen first, OU-family formats before the rest, then name. */
-export function rankFormSets(sets: Set[]): Set[] {
+export function rankFormSets(sets: PokeSet[]): PokeSet[] {
   return [...sets].sort((a, b) => {
     const gen = (GEN_RANK[b.dexGen] ?? 0) - (GEN_RANK[a.dexGen] ?? 0)
     if (gen !== 0) return gen
@@ -20,7 +20,7 @@ export function rankFormSets(sets: Set[]): Set[] {
 }
 
 /** The Set a slot plays: referenced setKey when it still exists, else the best-ranked Set. */
-export function resolveSlotSet(slot: TeamSlot, setsForForm: Set[]): Set | null {
+export function resolveSlotSet(slot: TeamSlot, setsForForm: PokeSet[]): PokeSet | null {
   if (setsForForm.length === 0) return null
   const key = slot.setKey
   if (key) {
@@ -31,7 +31,7 @@ export function resolveSlotSet(slot: TeamSlot, setsForForm: Set[]): Set | null {
 }
 
 /** Short label for slot pickers: name plus where the Set comes from. */
-export function setLabel(set: Set): string {
+export function setLabel(set: PokeSet): string {
   return `${set.name} · ${set.dexGen}/${set.formatId}`
 }
 
@@ -51,7 +51,7 @@ const SPEED_CONTROL = new Set([
 
 export interface ResolvedMember {
   form: Form
-  set: Set | null
+  set: PokeSet | null
 }
 
 export interface TeamValidation {
