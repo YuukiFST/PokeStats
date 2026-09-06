@@ -33,6 +33,15 @@ describe("threatRanking", () => {
   })
 })
 
+describe("degenerate inputs", () => {
+  it("returns empty results without crashing", () => {
+    expect(battleMatrix([], []).cells).toEqual([])
+    expect(suggestLeads(battleMatrix([], []))).toEqual([])
+    expect(threatRanking(battleMatrix([], []))).toEqual([])
+    expect(safeSwitchins([], VENUS)).toEqual([])
+  })
+})
+
 describe("safeSwitchins", () => {
   it("keeps only members avoiding 2x+, best pressure first", () => {
     const opts = safeSwitchins([CHAR, BLAST, VENUS], VENUS)

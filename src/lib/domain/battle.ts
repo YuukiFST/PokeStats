@@ -4,7 +4,7 @@
  * Battle tab agrees with the Threat Matchup simulator.
  */
 import { defensiveProfile } from "./typeChart"
-import { memberMatchup, type MemberMatchup, type VerdictKey } from "./matchup"
+import { memberMatchup, type MemberMatchup } from "./matchup"
 import type { Form, TypeName } from "./types"
 
 export interface BattleCell extends MemberMatchup {
@@ -107,5 +107,3 @@ export function safeSwitchins(members: Form[], opponent: Form): SwitchinOption[]
     .filter((o) => o.incomingWorst <= 1)
     .sort((a, b) => b.pressure - a.pressure)
 }
-
-export const VERDICT_ORDER: VerdictKey[] = ["excellent", "good", "neutral", "bad", "none"]

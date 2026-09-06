@@ -344,6 +344,8 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
 
   const addOpponent = (id: string) => {
     if (oppIds.has(id)) return
+    // Opponents are shared with Battle Mode, which plans a 6v6.
+    if ((team.opponents ?? []).length >= 6) return
     onChange([...(team.opponents ?? []), id])
     setQuery("")
   }

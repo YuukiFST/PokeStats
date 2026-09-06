@@ -103,7 +103,7 @@ export function BattleMode({ members, opponents, allForms, onOpponentsChange }: 
             <div className="mb-2 text-xs font-semibold text-[var(--ds-gray-700)]">{t("battle.lead")}</div>
             <div className="space-y-1">
               {leads.slice(0, 3).map((l, i) => (
-                <div key={l.formId} className="flex flex-wrap items-center gap-2 text-sm">
+                <div key={l.formId} className="flex flex-wrap items-center gap-2 text-sm" title={`score ${l.score}`}>
                   <span className="tnum w-4 text-xs text-[var(--ds-gray-700)]">{i + 1}</span>
                   <Link to="/form/$formId" params={{ formId: l.formId } as never} className="font-medium hover:underline">
                     {nameOf(l.formId)}
