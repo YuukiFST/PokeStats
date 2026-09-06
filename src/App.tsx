@@ -10,6 +10,7 @@ import type { NaturesSearch } from "@/routes/natures"
 import { I18nProvider } from "@/lib/i18n"
 import { WorkspaceProvider } from "@/lib/workspace/WorkspaceProvider"
 import { BookmarksProvider } from "@/lib/bookmarks/BookmarksProvider"
+import { CollectionProvider } from "@/lib/collection/CollectionProvider"
 import { CobblemonEggProvider } from "@/lib/cobblemon/CobblemonEggProvider"
 import { signalWhenPainted, markFirstEffect } from "@/lib/boot/shellReady"
 import { loadDataset } from "@/lib/dataset/load"
@@ -27,6 +28,7 @@ const NaturesPage = React.lazy(() => import("@/routes/natures").then((m) => ({ d
 const TeamsPage = React.lazy(() => import("@/routes/teams").then((m) => ({ default: m.TeamsPage })))
 const SettingsPage = React.lazy(() => import("@/routes/settings").then((m) => ({ default: m.SettingsPage })))
 const FavoritesPage = React.lazy(() => import("@/routes/favorites").then((m) => ({ default: m.FavoritesPage })))
+const CollectionPage = React.lazy(() => import("@/routes/collection").then((m) => ({ default: m.CollectionPage })))
 const FormDetailPage = React.lazy(() => import("@/routes/formDetail").then((m) => ({ default: m.FormDetailPage })))
 const CommandPalette = React.lazy(() => import("@/hooks/usePalette").then((m) => ({ default: m.CommandPalette })))
 
@@ -42,6 +44,7 @@ const ROUTE_CHUNKS: Array<() => Promise<unknown>> = [
   () => import("@/routes/compare"),
   () => import("@/routes/teams"),
   () => import("@/routes/favorites"),
+  () => import("@/routes/collection"),
   () => import("@/routes/settings"),
 ]
 
@@ -82,14 +85,16 @@ const rootRoute = createRootRoute({
   component: () => (
     <WorkspaceProvider>
       <BookmarksProvider>
-        <CobblemonEggProvider>
+        <CollectionProvider>
+          <CobblemonEggProvider>
           <Shell>
             <React.Suspense fallback={<PageFallback />}>
               <Outlet />
             </React.Suspense>
           </Shell>
-          <DeferredPalette />
-        </CobblemonEggProvider>
+            <DeferredPalette />
+          </CobblemonEggProvider>
+        </CollectionProvider>
       </BookmarksProvider>
     </WorkspaceProvider>
   ),
@@ -178,6 +183,7 @@ const teamsRoute = createRoute({
 })
 const settingsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/settings", component: SettingsPage })
 const favoritesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/favorites", component: FavoritesPage })
+const collectionRoute = createRoute({ getParentRoute: () => rootRoute, path: "/collection", component: CollectionPage })
 const formRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/form/$formId",
@@ -201,6 +207,7 @@ const routeTree = rootRoute.addChildren([
   teamsRoute,
   settingsRoute,
   favoritesRoute,
+  collectionRoute,
   formRoute,
 ])
 // Router restores window scroll everywhere except the virtualized lists (Dex
