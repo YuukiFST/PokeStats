@@ -82,7 +82,12 @@ export function parseShowdownTeam(text: string, data: LoadedDataset): ParsedTeam
   let idx = 0
   for (const block of text.split(/\n\s*\n/)) {
     const header = parseHeader(block.split("\n")[0] ?? "")
-    if (!header || idx >= 6) continue
+    if (!header) continue
+    // Showdown teams cap at six; extra entries warn instead of vanishing.
+    if (idx >= 6) {
+      warnings.push(header.species)
+      continue
+    }
     const form = byName.get(slug(header.species))
     if (!form) {
       warnings.push(header.species)

@@ -216,10 +216,12 @@ export function TeamsPage() {
       setImportWarnings(parsed.warnings)
       return
     }
+    // The pasted title is intentionally ignored: importing must not rename the team.
     persist(teams.map((tm) => (tm.id === active.id ? { ...tm, slots: parsed.slots } : tm)))
     setImportWarnings(parsed.warnings)
     setImportText("")
-    setImportOpen(false)
+    // Keep the panel open while warnings exist so they stay visible.
+    if (parsed.warnings.length === 0) setImportOpen(false)
   }
 
   const tabs: { key: TabKey; label: string }[] = [
@@ -313,7 +315,10 @@ export function TeamsPage() {
                         <div className="mt-2 space-y-2">
                           <textarea
                             value={importText}
-                            onChange={(e) => setImportText(e.target.value)}
+                            onChange={(e) => {
+                              setImportText(e.target.value)
+                              setImportWarnings(null)
+                            }}
                             placeholder={t("teams.importPlaceholder")}
                             rows={6}
                             className="w-full rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] px-2 py-1 font-mono text-xs"
