@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { makeForm, makeSet } from "./testFixtures"
-import { rankFormSets, resolveSlotSet, setLabel, validateTeam } from "./teamSets"
+import { rankFormSets, resolveSlotSet, setLabel, prunePinnedCounters, validateTeam } from "./teamSets"
 import type { TeamSlot } from "./types"
 
 const OU = makeSet({ formId: "f", moves: [["Tackle"]], dexGen: "sv", formatId: "gen9ou", name: "Standard" })
@@ -27,6 +27,13 @@ describe("resolveSlotSet", () => {
   })
   it("returns null without sets", () => {
     expect(resolveSlotSet({ formId: "f" }, [])).toBeNull()
+  })
+})
+
+describe("prunePinnedCounters", () => {
+  it("keeps only pins for current opponents", () => {
+    expect(prunePinnedCounters({ a: ["x"], b: ["y"], c: [] }, new Set(["a", "c"]))).toEqual({ a: ["x"] })
+    expect(prunePinnedCounters(undefined, new Set())).toBeUndefined()
   })
 })
 

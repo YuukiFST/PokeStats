@@ -202,6 +202,8 @@ export interface Team {
   pinnedSuggestions?: FormId[]
   /** Members the user locked against swap suggestions (favorites); plans and swaps route around them. */
   protectedMembers?: FormId[]
+  /** Matchup counter pins per opponent id; survive restarts, pruned with opponents. */
+  pinnedCounters?: Record<string, FormId[]>
 }
 
 // ---------- dataset artifact (ticket 08: core + sets, JSON minified) ----------
