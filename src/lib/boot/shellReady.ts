@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core"
+import { spriteFailCount } from "@/lib/sprites"
 
 let sent = false
 
@@ -51,7 +52,7 @@ function reportBootMarks(): void {
     const spriteSpan = sprites.length
       ? `${r(Math.min(...sprites.map((s) => s.startTime)))}-${r(Math.max(...sprites.map((s) => s.responseEnd)))} (n=${sprites.length})`
       : "-"
-    const spriteFails = (window as Window & { __POKESTATS_SPRITE_FAILS__?: number }).__POKESTATS_SPRITE_FAILS__ ?? 0
+    const spriteFails = spriteFailCount()
     const paint = performance.getEntriesByType("paint").map((p) => `${p.name.replace("first-", "")}=${r(p.startTime)}`).join(" ")
     const lines = [
       `nav resp=${nav ? r(nav.responseEnd) : "-"} domInteractive=${nav ? r(nav.domInteractive) : "-"} dcl=${nav ? r(nav.domContentLoadedEventEnd) : "-"}`,

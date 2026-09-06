@@ -129,10 +129,14 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, [router, pushTrap])
 
   // Persist every workspace change so closing the app keeps all tabs.
+  // A failure keeps the previous snapshot (setItem is atomic); warn so a
+  // silently stale restore is diagnosable.
   React.useEffect(() => {
     try {
       localStorage.setItem(WORKSPACE_STORAGE_KEY, serializeWorkspace(state))
-    } catch {}
+    } catch (e) {
+      console.warn("[workspace] persist failed", e)
+    }
   }, [state])
 
   React.useEffect(() => {
@@ -200,6 +204,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       // Programmatic navigations (tab switch, in-app back, close, restore)
       // always target the already-current location: ignore them here.
       if (hrefOf(to) === hrefOf(currentLocation(s)) || hrefOf(from) === hrefOf(to)) return
+      // GO carries a relative delta as `index` (verified against
+      // @tanstack/history 1.162.1: SubscriberArgs action { type, index: delta }).
       const cause: TraverseCause =
         raw.type === "BACK" ? "traverse-back"
         : raw.type === "FORWARD" || (raw.type === "GO" && (raw.delta ?? -1) > 0) ? "traverse-forward"

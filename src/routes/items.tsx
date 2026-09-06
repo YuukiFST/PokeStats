@@ -38,7 +38,7 @@ export function ItemsPage() {
   const { data, loading, error, extrasReady, catalogReady } = useDataset()
   const { t } = useI18n()
   // Catalog now merges on idle; a fast navigation here must not wait for it.
-  React.useEffect(() => { void ensureCatalog() }, [])
+  React.useEffect(() => { void ensureCatalog().catch((e) => console.warn("[dataset] catalog", e)) }, [])
   const [inputValue, setInputValue] = React.useState(search.q ?? "")
   const deferredQuery = React.useDeferredValue(inputValue)
 

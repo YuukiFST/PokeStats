@@ -191,7 +191,7 @@ export function MovesPage() {
   const starAdd = t("bookmarks.add")
   const starRemove = t("bookmarks.remove")
   // Catalog now merges on idle; a fast navigation here must not wait for it.
-  React.useEffect(() => { void ensureCatalog() }, [])
+  React.useEffect(() => { void ensureCatalog().catch((e) => console.warn("[dataset] catalog", e)) }, [])
 
   const query = search.q ?? ""
   const sortBy = (search.sort as SortKey) ?? "power"

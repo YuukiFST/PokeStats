@@ -86,7 +86,7 @@ export function MoveDetailPage() {
   const { has, toggle } = useBookmarks()
   const [showAllLearners, setShowAllLearners] = React.useState(false)
   // Catalog now merges on idle; a fast navigation here must not wait for it.
-  React.useEffect(() => { void ensureCatalog() }, [])
+  React.useEffect(() => { void ensureCatalog().catch((e) => console.warn("[dataset] catalog", e)) }, [])
 
   const resolved = React.useMemo(() => (data ? resolveMove(data, moveId) : null), [data, moveId])
 

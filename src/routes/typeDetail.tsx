@@ -27,7 +27,7 @@ export function TypeDetailPage() {
   const { t, typeName } = useI18n()
   const { has, toggle } = useBookmarks()
   // Catalog now merges on idle; a fast navigation here must not wait for it.
-  React.useEffect(() => { void ensureCatalog() }, [])
+  React.useEffect(() => { void ensureCatalog().catch((e) => console.warn("[dataset] catalog", e)) }, [])
 
   const valid = TYPE_NAMES.includes(typeId as TypeName)
   const tt = typeId as TypeName

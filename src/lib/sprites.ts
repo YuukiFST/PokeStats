@@ -29,14 +29,16 @@ export interface SpriteManifest {
 }
 
 /**
- * Where row/detail sprite bytes come from. The packaged exe keeps
+ * Where row/detail sprite bytes come from. The packaged app keeps
  * still/ani out of the embedded binary (bundle.resources sidecar) and serves
  * them over a custom `sprite` scheme so a cold launch maps/scans a ~10MB exe
- * instead of ~117MB. On Windows/macOS/Linux WebViews only fetch http(s), so
- * the frontend requests the wry workaround form `http://sprite.localhost/…`
- * (Tauri routes it back to the registered `sprite` handler; see
- * register_uri_scheme_protocol in src-tauri/src/lib.rs). Dev, preview and any
- * plain browser keep `/sprites/` served by Vite from public/.
+ * instead of ~117MB (see register_uri_scheme_protocol in
+ * src-tauri/src/lib.rs). Packaged Windows loads from http://tauri.localhost,
+ * whose WebView only fetches http(s), so the frontend requests the wry
+ * workaround form `http://sprite.localhost/…` there. Packaged macOS/Linux
+ * load from tauri://localhost (no port), where the custom scheme is
+ * fetchable directly as `sprite://localhost/…`. Dev, preview and any plain
+ * browser keep `/sprites/` served by Vite from public/.
  */
 function spriteBase(): string {
   if (typeof window !== "undefined") {
@@ -45,6 +47,9 @@ function spriteBase(): string {
     if (underTauri) {
       const h = window.location.hostname
       if (h !== "localhost" && h !== "127.0.0.1" && h !== "[::1]") return "http://sprite.localhost/sprites/"
+      // No port means a packaged non-Windows build (dev servers always carry
+      // one), where the custom scheme resolves directly.
+      if (!window.location.port) return "sprite://localhost/sprites/"
     }
   }
   return "/sprites/"
