@@ -22,6 +22,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     { to: "/compare", label: "Compare", icon: "⇄", title: t("compare.desc") },
     { to: "/teams", label: t("teams.title"), icon: "⬢", title: t("teams.desc") },
     { to: "/favorites", label: t("bookmarks.nav"), icon: "★", title: t("bookmarks.desc") },
+    { to: "/collection", label: t("collection.title"), icon: "▣", title: t("collection.desc") },
     { to: "/settings", label: t("settings.title"), icon: "⚙" },
   ] as const
 

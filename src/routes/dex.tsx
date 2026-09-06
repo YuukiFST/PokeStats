@@ -29,6 +29,7 @@ export type DexSearch = {
 import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { StarButton } from "@/components/ui/star"
 import { useBookmarks } from "@/lib/bookmarks/BookmarksProvider"
+import { useCollection } from "@/lib/collection/CollectionProvider"
 
 type SortKey = DexSortKey
 
@@ -42,6 +43,8 @@ type DexRowProps = {
   start: number
   selected: boolean
   starred: boolean
+  owned: boolean
+  ownedLabel: string
   manifest: SpriteManifest | null
   base: SpriteBase | undefined
   starAdd: string
@@ -72,6 +75,9 @@ const DexRow = React.memo(function DexRow(p: DexRowProps) {
       </button>
       <span className="flex items-center gap-1 min-w-0">
         <StarButton className="h-6 w-6" active={p.starred} onToggle={() => p.onToggleStar(f.id)} label={p.starred ? p.starRemove : p.starAdd} />
+        {p.owned && (
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" title={p.ownedLabel} aria-label={p.ownedLabel} />
+        )}
         <a data-nav href={`/form/${encodeURIComponent(f.id)}`} className="text-left truncate hover:underline font-medium" title={f.id}>
           {f.name}
           {f.traits.length > 0 && <span className="ml-1 text-xs text-[var(--ds-gray-700)]">[{f.traits.join(",")}]</span>}
@@ -99,6 +105,7 @@ export function DexPage() {
   const search = useSearch({ from: "/" }) as DexSearch
   const { t, typeName } = useI18n()
   const { keys: starredKeys, toggle } = useBookmarks()
+  const { ownedIds } = useCollection()
   const manifest = useSpriteManifest()
   const onToggleStar = React.useCallback((id: string) => toggle({ kind: "form", formId: id }), [toggle])
   const [lightbox, setLightbox] = React.useState<Form | null>(null)
@@ -507,6 +514,8 @@ export function DexPage() {
                 start={row.start}
                 selected={selected.has(f.id)}
                 starred={starredKeys.has(`form:${f.id}`)}
+                owned={ownedIds.has(f.id)}
+                ownedLabel={t("collection.owned")}
                 manifest={manifest}
                 base={f.isBaseForm ? undefined : baseFormOf(forms, f.speciesId)}
                 starAdd={starAdd}

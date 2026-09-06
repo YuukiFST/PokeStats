@@ -241,7 +241,7 @@ const MAX_TABS = 25
 const MAX_ENTRIES = 50
 const MAX_SEARCH_LENGTH = 2000
 
-const KNOWN_PREFIXES = ["/", "/compare", "/moves", "/types", "/items", "/natures", "/teams", "/settings", "/favorites", "/form"]
+const KNOWN_PREFIXES = ["/", "/compare", "/moves", "/types", "/items", "/natures", "/teams", "/settings", "/favorites", "/collection", "/form"]
 
 function isValidPathname(pathname: unknown): pathname is string {
   if (typeof pathname !== "string" || !pathname.startsWith("/") || pathname.includes(" ") || pathname.includes("\n")) return false
