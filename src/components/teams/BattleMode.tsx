@@ -139,7 +139,7 @@ export function BattleMode({ members, opponents, allForms, onOpponentsChange }: 
                 <tr>
                   <th />
                   {opponents.map((o) => (
-                    <th key={o.id} className="max-w-[90px] truncate px-1 pb-1 text-center font-medium" title={o.name}>
+                    <th key={o.id} className="max-w-[96px] px-1 pb-1 align-bottom text-center font-medium leading-tight break-words" title={o.name}>
                       {o.name}
                     </th>
                   ))}
@@ -148,7 +148,7 @@ export function BattleMode({ members, opponents, allForms, onOpponentsChange }: 
               <tbody>
                 {members.map((m, i) => (
                   <tr key={m.id}>
-                    <th className="max-w-[110px] truncate pr-2 text-left font-medium" title={m.name}>
+                    <th className="max-w-[110px] pr-2 text-left font-medium leading-tight break-words" title={m.name}>
                       {m.name}
                     </th>
                     {matrix.cells[i]!.map((c) => (
