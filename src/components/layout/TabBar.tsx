@@ -50,7 +50,6 @@ function useTabMeta(loc: LocationSnapshot): { label: string; glyph: React.ReactN
   if (loc.pathname === "/compare") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">⇄</span> }
   if (loc.pathname === "/teams") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">⬢</span> }
   if (loc.pathname === "/favorites") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">★</span> }
-  if (loc.pathname === "/collection") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">▣</span> }
   if (loc.pathname === "/settings") return { label: fallback, glyph: <span className="text-[13px] leading-none opacity-80">⚙</span> }
   return { label: fallback, glyph: null }
 }
