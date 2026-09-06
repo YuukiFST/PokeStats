@@ -442,7 +442,7 @@ export function TeamsPage() {
                     members={members}
                     opponents={opponentForms}
                     allForms={data.core.forms}
-                    onOpponentsChange={(opponents) => patchActive({ opponents })}
+                    onOpponentsChange={changeOpponents}
                   />
                 ) : (
                   <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">

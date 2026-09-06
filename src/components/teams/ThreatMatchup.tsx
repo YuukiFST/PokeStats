@@ -314,7 +314,8 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
       const set = new Set(next.get(oppId) ?? [])
       if (set.has(formId)) set.delete(formId)
       else set.add(formId)
-      next.set(oppId, set)
+      if (set.size === 0) next.delete(oppId)
+      else next.set(oppId, set)
       return next
     })
   }, [])
@@ -367,6 +368,13 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
   }
 
   const removeOpponent = React.useCallback((id: string) => {
+    // Drop its local pins too so a re-add starts clean (storage is pruned alongside).
+    setPinnedCounters((prev) => {
+      if (!prev.has(id)) return prev
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
     onChange((team.opponents ?? []).filter((o) => o !== id))
   }, [onChange, team.opponents])
 
