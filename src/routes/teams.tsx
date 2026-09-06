@@ -8,6 +8,7 @@ import { buildShowdownExport, parseShowdownTeam } from "@/lib/showdown"
 import { resolveSlotSet, validateTeam } from "@/lib/domain/teamSets"
 import { TeamSlots } from "@/components/teams/TeamSlots"
 import { TeamCheck } from "@/components/teams/TeamCheck"
+import { BattleMode } from "@/components/teams/BattleMode"
 import { TeamAnalysis } from "@/components/teams/TeamAnalysis"
 import { ThreatMatchup, type CounterMode } from "@/components/teams/ThreatMatchup"
 
@@ -26,7 +27,7 @@ function saveTeams(teams: Team[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(teams))
 }
 
-type TabKey = "team" | "analysis" | "matchup"
+type TabKey = "team" | "analysis" | "matchup" | "battle"
 
 export function TeamsPage() {
   const { data } = useDataset()
@@ -38,7 +39,7 @@ export function TeamsPage() {
   const [teams, setTeams] = React.useState<Team[]>(() => loadTeams())
   const [copied, setCopied] = React.useState(false)
 
-  const tab: TabKey = search.tab === "analysis" || search.tab === "matchup" ? search.tab : "team"
+  const tab: TabKey = search.tab === "analysis" || search.tab === "matchup" || search.tab === "battle" ? search.tab : "team"
   const counterMode: CounterMode = search.mode === "smart" ? "smart" : "dataset"
   const active = teams.find((tm) => tm.id === search.team) ?? teams[0] ?? null
 
@@ -228,7 +229,15 @@ export function TeamsPage() {
     { key: "team", label: t("teams.tabTeam") },
     { key: "analysis", label: t("teams.tabAnalysis") },
     { key: "matchup", label: t("teams.tabMatchup") },
+    { key: "battle", label: t("teams.tabBattle") },
   ]
+
+  const opponentForms = React.useMemo(() => {
+    if (!active || !data) return []
+    return (active.opponents ?? [])
+      .map((id) => data.formsById.get(id))
+      .filter((f): f is NonNullable<typeof f> => Boolean(f))
+  }, [active, data])
 
   return (
     <div className="p-6 space-y-4">
@@ -376,6 +385,20 @@ export function TeamsPage() {
                     onChange={(opponents) => patchActive({ opponents })}
                     counterMode={counterMode}
                     onCounterModeChange={(mode) => patchSearch({ mode })}
+                  />
+                ) : (
+                  <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">
+                    {t("teams.noMembers")}
+                  </div>
+                ))}
+
+              {tab === "battle" &&
+                (members.length && data ? (
+                  <BattleMode
+                    members={members}
+                    opponents={opponentForms}
+                    allForms={data.core.forms}
+                    onOpponentsChange={(opponents) => patchActive({ opponents })}
                   />
                 ) : (
                   <div className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-8 text-center text-sm text-[var(--ds-gray-700)]">
