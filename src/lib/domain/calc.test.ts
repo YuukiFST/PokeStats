@@ -3,7 +3,6 @@ import { calcHPStat, calcStat, damageRange, evTotal, finalStats } from "./calc"
 import { makeForm, makeMove } from "./testFixtures"
 import type { NatureInfo } from "./types"
 
-const NEUTRAL: NatureInfo = { name: "Serious", plus: null, minus: null }
 const ADAMANT: NatureInfo = { name: "Adamant", plus: "atk", minus: "spa" }
 
 describe("stat formula", () => {
