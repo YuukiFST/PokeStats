@@ -29,4 +29,20 @@ describe("round-trip", () => {
     expect(parseCollection(JSON.stringify({ v: 999 }))).toEqual([])
     expect(parseCollection(null)).toEqual([])
   })
+  it("dedupes rows and drops all-false and malformed rows", () => {
+    const parsed = parseCollection(
+      JSON.stringify({
+        v: 1,
+        entries: [
+          { formId: "a", owned: true, shiny: false, wanted: false },
+          { formId: "a", owned: false, shiny: true, wanted: false },
+          { formId: "b", owned: false, shiny: false, wanted: false },
+          { formId: "", owned: true },
+          null,
+          { formId: "c", owned: "yes" },
+        ],
+      }),
+    )
+    expect(parsed).toEqual([{ formId: "a", owned: true, shiny: false, wanted: false }])
+  })
 })

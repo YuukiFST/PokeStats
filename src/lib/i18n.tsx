@@ -204,6 +204,7 @@ const dict = {
     "collection.filter.wanted": "Wanted",
     "collection.filter.missing": "Missing",
     "collection.showing": "showing",
+    "collection.more": "Show more",
     "collection.unresolved": "Unresolved marks (dataset changed):",
     // Battle Mode
     "battle.opponents": "Opposing team",
@@ -614,6 +615,7 @@ const dict = {
     "collection.filter.wanted": "Desejados",
     "collection.filter.missing": "Faltantes",
     "collection.showing": "mostrando",
+    "collection.more": "Mostrar mais",
     "collection.unresolved": "Marcas não resolvidas (dataset mudou):",
     // Modo Batalha
     "battle.opponents": "Time adversário",

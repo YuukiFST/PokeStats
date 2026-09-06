@@ -44,6 +44,7 @@ type DexRowProps = {
   selected: boolean
   starred: boolean
   owned: boolean
+  ownedLabel: string
   manifest: SpriteManifest | null
   base: SpriteBase | undefined
   starAdd: string
@@ -75,7 +76,7 @@ const DexRow = React.memo(function DexRow(p: DexRowProps) {
       <span className="flex items-center gap-1 min-w-0">
         <StarButton className="h-6 w-6" active={p.starred} onToggle={() => p.onToggleStar(f.id)} label={p.starred ? p.starRemove : p.starAdd} />
         {p.owned && (
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" title="owned" aria-label="owned" />
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" title={p.ownedLabel} aria-label={p.ownedLabel} />
         )}
         <a data-nav href={`/form/${encodeURIComponent(f.id)}`} className="text-left truncate hover:underline font-medium" title={f.id}>
           {f.name}
@@ -514,6 +515,7 @@ export function DexPage() {
                 selected={selected.has(f.id)}
                 starred={starredKeys.has(`form:${f.id}`)}
                 owned={ownedIds.has(f.id)}
+                ownedLabel={t("collection.owned")}
                 manifest={manifest}
                 base={f.isBaseForm ? undefined : baseFormOf(forms, f.speciesId)}
                 starAdd={starAdd}

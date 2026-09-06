@@ -49,16 +49,17 @@ export function parseCollection(raw: string | null): CollectionEntry[] {
     const o = parsed as Record<string, unknown>
     if (o.v !== COLLECTION_VERSION || !Array.isArray(o.entries)) return []
     const out: CollectionEntry[] = []
+    const seen = new Set<string>()
     for (const row of o.entries) {
       if (!row || typeof row !== "object") continue
       const r = row as Record<string, unknown>
-      if (typeof r.formId !== "string" || r.formId.length === 0) continue
-      out.push({
-        formId: r.formId,
-        owned: r.owned === true,
-        shiny: r.shiny === true,
-        wanted: r.wanted === true,
-      })
+      if (typeof r.formId !== "string" || r.formId.length === 0 || seen.has(r.formId)) continue
+      const owned = r.owned === true
+      const shiny = r.shiny === true
+      const wanted = r.wanted === true
+      if (!owned && !shiny && !wanted) continue
+      seen.add(r.formId)
+      out.push({ formId: r.formId, owned, shiny, wanted })
     }
     return out
   } catch {

@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Link } from "@tanstack/react-router"
 import { useDataset } from "@/hooks/useDataset"
-import { useI18n } from "@/lib/i18n"
+import { useI18n, type TranslationKey } from "@/lib/i18n"
 import { useCollection } from "@/lib/collection/CollectionProvider"
 import type { CollectionFlag } from "@/lib/collection/store"
 import type { Form } from "@/lib/domain/types"
@@ -13,6 +13,16 @@ import { cn } from "@/lib/utils"
 type Filter = "all" | "owned" | "shiny" | "wanted" | "missing"
 
 const FILTERS: Filter[] = ["all", "owned", "shiny", "wanted", "missing"]
+
+const FILTER_LABEL: Record<Filter, TranslationKey> = {
+  all: "collection.filter.all",
+  owned: "collection.filter.owned",
+  shiny: "collection.filter.shiny",
+  wanted: "collection.filter.wanted",
+  missing: "collection.filter.missing",
+}
+
+const PAGE_SIZE = 200
 
 function FlagButton({
   active,
@@ -51,6 +61,7 @@ export function CollectionPage() {
   const { entry, toggle, entries } = useCollection()
   const [query, setQuery] = React.useState("")
   const [filter, setFilter] = React.useState<Filter>("all")
+  const [limit, setLimit] = React.useState(PAGE_SIZE)
 
   const forms = React.useMemo(() => (data?.core.forms as Form[] | undefined) ?? [], [data])
   const knownIds = React.useMemo(() => new Set(forms.map((f) => f.id)), [forms])
@@ -111,15 +122,15 @@ export function CollectionPage() {
         />
         <div className="flex gap-1">
           {FILTERS.map((f) => (
-            <Button key={f} variant={filter === f ? "outline" : "ghost"} size="sm" onClick={() => setFilter(f)}>
-              {t(`collection.filter.${f}` as never)}
+            <Button key={f} variant={filter === f ? "outline" : "ghost"} size="sm" onClick={() => { setFilter(f); setLimit(PAGE_SIZE) }}>
+              {t(FILTER_LABEL[f])}
             </Button>
           ))}
         </div>
       </div>
 
       <div className="grid gap-1">
-        {rows.slice(0, 200).map((f) => {
+        {rows.slice(0, limit).map((f) => {
           const e = entry(f.id)
           return (
             <div
@@ -143,9 +154,14 @@ export function CollectionPage() {
             </div>
           )
         })}
-        {rows.length > 200 && (
-          <div className="p-2 text-xs text-[var(--ds-gray-700)]">
-            {t("collection.showing")} 200/{rows.length}
+        {rows.length > limit && (
+          <div className="flex items-center gap-2 p-2 text-xs text-[var(--ds-gray-700)]">
+            <span>
+              {t("collection.showing")} {limit}/{rows.length}
+            </span>
+            <Button size="sm" variant="outline" onClick={() => setLimit((l) => l + PAGE_SIZE)}>
+              {t("collection.more")}
+            </Button>
           </div>
         )}
         {rows.length === 0 && <div className="p-4 text-sm text-[var(--ds-gray-700)]">{t("teams.noResults")}</div>}
