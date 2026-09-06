@@ -32,6 +32,7 @@ export function TypesPage() {
         t: next.length ? next.join(",") : undefined,
         view: nextAttack && next.length ? "chart" : undefined,
       } as never,
+      replace: true,
     })
   }
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { HelpTip } from "@/components/ui/helptip"
 import { SpriteThumb } from "@/components/ui/sprite"
 import { calcBST } from "@/lib/utils"
-import { moveIdForName, type LoadedDataset } from "@/lib/dataset/load"
+import { moveIdForName, ensureCatalog, type LoadedDataset } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
 import type { Form, MoveInfo } from "@/lib/domain/types"
 import { useI18n } from "@/lib/i18n"
@@ -85,6 +85,8 @@ export function MoveDetailPage() {
   const { t } = useI18n()
   const { has, toggle } = useBookmarks()
   const [showAllLearners, setShowAllLearners] = React.useState(false)
+  // Catalog now merges on idle; a fast navigation here must not wait for it.
+  React.useEffect(() => { void ensureCatalog() }, [])
 
   const resolved = React.useMemo(() => (data ? resolveMove(data, moveId) : null), [data, moveId])
 

@@ -8,7 +8,7 @@ import { HelpTip } from "@/components/ui/helptip"
 import { toSlug, cn } from "@/lib/utils"
 import type { MoveCategory, MoveInfo } from "@/lib/domain/types"
 import { TYPE_NAMES } from "@/lib/domain/typeChart"
-import { moveIdForName } from "@/lib/dataset/load"
+import { moveIdForName, ensureCatalog } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
 import { INITIAL_RECT, useRestoredScroll } from "@/hooks/useRestoredScroll"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
@@ -190,6 +190,8 @@ export function MovesPage() {
   const onToggleStar = React.useCallback((moveId: string) => toggle({ kind: "move", moveId }), [toggle])
   const starAdd = t("bookmarks.add")
   const starRemove = t("bookmarks.remove")
+  // Catalog now merges on idle; a fast navigation here must not wait for it.
+  React.useEffect(() => { void ensureCatalog() }, [])
 
   const query = search.q ?? ""
   const sortBy = (search.sort as SortKey) ?? "power"
@@ -210,7 +212,7 @@ export function MovesPage() {
           if (!next.dir || next.dir === "desc") delete next.dir
           return next as never
         },
-        replace: false,
+        replace: true,
       })
     },
     [navigate],

@@ -163,7 +163,7 @@ export function DexPage() {
           if (next.dir === "asc" || !next.dir) delete next.dir
           return next as never
         },
-        replace: false,
+        replace: true,
       })
     },
     [navigate],

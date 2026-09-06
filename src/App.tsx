@@ -57,7 +57,17 @@ function prewarmRouteChunks(): void {
 function DeferredPalette() {
   const [ready, setReady] = React.useState(false)
   React.useEffect(() => {
-    const id = window.setTimeout(() => setReady(true), 0)
+    // Off the first-paint path: the closed palette renders null, but its chunk
+    // fetch + subscriptions still cost main-thread ms before settle.
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(() => setReady(true), { timeout: 2000 })
+      return () => w.cancelIdleCallback?.(id)
+    }
+    const id = window.setTimeout(() => setReady(true), 800)
     return () => window.clearTimeout(id)
   }, [])
   if (!ready) return null

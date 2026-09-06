@@ -8,7 +8,7 @@ import { calcBST, cn } from "@/lib/utils"
 import { matchupBands, offensiveBands, TYPE_NAMES } from "@/lib/domain/typeChart"
 import { MatchupBands } from "@/components/types/MatchupBands"
 import type { TypeName } from "@/lib/domain/types"
-import { moveIdForName } from "@/lib/dataset/load"
+import { moveIdForName, ensureCatalog } from "@/lib/dataset/load"
 import { useDataset } from "@/hooks/useDataset"
 import { useI18n } from "@/lib/i18n"
 import { StarButton } from "@/components/ui/star"
@@ -26,6 +26,8 @@ export function TypeDetailPage() {
   const { data, loading, catalogReady } = useDataset()
   const { t, typeName } = useI18n()
   const { has, toggle } = useBookmarks()
+  // Catalog now merges on idle; a fast navigation here must not wait for it.
+  React.useEffect(() => { void ensureCatalog() }, [])
 
   const valid = TYPE_NAMES.includes(typeId as TypeName)
   const tt = typeId as TypeName
