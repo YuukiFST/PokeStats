@@ -4,6 +4,7 @@
  * level-scaled stats, and only from explicit user inputs.
  */
 import { defensiveProfile } from "./typeChart"
+import { natureFactor } from "./natures"
 import type { BaseStatSpread, Form, MoveInfo, NatureInfo, StatKey } from "./types"
 
 export const STAT_KEYS: StatKey[] = ["hp", "atk", "def", "spa", "spd", "spe"]
@@ -37,13 +38,6 @@ export function calcHPStat(base: number, iv: number, ev: number, level: number):
   return Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + level + 10
 }
 
-function natureMult(nature: NatureInfo, stat: StatKey): number {
-  if (stat === "hp") return 1
-  if (nature.plus === stat) return 1.1
-  if (nature.minus === stat) return 0.9
-  return 1
-}
-
 /** Full level-scaled spread for a Form under the given inputs. */
 export function finalStats(base: BaseStatSpread, inputs: CalcInputs): BaseStatSpread {
   const level = clampInt(inputs.level, 1, 100)
@@ -51,7 +45,7 @@ export function finalStats(base: BaseStatSpread, inputs: CalcInputs): BaseStatSp
   for (const k of STAT_KEYS) {
     const iv = clampInt(inputs.ivs[k] ?? 31, 0, 31)
     const ev = clampInt(inputs.evs[k] ?? 0, 0, MAX_EV_STAT)
-    out[k] = k === "hp" ? calcHPStat(base[k], iv, ev, level) : calcStat(base[k], iv, ev, level, natureMult(inputs.nature, k))
+    out[k] = k === "hp" ? calcHPStat(base[k], iv, ev, level) : calcStat(base[k], iv, ev, level, natureFactor(inputs.nature, k))
   }
   return out
 }
@@ -94,7 +88,9 @@ export function damageRange(
   const atkStat = move.category === "Physical" ? attacker.stats.atk : attacker.stats.spa
   const defStat = move.category === "Physical" ? defender.stats.def : defender.stats.spd
   const safeDef = Math.max(1, defStat)
-  const base = Math.floor(Math.floor(Math.floor(((2 * attacker.level) / 5 + 2) * move.power * (atkStat / safeDef)) / 50) + 2)
+  const level = clampInt(attacker.level, 1, 100)
+  const levelTerm = Math.floor((2 * level) / 5) + 2
+  const base = Math.floor(Math.floor((levelTerm * move.power * atkStat) / safeDef) / 50) + 2
   const mod = (stab ? 1.5 : 1) * effectiveness
   if (mod === 0) return { min: 0, max: 0, defenderHP, koChance: 0, stab, effectiveness }
   let kos = 0

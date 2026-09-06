@@ -216,7 +216,7 @@ export function FormDetailPage() {
             <div className="mt-3 text-xs text-[var(--ds-gray-700)]">{t("detail.abilities")} {form.abilities.slot0}{form.abilities.slot1 ? ` / ${form.abilities.slot1}` : ""}{form.abilities.hidden ? ` (H: ${form.abilities.hidden})` : ""}</div>
           </section>
 
-          <StatCalculator form={form} sets={sets} data={data} />
+          <StatCalculator key={form.id} form={form} sets={sets} data={data} />
 
           <section className="rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] p-4">
             <h2 className="text-sm font-semibold mb-3">{t("detail.defensiveProfile")}</h2>

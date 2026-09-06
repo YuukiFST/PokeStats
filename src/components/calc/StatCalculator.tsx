@@ -14,7 +14,7 @@ import {
 } from "@/lib/domain/calc"
 import type { BaseStatSpread, Form, Set, StatKey } from "@/lib/domain/types"
 import { STAT_LABEL } from "@/lib/utils"
-import { moveIdForName } from "@/lib/dataset/load"
+import { ensureCatalog, resolveMoveInfo } from "@/lib/dataset/load"
 import { SpriteThumb } from "@/components/ui/sprite"
 
 interface SideState {
@@ -27,12 +27,8 @@ interface SideState {
 const DEFAULT_SIDE: SideState = { level: 100, nature: "Serious", evs: {}, ivs: {} }
 
 function toInputs(s: SideState): CalcInputs {
-  return {
-    level: s.level,
-    nature: NATURES.find((n) => n.name === s.nature) ?? NATURES[0]!,
-    evs: s.evs,
-    ivs: s.ivs,
-  }
+  const nature = NATURES.find((n) => n.name === s.nature) ?? NATURES.find((n) => n.plus === null)!
+  return { level: s.level, nature, evs: s.evs, ivs: s.ivs }
 }
 
 function prefillFromSet(set: Set | undefined): Partial<SideState> {
@@ -218,14 +214,19 @@ export function StatCalculator({ form, sets, data }: { form: Form; sets: Set[]; 
   const [def, setDef] = React.useState<SideState>(DEFAULT_SIDE)
   const [moveName, setMoveName] = React.useState<string | null>(null)
 
-  const atkSets = React.useMemo(() => sets, [sets])
+  // Move rows arrive with the catalog on idle; kick the merge on mount so a
+  // fast navigation straight here never waits for it.
+  React.useEffect(() => {
+    void ensureCatalog().catch((e) => console.warn("[dataset] catalog", e))
+  }, [])
+
   const movePool = React.useMemo(() => {
     const names = new Set<string>()
-    for (const s of atkSets) for (const options of s.moves) for (const m of options) names.add(m)
+    for (const s of sets) for (const options of s.moves) for (const m of options) names.add(m)
     return [...names].sort((a, b) => a.localeCompare(b))
-  }, [atkSets])
-  const pickedMove = moveName ?? movePool[0] ?? null
-  const moveInfo = pickedMove ? (data.movesById.get(moveIdForName(pickedMove)) ?? null) : null
+  }, [sets])
+  const pickedMove = moveName && movePool.includes(moveName) ? moveName : (movePool[0] ?? null)
+  const moveInfo = pickedMove ? (resolveMoveInfo(data.movesByName, pickedMove) ?? null) : null
 
   const atkStats = React.useMemo(() => finalStats(form.baseStats, toInputs(atk)), [form, atk])
   const defSets = React.useMemo(() => data.setsByFormId.get(defForm.id) ?? [], [data, defForm.id])
@@ -238,14 +239,19 @@ export function StatCalculator({ form, sets, data }: { form: Form; sets: Set[]; 
 
   const koPct = est && est.koChance !== null ? Math.round(est.koChance * 100) : null
   const maxPct = est && est.max !== null ? Math.round((est.max / est.defenderHP) * 100) : null
+  const noEstimate = moveInfo !== null && moveInfo.category !== "Status" && moveInfo.power === null
   const verdict = est
-    ? est.min === null || est.max === null
-      ? t("calc.statusMove")
-      : est.koChance === 1
-        ? t("calc.guaranteedKo")
-        : (est.koChance ?? 0) > 0
-          ? `${t("calc.possibleKo")} ${koPct}%`
-          : `${t("calc.noKo")} ${maxPct}%)`
+    ? est.effectiveness === 0
+      ? t("calc.immune")
+      : est.min === null || est.max === null || noEstimate
+        ? moveInfo?.category === "Status"
+          ? t("calc.statusMove")
+          : t("calc.noEstimate")
+        : est.koChance === 1
+          ? t("calc.guaranteedKo")
+          : (est.koChance ?? 0) > 0
+            ? `${t("calc.possibleKo")} ${koPct}%`
+            : `${t("calc.noKo")} ${maxPct}%)`
     : null
 
   return (
@@ -253,7 +259,7 @@ export function StatCalculator({ form, sets, data }: { form: Form; sets: Set[]; 
       <h2 className="text-sm font-semibold mb-1">{t("calc.title")}</h2>
       <p className="mb-3 text-xs text-[var(--ds-gray-700)]">{t("calc.assumptions")}</p>
       <div className="flex flex-wrap gap-3">
-        <SideEditor title={t("calc.attacker")} form={form} state={atk} onChange={setAtk} sets={atkSets} prefillLabel={t("calc.prefill")} />
+        <SideEditor title={t("calc.attacker")} form={form} state={atk} onChange={setAtk} sets={sets} prefillLabel={t("calc.prefill")} />
         <SideEditor
           title={t("calc.defender")}
           form={defForm}
@@ -280,20 +286,24 @@ export function StatCalculator({ form, sets, data }: { form: Form; sets: Set[]; 
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-        <label className="flex items-center gap-1 text-xs">
-          {t("calc.move")}
-          <select
-            value={pickedMove ?? ""}
-            onChange={(e) => setMoveName(e.target.value || null)}
-            className="h-7 max-w-[220px] rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] px-1 text-xs"
-          >
-            {movePool.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </label>
+        {movePool.length === 0 ? (
+          <span className="text-xs text-[var(--ds-gray-700)]">{t("calc.noMoves")}</span>
+        ) : (
+          <label className="flex items-center gap-1 text-xs">
+            {t("calc.move")}
+            <select
+              value={pickedMove ?? ""}
+              onChange={(e) => setMoveName(e.target.value || null)}
+              className="h-7 max-w-[220px] rounded-md border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] px-1 text-xs"
+            >
+              {movePool.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         {moveInfo ? (
           <span className="text-xs text-[var(--ds-gray-700)]">
             {moveInfo.type} · {moveInfo.category} · {t("calc.power")} {moveInfo.power ?? "—"}
@@ -316,7 +326,7 @@ export function StatCalculator({ form, sets, data }: { form: Form; sets: Set[]; 
           )}
         </div>
       )}
-      {verdict && (est?.min === null || moveInfo?.category === "Status") && (
+      {verdict && (est?.min === null || noEstimate || est?.effectiveness === 0) && (
         <div className="mt-2 text-xs text-[var(--ds-gray-700)]">{verdict}</div>
       )}
     </section>
