@@ -24,6 +24,9 @@ interface Props {
   /** Controlled via URL ?mode= so Back from a counter's detail page rebuilds the exact view. */
   counterMode: CounterMode
   onCounterModeChange: (mode: CounterMode) => void
+  /** Persisted pins (oppId -> formIds); local state starts from here. */
+  initialPins?: Record<string, string[]>
+  onPinsChange?: (pins: Record<string, string[]>) => void
 }
 
 const VERDICT_CHIP: Record<string, string> = {
@@ -292,12 +295,16 @@ const OpponentCard = React.memo(function OpponentCard(p: OpponentCardProps) {
  * who hits hard (STAB proxy), which attack Types are recommended or wasted,
  * and what the opponent threatens back. Extra attacker Types are optional.
  */
-export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode, onCounterModeChange }: Props) {
+export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode, onCounterModeChange, initialPins, onPinsChange }: Props) {
   const { t, typeName } = useI18n()
   const [query, setQuery] = React.useState("")
   const [extraTypes, setExtraTypes] = React.useState<Set<TypeName>>(new Set())
-  /** Pinned counter FormIds per opponent (local, beta): pinned cards render first and survive rotation. */
-  const [pinnedCounters, setPinnedCounters] = React.useState<Map<string, Set<string>>>(new Map())
+  /** Pinned counter FormIds per opponent: seeded from the team, persisted on every toggle. */
+  const [pinnedCounters, setPinnedCounters] = React.useState<Map<string, Set<string>>>(() => {
+    const m = new Map<string, Set<string>>()
+    for (const [oppId, ids] of Object.entries(initialPins ?? {})) m.set(oppId, new Set(ids))
+    return m
+  })
   /** Ranked-window index per opponent ("rotate" button cycles other candidates in). */
   const [counterOffset, setCounterOffset] = React.useState<Map<string, number>>(new Map())
 
@@ -307,10 +314,20 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
       const set = new Set(next.get(oppId) ?? [])
       if (set.has(formId)) set.delete(formId)
       else set.add(formId)
-      next.set(oppId, set)
+      if (set.size === 0) next.delete(oppId)
+      else next.set(oppId, set)
       return next
     })
   }, [])
+
+  // Persist pins to the team (mount included: seeds storage with the same content).
+  const pinsChangeRef = React.useRef(onPinsChange)
+  pinsChangeRef.current = onPinsChange
+  React.useEffect(() => {
+    const serial: Record<string, string[]> = {}
+    for (const [k, v] of pinnedCounters) if (v.size > 0) serial[k] = [...v]
+    pinsChangeRef.current?.(serial)
+  }, [pinnedCounters])
 
   const rotateCounters = React.useCallback((oppId: string) => {
     setCounterOffset((prev) => {
@@ -351,6 +368,13 @@ export function ThreatMatchup({ team, members, data, ptBR, onChange, counterMode
   }
 
   const removeOpponent = React.useCallback((id: string) => {
+    // Drop its local pins too so a re-add starts clean (storage is pruned alongside).
+    setPinnedCounters((prev) => {
+      if (!prev.has(id)) return prev
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
     onChange((team.opponents ?? []).filter((o) => o !== id))
   }, [onChange, team.opponents])
 

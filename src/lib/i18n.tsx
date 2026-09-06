@@ -119,6 +119,9 @@ const dict = {
     "teams.applyImport": "Apply",
     "teams.importUnmatched": "Not matched:",
     "teams.importEmpty": "No entries recognized.",
+    "teams.changed": "Team updated",
+    "teams.changeOut": "Out:",
+    "teams.changeIn": "In:",
     // Stat calculator
     "calc.title": "Stat Calculator",
     "calc.assumptions": "Gen 5+ formula. No crit, burn, weather, screens, Abilities or Tera. Damage spread is the exact 16-roll table.",
@@ -531,6 +534,9 @@ const dict = {
     "teams.applyImport": "Aplicar",
     "teams.importUnmatched": "Não encontrados:",
     "teams.importEmpty": "Nenhuma entrada reconhecida.",
+    "teams.changed": "Time atualizado",
+    "teams.changeOut": "Saíram:",
+    "teams.changeIn": "Entraram:",
     // Calculadora de status
     "calc.title": "Calculadora de Status",
     "calc.assumptions": "Fórmula Gen 5+. Sem crit, burn, clima, screens, Abilities ou Tera. O spread de dano é a tabela exata de 16 rolls.",

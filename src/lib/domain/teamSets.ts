@@ -54,6 +54,19 @@ export interface ResolvedMember {
   set: PokeSet | null
 }
 
+/** Drop pin entries for opponents no longer on the team. */
+export function prunePinnedCounters(
+  pins: Record<string, string[]> | undefined,
+  keepOppIds: ReadonlySet<string>,
+): Record<string, string[]> | undefined {
+  if (!pins) return undefined
+  const out: Record<string, string[]> = {}
+  for (const [oppId, ids] of Object.entries(pins)) {
+    if (keepOppIds.has(oppId) && ids.length > 0) out[oppId] = ids
+  }
+  return out
+}
+
 export interface TeamValidation {
   /** Item names (as written) held by more than one member. */
   duplicateItems: string[]
