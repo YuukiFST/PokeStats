@@ -17,6 +17,8 @@ export const INITIAL_RECT = {
  *   the rows at the saved position (no double-rAF jump).
  * - The layout effect sets scrollTop before paint once `ready` is true.
  * - Position is persisted on `scrollend` (Chromium) or rAF-coalesced `scroll`.
+ * - localStorage (not sessionStorage) so the offset survives an app restart
+ *   alongside the restored workspace tabs.
  */
 export function useRestoredScroll(
   ref: React.RefObject<HTMLElement | null>,
@@ -25,7 +27,10 @@ export function useRestoredScroll(
 ): { initialOffset: number; saveNow: () => void } {
   const initial = React.useRef<number | null>(null)
   if (initial.current === null) {
-    const raw = sessionStorage.getItem(key)
+    let raw: string | null = null
+    try {
+      raw = localStorage.getItem(key)
+    } catch {}
     const n = raw === null ? 0 : Number(raw)
     initial.current = Number.isFinite(n) && n > 0 ? n : 0
   }
@@ -33,7 +38,10 @@ export function useRestoredScroll(
 
   const saveNow = React.useCallback(() => {
     const el = ref.current
-    if (el) sessionStorage.setItem(key, String(el.scrollTop))
+    if (!el) return
+    try {
+      localStorage.setItem(key, String(el.scrollTop))
+    } catch {}
   }, [ref, key])
 
   React.useLayoutEffect(() => {
@@ -43,7 +51,11 @@ export function useRestoredScroll(
       restored.current = true
       if (initial.current) el.scrollTop = initial.current
     }
-    const save = () => sessionStorage.setItem(key, String(el.scrollTop))
+    const save = () => {
+      try {
+        localStorage.setItem(key, String(el.scrollTop))
+      } catch {}
+    }
     if ("onscrollend" in window) {
       el.addEventListener("scrollend", save, { passive: true })
       return () => el.removeEventListener("scrollend", save)

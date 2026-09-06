@@ -203,7 +203,6 @@ const router = createRouter({
   routeTree,
   scrollRestoration: ({ location }) => !VIRTUALIZED_LIST_ROUTES.includes(location.pathname),
 })
-router.history.push = router.history.replace.bind(router.history)
 
 declare module "@tanstack/react-router" {
   interface Register {
