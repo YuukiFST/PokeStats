@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { countSetsByHeldItem, ITEM_KINDS, itemIdForName } from "@/lib/domain/items"
 import type { ItemKind } from "@/lib/domain/types"
 import { useDataset } from "@/hooks/useDataset"
+import { ensureCatalog } from "@/lib/dataset/load"
 import { INITIAL_RECT, useRestoredScroll } from "@/hooks/useRestoredScroll"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 
@@ -36,6 +37,8 @@ export function ItemsPage() {
   const navigate = useNavigate()
   const { data, loading, error, extrasReady, catalogReady } = useDataset()
   const { t } = useI18n()
+  // Catalog now merges on idle; a fast navigation here must not wait for it.
+  React.useEffect(() => { void ensureCatalog().catch((e) => console.warn("[dataset] catalog", e)) }, [])
   const [inputValue, setInputValue] = React.useState(search.q ?? "")
   const deferredQuery = React.useDeferredValue(inputValue)
 
@@ -47,13 +50,13 @@ export function ItemsPage() {
     const id = window.setTimeout(() => {
       const q = inputValue.trim() || undefined
       if (q === search.q) return
-      navigate({ to: "/items", search: { ...search, q } as never })
+      navigate({ to: "/items", search: { ...search, q } as never, replace: true })
     }, 200)
     return () => window.clearTimeout(id)
   }, [inputValue, navigate, search])
 
   const setSearch = (patch: Partial<ItemsSearch>) => {
-    navigate({ to: "/items", search: { ...search, ...patch } as never })
+    navigate({ to: "/items", search: { ...search, ...patch } as never, replace: true })
   }
 
   const usedCounts = React.useMemo(() => {

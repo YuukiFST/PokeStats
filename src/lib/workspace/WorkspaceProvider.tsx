@@ -10,11 +10,15 @@ import {
   goBack,
   hrefOf,
   openTab,
-  pushInTab,
+  parseWorkspaceSnapshot,
   replaceInTab,
+  resolveHistoryNavigation,
+  serializeWorkspace,
   snapshotFromHref,
   snapshotFromRouter,
+  WORKSPACE_STORAGE_KEY,
   type LocationSnapshot,
+  type TraverseCause,
   type WorkspaceState,
 } from "./state"
 
@@ -73,11 +77,67 @@ function internalAnchor(target: EventTarget | null): HTMLAnchorElement | null {
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { t } = useI18n()
-  const [state, setState] = React.useState<WorkspaceState>(() =>
-    createInitialState(snapshotFromUnknownLocation(router.state.location)),
-  )
+  const [state, setState] = React.useState<WorkspaceState>(() => {
+    const fallback = snapshotFromUnknownLocation(router.state.location)
+    try {
+      return parseWorkspaceSnapshot(localStorage.getItem(WORKSPACE_STORAGE_KEY), fallback) ?? createInitialState(fallback)
+    } catch {
+      return createInitialState(fallback)
+    }
+  })
   const stateRef = React.useRef(state)
   const [menu, setMenu] = React.useState<{ x: number; y: number; loc: LocationSnapshot } | null>(null)
+  const restoredNav = React.useRef(false)
+  // Last raw history action (PUSH/REPLACE from clicks, BACK/FORWARD from
+  // native traversals such as Mouse4). Recorded synchronously on notify, read
+  // later when the matching navigation resolves.
+  const historyActionRef = React.useRef<{ type: string; delta?: number }>({ type: "REPLACE" })
+
+  React.useEffect(() => {
+    return router.history.subscribe((evt) => {
+      const action = (evt as unknown as { action?: { type?: unknown; index?: unknown } }).action
+      if (action && typeof action.type === "string") {
+        historyActionRef.current = {
+          type: action.type,
+          delta: typeof action.index === "number" ? action.index : undefined,
+        }
+      }
+    })
+  }, [router])
+
+  // Pushes a trap entry holding the current URL so the next native Back
+  // (Mouse4) always produces a trappable pop instead of leaving the app.
+  // Same-URL, so the onResolved subscription below ignores it.
+  const pushTrap = React.useCallback(() => {
+    try {
+      router.history.push(hrefOf(currentLocation(stateRef.current!)))
+    } catch {}
+  }, [router])
+
+  // Browser-like session restore: on first mount, navigate to the restored
+  // active tab, then trap the first Back. Both target the current location,
+  // so the onResolved subscription below ignores them.
+  React.useEffect(() => {
+    if (restoredNav.current) return
+    restoredNav.current = true
+    const s = stateRef.current!
+    const href = hrefOf(currentLocation(s))
+    const searchStr = router.state.location.searchStr ?? ""
+    const cur = router.state.location.pathname + (searchStr === "?" ? "" : searchStr)
+    if (cur !== href) router.history.replace(href)
+    pushTrap()
+  }, [router, pushTrap])
+
+  // Persist every workspace change so closing the app keeps all tabs.
+  // A failure keeps the previous snapshot (setItem is atomic); warn so a
+  // silently stale restore is diagnosable.
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(WORKSPACE_STORAGE_KEY, serializeWorkspace(state))
+    } catch (e) {
+      console.warn("[workspace] persist failed", e)
+    }
+  }, [state])
 
   React.useEffect(() => {
     stateRef.current = state
@@ -139,27 +199,32 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const unsub = router.subscribe("onResolved", (evt: { fromLocation?: { pathname: string; href?: string; searchStr?: string } }) => {
       const s = stateRef.current
       const to = snapshotFromUnknownLocation(router.state.location)
-      if (hrefOf(to) === hrefOf(currentLocation(s))) return
       const from = evt.fromLocation ? snapshotFromUnknownLocation(evt.fromLocation) : currentLocation(s)
-      if (hrefOf(from) === hrefOf(to)) return
-      const next = from.pathname === to.pathname ? replaceInTab(s, to) : pushInTab(s, to)
-      setState(next)
-      stateRef.current = next
+      const raw = historyActionRef.current
+      // Programmatic navigations (tab switch, in-app back, close, restore)
+      // always target the already-current location: ignore them here.
+      if (hrefOf(to) === hrefOf(currentLocation(s)) || hrefOf(from) === hrefOf(to)) return
+      // GO carries a relative delta as `index` (verified against
+      // @tanstack/history 1.162.1: SubscriberArgs action { type, index: delta }).
+      const cause: TraverseCause =
+        raw.type === "BACK" ? "traverse-back"
+        : raw.type === "FORWARD" || (raw.type === "GO" && (raw.delta ?? -1) > 0) ? "traverse-forward"
+        : raw.type === "GO" ? "traverse-back"
+        : "navigate"
+      const res = resolveHistoryNavigation(s, from, to, cause)
+      if (res.state) {
+        setState(res.state)
+        stateRef.current = res.state
+      }
+      if (res.navigateHref) {
+        // The traversal landed somewhere the workspace does not track (stale
+        // bottom-of-stack entry): hold the workspace view and re-trap.
+        router.history.replace(res.navigateHref)
+        pushTrap()
+      }
     })
     return unsub
-  }, [router])
-
-  React.useEffect(() => {
-    window.history.pushState({ pokestatsWorkspace: true }, "", window.location.href)
-    const onPop = () => {
-      const s = stateRef.current!
-      if (canGoBack(s)) apply(goBack(s), true)
-      // Keep a sentinel entry so Back at stack start stays in the app.
-      window.history.pushState({ pokestatsWorkspace: true }, "", window.location.href)
-    }
-    window.addEventListener("popstate", onPop)
-    return () => window.removeEventListener("popstate", onPop)
-  }, [apply])
+  }, [router, pushTrap])
 
   React.useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -169,7 +234,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         e.preventDefault()
         e.stopPropagation()
         const href = a.getAttribute("href")
-        if (href) router.history.replace(href)
+        // Real push (not replace) so native Back traverses in-app pages.
+        if (href) router.history.push(href)
         return
       }
       if (e.button === 1 || e.ctrlKey || e.metaKey) {

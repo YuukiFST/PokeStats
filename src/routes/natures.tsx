@@ -15,7 +15,7 @@ export function NaturesPage() {
     NATURES.find((n) => n.name === search.n) ?? NATURES.find((n) => n.name === "Timid")!
 
   const pick = (n: NatureInfo) => {
-    navigate({ to: "/natures", search: { n: n.name } as never })
+    navigate({ to: "/natures", search: { n: n.name } as never, replace: true })
   }
 
   return (

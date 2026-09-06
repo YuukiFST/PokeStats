@@ -18,6 +18,10 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "resources": {
+      "../public/sprites/still": "sprites/still",
+      "../public/sprites/ani": "sprites/ani"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

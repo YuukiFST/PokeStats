@@ -3,9 +3,13 @@
  * Wired via package.json "prune-dist" (tauri.conf beforeBuildCommand), so it runs
  * for every `tauri build` (debug and release) regardless of the caller's cwd.
  *
- * Sprites (public/sprites/ani) are part of the product: they stay embedded in
- * every build so the app works fully offline. Only the dataset pretty-print dump
- * (human-inspection artifact, no consumer) is stripped.
+ * Offline rule: the app works fully offline. Row/detail sprites (still/, ani/)
+ * ship as bundle.resources sidecars served over the `sprite://` custom scheme
+ * (see src-tauri/src/lib.rs), so they are stripped from the embedded dist to
+ * keep the exe small: a cold launch maps/scans ~10MB instead of ~117MB.
+ * manifest.json and the category icons stay embedded. Also stripped: the
+ * dataset pretty-print dump (no consumer) and the logo source PNGs
+ * (nothing references logo-source*.png; the app ships logo.webp).
  */
 import { rmSync, existsSync } from "node:fs"
 import { resolve, dirname } from "node:path"
@@ -18,10 +22,18 @@ if (!existsSync(DIST)) {
   process.exit(1)
 }
 
-for (const name of ["core.pretty.json", "core.json"]) {
-  const p = resolve(DIST, "dataset", name)
+for (const rel of ["dataset/core.pretty.json", "dataset/core.json", "logo-source.png", "logo-source-clean.png"]) {
+  const p = resolve(DIST, rel)
   if (existsSync(p)) {
     rmSync(p, { force: true })
-    console.log(`[prune-dist] removed dist/dataset/${name}`)
+    console.log(`[prune-dist] removed dist/${rel}`)
+  }
+}
+
+for (const rel of ["sprites/still", "sprites/ani"]) {
+  const p = resolve(DIST, rel)
+  if (existsSync(p)) {
+    rmSync(p, { force: true, recursive: true })
+    console.log(`[prune-dist] removed dist/${rel}/ (bundle.resources sidecar)`)
   }
 }

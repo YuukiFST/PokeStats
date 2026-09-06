@@ -23,10 +23,55 @@ export function showdownAliasFromName(name: string): string {
 export type SpriteBase = { id: string; name: string; speciesId: number }
 
 export type SpriteKind = "thumb" | "full"
-
 export interface SpriteManifest {
   version: number
   forms: Record<string, { still?: boolean; ani?: boolean }>
+}
+
+/**
+ * Where row/detail sprite bytes come from. The packaged app keeps
+ * still/ani out of the embedded binary (bundle.resources sidecar) and serves
+ * them over a custom `sprite` scheme so a cold launch maps/scans a ~10MB exe
+ * instead of ~117MB (see register_uri_scheme_protocol in
+ * src-tauri/src/lib.rs). Packaged Windows loads from http://tauri.localhost,
+ * whose WebView only fetches http(s), so the frontend requests the wry
+ * workaround form `http://sprite.localhost/…` there. Packaged macOS/Linux
+ * load from tauri://localhost (no port), where the custom scheme is
+ * fetchable directly as `sprite://localhost/…`. Dev, preview and any plain
+ * browser keep `/sprites/` served by Vite from public/.
+ */
+function spriteBase(): string {
+  if (typeof window !== "undefined") {
+    const w = window as Window & { __TAURI_INTERNALS__?: unknown; __TAURI__?: unknown }
+    const underTauri = "__TAURI_INTERNALS__" in w || "__TAURI__" in w
+    if (underTauri) {
+      const h = window.location.hostname
+      if (h !== "localhost" && h !== "127.0.0.1" && h !== "[::1]") return "http://sprite.localhost/sprites/"
+      // No port means a packaged non-Windows build (dev servers always carry
+      // one), where the custom scheme resolves directly.
+      if (!window.location.port) return "sprite://localhost/sprites/"
+    }
+  }
+  return "/sprites/"
+}
+
+/** Lifetime image-load failures (broken custom-scheme serving shows up here). */
+export function noteSpriteFail(): void {
+  try {
+    const w = window as Window & { __POKESTATS_SPRITE_FAILS__?: number }
+    w.__POKESTATS_SPRITE_FAILS__ = (w.__POKESTATS_SPRITE_FAILS__ ?? 0) + 1
+  } catch {
+    // never break rendering for observability
+  }
+}
+
+export function spriteFailCount(): number {
+  try {
+    const w = window as Window & { __POKESTATS_SPRITE_FAILS__?: number }
+    return w.__POKESTATS_SPRITE_FAILS__ ?? 0
+  } catch {
+    return 0
+  }
 }
 
 const EMPTY_MANIFEST: SpriteManifest = { version: 1, forms: {} }
@@ -99,6 +144,7 @@ export function spriteUrls(
   const baseFallbackUrls = new Set<string>()
   const own = manifest.forms[form.id]
   const baseEntry = base ? manifest.forms[base.id] : undefined
+  const root = spriteBase()
 
   const take = (url: string, fromBase: boolean) => {
     list.push(url)
@@ -106,13 +152,13 @@ export function spriteUrls(
   }
 
   if (kind === "thumb") {
-    if (own?.still) take(`/sprites/still/${form.id}.png`, false)
-    else if (base && baseEntry?.still) take(`/sprites/still/${base.id}.png`, true)
+    if (own?.still) take(`${root}still/${form.id}.png`, false)
+    else if (base && baseEntry?.still) take(`${root}still/${base.id}.png`, true)
   } else {
-    if (own?.ani) take(`/sprites/ani/${form.id}.gif`, false)
-    else if (own?.still) take(`/sprites/still/${form.id}.png`, false)
-    else if (base && baseEntry?.ani) take(`/sprites/ani/${base.id}.gif`, true)
-    else if (base && baseEntry?.still) take(`/sprites/still/${base.id}.png`, true)
+    if (own?.ani) take(`${root}ani/${form.id}.gif`, false)
+    else if (own?.still) take(`${root}still/${form.id}.png`, false)
+    else if (base && baseEntry?.ani) take(`${root}ani/${base.id}.gif`, true)
+    else if (base && baseEntry?.still) take(`${root}still/${base.id}.png`, true)
   }
   return { list, baseFallbackUrls }
 }

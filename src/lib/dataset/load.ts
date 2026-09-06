@@ -121,6 +121,7 @@ export function withExtras(
 
 let cache: LoadedDataset | null = null
 let coreInflight: Promise<LoadedDataset> | null = null
+let catalogInflight: Promise<void> | null = null
 let extrasInflight: Promise<void> | null = null
 const listeners = new Set<() => void>()
 
@@ -231,6 +232,27 @@ async function loadCatalogPayload(coreFallback: DatasetCore | null): Promise<Dat
   return coreFallback ?? fetchJson<DatasetCatalog>("/dataset/catalog.json")
 }
 
+/**
+ * Fetch + merge moves/items/… on demand. Startup leaves this to idle (phase 5:
+ * the Dex first paint needs only dex.json); catalog-gated pages kick it on
+ * mount so fast navigation never waits for the idle slot.
+ */
+export function ensureCatalog(): Promise<void> {
+  if (cache?.catalogReady) return Promise.resolve()
+  if (catalogInflight) return catalogInflight
+
+  catalogInflight = (async () => {
+    const catalog = await loadCatalogPayload(null)
+    if (!cache || !catalog || cache.catalogReady) return
+    cache = withExtras(applyCatalog(cache, catalog), cache.sets, cache.learnsets, cache.extrasReady)
+    notifyDataset()
+  })()
+
+  return catalogInflight.finally(() => {
+    catalogInflight = null
+  })
+}
+
 export async function loadDataset(): Promise<LoadedDataset> {
   if (cache) return cache
   if (coreInflight) return coreInflight
@@ -261,11 +283,13 @@ export async function loadDataset(): Promise<LoadedDataset> {
     if (coreFallback) {
       scheduleIdle(() => { void ensureExtras() })
     } else {
-      const catalogP = loadCatalogPayload(null)
-      void catalogP
-        .then(mergeCatalog)
-        .catch((e) => console.warn("[dataset] catalog", e))
-        .finally(() => scheduleIdle(() => { void ensureExtras() }))
+      // Catalog parse + merge stays off the first-paint path; catalog-gated
+      // pages kick ensureCatalog() on mount for fast navigation.
+      scheduleIdle(() => {
+        void ensureCatalog()
+          .catch((e) => console.warn("[dataset] catalog", e))
+          .finally(() => scheduleIdle(() => { void ensureExtras() }))
+      })
     }
     return cache
   })()

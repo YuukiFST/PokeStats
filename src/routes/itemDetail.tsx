@@ -8,6 +8,7 @@ import { useWorkspace } from "@/lib/workspace/WorkspaceProvider"
 import { itemIdForName, setsUsingItem } from "@/lib/domain/items"
 import type { ItemKind } from "@/lib/domain/types"
 import { useDataset } from "@/hooks/useDataset"
+import { ensureCatalog } from "@/lib/dataset/load"
 import { useI18n, type TranslationKey } from "@/lib/i18n"
 
 const KIND_KEY: Record<ItemKind, TranslationKey> = {
@@ -26,6 +27,8 @@ export function ItemDetailPage() {
   const { back } = useWorkspace()
   const { data, loading, extrasReady, catalogReady } = useDataset()
   const { t } = useI18n()
+  // Catalog now merges on idle; a fast navigation here must not wait for it.
+  React.useEffect(() => { void ensureCatalog().catch((e) => console.warn("[dataset] catalog", e)) }, [])
 
   const item = data?.itemsById.get(itemId) ?? null
   const uses = React.useMemo(() => {
